@@ -69,7 +69,7 @@ export default function Header({ navigateTo, language, changeLanguage }) {
               }}
               className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
-              หน้าแรก
+              {t('home', language)}
             </button>
             <button
               onClick={() => {
@@ -78,7 +78,7 @@ export default function Header({ navigateTo, language, changeLanguage }) {
               }}
               className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
-              เกี่ยวกับเรา
+              {t('about', language)}
             </button>
             <button
               onClick={() => {
@@ -87,7 +87,7 @@ export default function Header({ navigateTo, language, changeLanguage }) {
               }}
               className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
-              ประกาศ
+              {t('notice', language)}
             </button>
             <button
               onClick={() => {
@@ -96,7 +96,7 @@ export default function Header({ navigateTo, language, changeLanguage }) {
               }}
               className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
-              FAQ
+              {t('faq', language)}
             </button>
             <button
               onClick={() => {

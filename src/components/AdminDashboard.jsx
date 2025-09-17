@@ -95,12 +95,14 @@ export default function AdminDashboard({ navigateTo }) {
   ];
 
   const menuItems = [
+    { id: 'pages', label: 'Pages', icon: '📄', desc: 'Manage all website pages' },
+    { id: 'banners', label: 'Banners', icon: '🖼️', desc: 'Hero, middle & bottom banners' },
     { id: 'branding', label: 'Branding', icon: '🎨', desc: 'Logo, colors, site identity' },
     { id: 'features', label: 'Features', icon: '⭐', desc: 'Manage feature highlights' },
     { id: 'gallery', label: 'Gallery', icon: '📸', desc: 'Instagram gallery management' },
-    { id: 'slider', label: 'Hero Slider', icon: '🖼️', desc: 'Homepage slider images' },
     { id: 'products', label: 'Products', icon: '📦', desc: 'Product catalog' },
-    { id: 'notices', label: 'Notices', icon: '📢', desc: 'Announcements & news' },
+    { id: 'faqs', label: 'FAQs', icon: '❓', desc: 'Manage FAQ content' },
+    { id: 'how-to', label: 'How To Use', icon: '📋', desc: 'Usage instructions' },
     { id: 'orders', label: 'Orders', icon: '🛒', desc: 'Customer orders' },
     { id: 'settings', label: 'Settings', icon: '⚙️', desc: 'Site configuration' }
   ];
@@ -271,6 +273,252 @@ export default function AdminDashboard({ navigateTo }) {
 
         {/* Content Area */}
         <main className="flex-1 p-8 overflow-y-auto">
+          {activeTab === 'pages' && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Page Management</h3>
+                  <p className="text-gray-600">Create and manage all website pages dynamically</p>
+                </div>
+                <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+                  + Create New Page
+                </button>
+              </div>
+
+              {/* Page List */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {[
+                  { id: 1, title: 'About Us', slug: 'about-us', type: 'page', status: 'published', blocks: 3 },
+                  { id: 2, title: 'How to Use', slug: 'how-to-use', type: 'page', status: 'published', blocks: 5 },
+                  { id: 3, title: 'FAQ', slug: 'faq', type: 'page', status: 'published', blocks: 8 },
+                  { id: 4, title: 'Contact Us', slug: 'contact', type: 'page', status: 'published', blocks: 2 }
+                ].map((page) => (
+                  <div key={page.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-800 mb-1">{page.title}</h4>
+                        <p className="text-sm text-gray-500">/{page.slug}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        page.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {page.status}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                      <span className="flex items-center gap-1">
+                        📄 {page.type}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        🧩 {page.blocks} blocks
+                      </span>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <button className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors font-medium">
+                        Edit Content
+                      </button>
+                      <button className="bg-gray-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-600 transition-colors font-medium">
+                        View
+                      </button>
+                      <button className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-600 transition-colors font-medium">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Pages</p>
+                      <p className="text-2xl font-bold text-gray-800">12</p>
+                    </div>
+                    <div className="text-3xl">📄</div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Published</p>
+                      <p className="text-2xl font-bold text-green-600">10</p>
+                    </div>
+                    <div className="text-3xl">✅</div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Drafts</p>
+                      <p className="text-2xl font-bold text-yellow-600">2</p>
+                    </div>
+                    <div className="text-3xl">📝</div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Content Blocks</p>
+                      <p className="text-2xl font-bold text-blue-600">45</p>
+                    </div>
+                    <div className="text-3xl">🧩</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'banners' && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Banner Management</h3>
+                  <p className="text-gray-600">Manage hero, middle, and bottom section banners</p>
+                </div>
+                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+                  + Add New Banner
+                </button>
+              </div>
+
+              {/* Banner Sections */}
+              {['hero', 'middle', 'bottom'].map((position) => (
+                <div key={position} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex justify-between items-center mb-6">
+                    <h4 className="text-lg font-semibold text-gray-800 capitalize flex items-center gap-2">
+                      {position === 'hero' && '🎯'}
+                      {position === 'middle' && '📍'}
+                      {position === 'bottom' && '⬇️'}
+                      {position} Banners
+                    </h4>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium">
+                      Add {position} Banner
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[1, 2].map((banner) => (
+                      <div key={banner} className="border border-gray-200 rounded-xl overflow-hidden">
+                        <div className="relative h-32">
+                          <img
+                            src={`https://images.unsplash.com/photo-157101961345${banner}?w=400&h=200&fit=crop`}
+                            alt={`${position} banner ${banner}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-2 right-2">
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                              Active
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h5 className="font-medium text-gray-800 mb-2">Banner Title {banner}</h5>
+                          <p className="text-gray-600 text-sm mb-3">Banner description here...</p>
+                          <div className="flex gap-2">
+                            <button className="flex-1 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+                              Edit
+                            </button>
+                            <button className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'faqs' && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">FAQ Management</h3>
+                  <p className="text-gray-600">Manage frequently asked questions</p>
+                </div>
+                <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+                  + Add New FAQ
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { id: 1, question: 'How long do bath bombs last?', answer: 'Our bath bombs have a shelf life of 12 months...', category: 'product' },
+                  { id: 2, question: 'Are your bath bombs safe for sensitive skin?', answer: 'Yes! Our bath bombs are made with 100% natural ingredients...', category: 'product' },
+                  { id: 3, question: 'How do I use a bath bomb?', answer: 'Simply fill your bathtub with warm water and drop...', category: 'usage' }
+                ].map((faq) => (
+                  <div key={faq.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 mb-2">{faq.question}</h4>
+                        <p className="text-gray-600 text-sm">{faq.answer}</p>
+                      </div>
+                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium ml-4">
+                        {faq.category}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors font-medium">
+                        Edit
+                      </button>
+                      <button className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors font-medium">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'how-to' && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">How To Use Steps</h3>
+                  <p className="text-gray-600">Manage step-by-step usage instructions</p>
+                </div>
+                <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+                  + Add New Step
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { step: 1, title: 'Fill Your Bathtub', icon: '🛁', description: 'Fill your bathtub with warm water...' },
+                  { step: 2, title: 'Drop the Bath Bomb', icon: '💧', description: 'Gently place the bath bomb...' },
+                  { step: 3, title: 'Enjoy the Colors', icon: '🌈', description: 'Watch as beautiful colors...' },
+                  { step: 4, title: 'Relax and Soak', icon: '😌', description: 'Soak for 15-20 minutes...' },
+                  { step: 5, title: 'Rinse Off', icon: '🚿', description: 'Rinse with clean water...' }
+                ].map((step) => (
+                  <div key={step.step} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                        {step.step}
+                      </div>
+                      <div className="text-2xl">{step.icon}</div>
+                    </div>
+                    <h4 className="font-semibold text-gray-800 mb-2">{step.title}</h4>
+                    <p className="text-gray-600 text-sm mb-4">{step.description}</p>
+                    <div className="flex gap-2">
+                      <button className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors font-medium">
+                        Edit
+                      </button>
+                      <button className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors font-medium">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'branding' && (
             <div className="space-y-8">
               <div className="flex justify-between items-center">
