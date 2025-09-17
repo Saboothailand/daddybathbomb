@@ -288,7 +288,7 @@ BEGIN
     AND expires_at > NOW() 
     AND used = false;
   
-  GET DIAGNOSTICS token_valid = FOUND;
+  GET DIAGNOSTICS token_valid = ROW_COUNT;
   
   RETURN token_valid;
 END;
