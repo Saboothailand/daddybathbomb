@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ProductGrid from "./components/ProductGrid";
@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import SmoothScroll from "./components/SmoothScroll";
 import SparkleEffect from "./components/SparkleEffect";
 import AboutPage from "./components/AboutPage";
+import ProductListing from "./components/ProductListing";
 import NoticePage from "./components/NoticePage";
 import FAQPage from "./components/FAQPage";
 import ContactPage from "./components/ContactPage";
@@ -47,6 +48,8 @@ export default function App() {
             </main>
           ) : currentPage === 'about' ? (
             <AboutPage />
+          ) : currentPage === 'products' ? (
+            <ProductListing />
           ) : currentPage === 'notice' ? (
             <NoticePage />
           ) : currentPage === 'faq' ? (
