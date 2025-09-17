@@ -1,11 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthModal from './AuthModal';
+import CartSidebar from './CartSidebar';
+import OrderForm from './OrderForm';
 import { t } from '../utils/translations';
+import { getCartItemCount } from '../utils/cart';
 
 export default function Header({ navigateTo, language, changeLanguage }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [adminClicks, setAdminClicks] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
+
+  // 장바구니 아이템 수 업데이트
+  useEffect(() => {
+    const updateCartCount = () => {
+      setCartItemCount(getCartItemCount());
+    };
+    
+    updateCartCount();
+    
+    // 장바구니 변경 이벤트 리스너
+    window.addEventListener('cartUpdated', updateCartCount);
+    
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
+    };
+  }, []);
 
   const handleNavigation = (page) => {
     if (navigateTo) {
@@ -127,14 +149,19 @@ export default function Header({ navigateTo, language, changeLanguage }) {
             </select>
 
             {/* Cart */}
-            <button className="relative text-white hover:text-pink-300 transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h12" />
-              </svg>
-              <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </button>
+                <button 
+                  onClick={() => setShowCart(true)}
+                  className="relative text-white hover:text-pink-300 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h12" />
+                  </svg>
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </button>
 
             {/* Login Button */}
             <button 
@@ -202,6 +229,30 @@ export default function Header({ navigateTo, language, changeLanguage }) {
       <AuthModal
         isOpen={showAuth}
         onClose={() => setShowAuth(false)}
+        language={language}
+      />
+
+      {/* Cart Sidebar */}
+      <CartSidebar
+        isOpen={showCart}
+        onClose={() => setShowCart(false)}
+        onCheckout={() => {
+          setShowCart(false);
+          setShowOrderForm(true);
+        }}
+        language={language}
+      />
+
+      {/* Order Form */}
+      <OrderForm
+        isOpen={showOrderForm}
+        onClose={() => setShowOrderForm(false)}
+        onOrderComplete={(order) => {
+          console.log('Order completed:', order);
+          setCartItemCount(0); // 장바구니 비워짐
+          // 장바구니 업데이트 이벤트 발생
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
+        }}
         language={language}
       />
     </header>

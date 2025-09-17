@@ -14,11 +14,11 @@ import NoticePage from "./components/NoticePage";
 import FAQPage from "./components/FAQPage";
 import ContactPage from "./components/ContactPage";
 import AdminDashboard from "./components/AdminDashboard";
+import MiddleBanner from "./components/MiddleBanner";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [language, setLanguage] = useState('th');
-  const [showDebugInfo, setShowDebugInfo] = useState(true);
 
   // 전역 네비게이션 함수
   const navigateTo = (page) => {
@@ -77,33 +77,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-dark-theme font-nunito">
-      {/* Debug Info */}
-      {showDebugInfo && (
-        <div className="fixed top-20 right-4 z-50 bg-black/70 text-white p-3 rounded-lg text-xs shadow-lg border border-white/20">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="font-medium">Debug Info</div>
-              <div className="text-gray-300 mt-1">
-                Page: <span className="text-pink-300">{currentPage}</span> | 
-                Lang: <span className="text-blue-300">{language}</span>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowDebugInfo(false)}
-              className="text-white/60 hover:text-white hover:bg-white/10 rounded p-1 transition-colors"
-              title="디버그 정보 닫기"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div className="text-xs text-gray-400 mt-2 pt-2 border-t border-white/10">
-            💡 관리자: 로고 5번 클릭 또는 Ctrl+Shift+A
-          </div>
-        </div>
-      )}
-      
       <SmoothScroll />
       <SparkleEffect />
       
@@ -113,14 +86,15 @@ export default function App() {
         <>
           <Header navigateTo={navigateTo} language={language} changeLanguage={changeLanguage} />
           
-          {currentPage === 'home' ? (
-            <main>
-              <Hero navigateTo={navigateTo} language={language} />
-              <ProductGrid language={language} />
-              <FunFeatures language={language} />
-              <InstagramGallery language={language} />
-              <HowToUse language={language} />
-            </main>
+              {currentPage === 'home' ? (
+                <main>
+                  <Hero navigateTo={navigateTo} language={language} />
+                  <ProductGrid language={language} />
+                  <FunFeatures language={language} />
+                  <MiddleBanner language={language} />
+                  <InstagramGallery language={language} />
+                  <HowToUse language={language} />
+                </main>
           ) : currentPage === 'about' ? (
             <AboutPage navigateTo={navigateTo} language={language} />
           ) : currentPage === 'products' ? (

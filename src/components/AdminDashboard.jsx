@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
-import { featuresService, galleryService, settingsService } from '../lib/supabase';
+import { featuresService, galleryService, settingsService, cmsService, brandingService } from '../lib/supabase';
 
 export default function AdminDashboard({ navigateTo }) {
   const [activeTab, setActiveTab] = useState('features');
@@ -13,6 +13,14 @@ export default function AdminDashboard({ navigateTo }) {
     facebook: 'https://facebook.com/daddybathbomb'
   });
   const [loading, setLoading] = useState(false);
+  const [pages, setPages] = useState([]);
+  const [faqs, setFAQs] = useState([]);
+  const [howToSteps, setHowToSteps] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [editingPage, setEditingPage] = useState(null);
+  const [editingFAQ, setEditingFAQ] = useState(null);
+  const [editingStep, setEditingStep] = useState(null);
+  const [editingBanner, setEditingBanner] = useState(null);
 
   // 데이터 로드
   useEffect(() => {
@@ -33,6 +41,18 @@ export default function AdminDashboard({ navigateTo }) {
           instagram: settings.instagram_url || 'https://instagram.com/daddybathbomb',
           facebook: settings.facebook_url || 'https://facebook.com/daddybathbomb'
         });
+      } else if (activeTab === 'pages') {
+        const pagesData = await cmsService.getPages();
+        setPages(pagesData);
+      } else if (activeTab === 'faqs') {
+        const faqsData = await cmsService.getFAQs();
+        setFAQs(faqsData);
+      } else if (activeTab === 'how-to') {
+        const stepsData = await cmsService.getHowToSteps();
+        setHowToSteps(stepsData);
+      } else if (activeTab === 'banners') {
+        const bannersData = await cmsService.getBanners();
+        setBanners(bannersData);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -280,19 +300,24 @@ export default function AdminDashboard({ navigateTo }) {
                   <h3 className="text-lg font-semibold text-gray-800">Page Management</h3>
                   <p className="text-gray-600">Create and manage all website pages dynamically</p>
                 </div>
-                <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+                <button 
+                  onClick={() => setEditingPage({ 
+                    slug: '', 
+                    title: '', 
+                    page_type: 'page', 
+                    is_published: true, 
+                    is_featured: true, 
+                    menu_order: pages.length + 1 
+                  })}
+                  className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
+                >
                   + Create New Page
                 </button>
               </div>
 
               {/* Page List */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {[
-                  { id: 1, title: 'About Us', slug: 'about-us', type: 'page', status: 'published', blocks: 3 },
-                  { id: 2, title: 'How to Use', slug: 'how-to-use', type: 'page', status: 'published', blocks: 5 },
-                  { id: 3, title: 'FAQ', slug: 'faq', type: 'page', status: 'published', blocks: 8 },
-                  { id: 4, title: 'Contact Us', slug: 'contact', type: 'page', status: 'published', blocks: 2 }
-                ].map((page) => (
+                {pages.map((page) => (
                   <div key={page.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
                     <div className="flex justify-between items-start mb-4">
                       <div>
@@ -300,9 +325,9 @@ export default function AdminDashboard({ navigateTo }) {
                         <p className="text-sm text-gray-500">/{page.slug}</p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        page.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        page.is_published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {page.status}
+                        {page.is_published ? 'published' : 'draft'}
                       </span>
                     </div>
                     
@@ -930,7 +955,7 @@ export default function AdminDashboard({ navigateTo }) {
                           type="text"
                           value={editingFeature?.title || ''}
                           onChange={(e) => setEditingFeature({...editingFeature, title: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-gray-800 bg-white"
                           placeholder="Enter feature title"
                         />
                 </div>
@@ -941,7 +966,7 @@ export default function AdminDashboard({ navigateTo }) {
                           value={editingFeature?.description || ''}
                           onChange={(e) => setEditingFeature({...editingFeature, description: e.target.value})}
                           rows={4}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-gray-800 bg-white"
                           placeholder="Enter feature description"
                         />
                 </div>

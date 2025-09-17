@@ -40,6 +40,10 @@ export const addToCart = (product, quantity = 1) => {
   }
   
   localStorage.setItem(`${CART_KEY}_${userId}`, JSON.stringify(cart));
+  
+  // 장바구니 업데이트 이벤트 발생
+  window.dispatchEvent(new CustomEvent('cartUpdated'));
+  
   return cart;
 };
 
@@ -65,6 +69,10 @@ export const removeFromCart = (productId) => {
   const userId = getUserId();
   const cart = getCart().filter(item => item.id !== productId);
   localStorage.setItem(`${CART_KEY}_${userId}`, JSON.stringify(cart));
+  
+  // 장바구니 업데이트 이벤트 발생
+  window.dispatchEvent(new CustomEvent('cartUpdated'));
+  
   return cart;
 };
 
@@ -72,6 +80,10 @@ export const removeFromCart = (productId) => {
 export const clearCart = () => {
   const userId = getUserId();
   localStorage.removeItem(`${CART_KEY}_${userId}`);
+  
+  // 장바구니 업데이트 이벤트 발생
+  window.dispatchEvent(new CustomEvent('cartUpdated'));
+  
   return [];
 };
 

@@ -661,3 +661,242 @@ export const brandingService = {
     }
   }
 };
+
+// CMS 관련 서비스들
+export const cmsService = {
+  // 페이지 관리
+  async getPages() {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('pages')
+          .select('*')
+          .order('menu_order', { ascending: true });
+        
+        if (error) throw error;
+        return data || [];
+      } else {
+        const stored = localStorage.getItem('daddy_pages');
+        if (stored) {
+          return JSON.parse(stored);
+        } else {
+          const defaultPages = [
+            { id: 1, slug: 'about-us', title: 'About Us', page_type: 'page', is_published: true, is_featured: true, menu_order: 1 },
+            { id: 2, slug: 'how-to-use', title: 'How to Use', page_type: 'page', is_published: true, is_featured: true, menu_order: 2 },
+            { id: 3, slug: 'faq', title: 'FAQ', page_type: 'page', is_published: true, is_featured: true, menu_order: 3 },
+            { id: 4, slug: 'contact', title: 'Contact Us', page_type: 'page', is_published: true, is_featured: true, menu_order: 4 }
+          ];
+          localStorage.setItem('daddy_pages', JSON.stringify(defaultPages));
+          return defaultPages;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+      return [];
+    }
+  },
+
+  async createPage(pageData) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('pages')
+          .insert([pageData])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      } else {
+        const stored = localStorage.getItem('daddy_pages');
+        const pages = stored ? JSON.parse(stored) : [];
+        const newPage = { ...pageData, id: Date.now(), created_at: new Date().toISOString() };
+        pages.push(newPage);
+        localStorage.setItem('daddy_pages', JSON.stringify(pages));
+        return newPage;
+      }
+    } catch (error) {
+      console.error('Error creating page:', error);
+      throw error;
+    }
+  },
+
+  // FAQ 관리
+  async getFAQs() {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('faqs')
+          .select('*')
+          .eq('is_published', true)
+          .order('display_order', { ascending: true });
+        
+        if (error) throw error;
+        return data || [];
+      } else {
+        const stored = localStorage.getItem('daddy_faqs');
+        if (stored) {
+          return JSON.parse(stored);
+        } else {
+          const defaultFAQs = [
+            { id: 1, question: 'How long do bath bombs last?', answer: 'Our bath bombs have a shelf life of 12 months when stored properly.', category: 'product', display_order: 1, is_published: true },
+            { id: 2, question: 'Are your bath bombs safe for sensitive skin?', answer: 'Yes! Made with 100% natural ingredients, gentle for all skin types.', category: 'product', display_order: 2, is_published: true },
+            { id: 3, question: 'How do I use a bath bomb?', answer: 'Fill your tub with warm water and drop the bath bomb in. Enjoy!', category: 'usage', display_order: 3, is_published: true }
+          ];
+          localStorage.setItem('daddy_faqs', JSON.stringify(defaultFAQs));
+          return defaultFAQs;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching FAQs:', error);
+      return [];
+    }
+  },
+
+  async createFAQ(faqData) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('faqs')
+          .insert([faqData])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      } else {
+        const stored = localStorage.getItem('daddy_faqs');
+        const faqs = stored ? JSON.parse(stored) : [];
+        const newFAQ = { ...faqData, id: Date.now(), created_at: new Date().toISOString() };
+        faqs.push(newFAQ);
+        localStorage.setItem('daddy_faqs', JSON.stringify(faqs));
+        return newFAQ;
+      }
+    } catch (error) {
+      console.error('Error creating FAQ:', error);
+      throw error;
+    }
+  },
+
+  // How-to 단계 관리
+  async getHowToSteps() {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('how_to_steps')
+          .select('*')
+          .eq('is_published', true)
+          .order('step_number', { ascending: true });
+        
+        if (error) throw error;
+        return data || [];
+      } else {
+        const stored = localStorage.getItem('daddy_how_to_steps');
+        if (stored) {
+          return JSON.parse(stored);
+        } else {
+          const defaultSteps = [
+            { id: 1, step_number: 1, title: 'Fill Your Bathtub', description: 'Fill with warm water (37-40°C)', icon: '🛁', tips: 'Not too hot to preserve natural oils', is_published: true },
+            { id: 2, step_number: 2, title: 'Drop the Bath Bomb', description: 'Gently place in the center', icon: '💧', tips: 'Watch the amazing fizzing effect', is_published: true },
+            { id: 3, step_number: 3, title: 'Enjoy the Colors', description: 'Beautiful colors and fragrances', icon: '🌈', tips: 'Perfect for social media photos!', is_published: true },
+            { id: 4, step_number: 4, title: 'Relax and Soak', description: 'Soak for 15-20 minutes', icon: '😌', tips: 'Use this time for meditation', is_published: true },
+            { id: 5, step_number: 5, title: 'Rinse Off', description: 'Rinse with clean water', icon: '🚿', tips: 'Pat dry gently with soft towel', is_published: true }
+          ];
+          localStorage.setItem('daddy_how_to_steps', JSON.stringify(defaultSteps));
+          return defaultSteps;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching how-to steps:', error);
+      return [];
+    }
+  },
+
+  async createHowToStep(stepData) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('how_to_steps')
+          .insert([stepData])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      } else {
+        const stored = localStorage.getItem('daddy_how_to_steps');
+        const steps = stored ? JSON.parse(stored) : [];
+        const newStep = { ...stepData, id: Date.now(), created_at: new Date().toISOString() };
+        steps.push(newStep);
+        localStorage.setItem('daddy_how_to_steps', JSON.stringify(steps));
+        return newStep;
+      }
+    } catch (error) {
+      console.error('Error creating how-to step:', error);
+      throw error;
+    }
+  },
+
+  // 배너 관리
+  async getBanners(position = null) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        let query = supabase
+          .from('banner_images')
+          .select('*')
+          .eq('is_active', true);
+        
+        if (position) {
+          query = query.eq('position', position);
+        }
+        
+        const { data, error } = await query.order('display_order', { ascending: true });
+        
+        if (error) throw error;
+        return data || [];
+      } else {
+        const stored = localStorage.getItem('daddy_banners');
+        if (stored) {
+          const banners = JSON.parse(stored);
+          return position ? banners.filter(b => b.position === position) : banners;
+        } else {
+          const defaultBanners = [
+            { id: 1, title: 'Welcome Banner', description: 'Premium bath bombs', image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', position: 'hero', display_order: 1, is_active: true },
+            { id: 2, title: 'Special Offer', description: 'Limited time promotion', image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', position: 'middle', display_order: 1, is_active: true },
+            { id: 3, title: 'Follow Us', description: 'Social media updates', image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', position: 'bottom', display_order: 1, is_active: true }
+          ];
+          localStorage.setItem('daddy_banners', JSON.stringify(defaultBanners));
+          return position ? defaultBanners.filter(b => b.position === position) : defaultBanners;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+      return [];
+    }
+  },
+
+  async createBanner(bannerData) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('banner_images')
+          .insert([bannerData])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      } else {
+        const stored = localStorage.getItem('daddy_banners');
+        const banners = stored ? JSON.parse(stored) : [];
+        const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString() };
+        banners.push(newBanner);
+        localStorage.setItem('daddy_banners', JSON.stringify(banners));
+        return newBanner;
+      }
+    } catch (error) {
+      console.error('Error creating banner:', error);
+      throw error;
+    }
+  }
+};
