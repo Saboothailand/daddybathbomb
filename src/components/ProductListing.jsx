@@ -77,7 +77,7 @@ export default function ProductListing() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] font-nunito pt-16">
+    <div className="min-h-screen bg-dark-theme font-nunito pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* Header */}
         <div className="text-center mb-16">

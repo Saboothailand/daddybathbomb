@@ -28,7 +28,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] font-nunito">
+    <div className="min-h-screen bg-dark-theme font-nunito">
       <SmoothScroll />
       <SparkleEffect />
       

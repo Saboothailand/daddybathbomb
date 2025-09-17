@@ -22,7 +22,7 @@ html {
 
 /* Original Design System - Dark Theme (#0B0F1A) */
 .min-h-screen { min-height: 100vh; }
-.bg-\[#0B0F1A\] { background-color: #0B0F1A; }
+.bg-dark-theme { background-color: #0B0F1A; }
 .font-nunito { font-family: 'Nunito', sans-serif; }
 
 /* Layout */
