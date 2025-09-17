@@ -13,6 +13,25 @@ export default function Header({ navigateTo, language, changeLanguage }) {
   const [showCart, setShowCart] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [branding, setBranding] = useState({
+    logo_url: '',
+    site_title: 'Daddy Bath Bomb',
+    primary_color: '#ec4899'
+  });
+
+  // 브랜딩 설정 로드
+  useEffect(() => {
+    const loadBranding = async () => {
+      try {
+        const brandingData = await brandingService.getBrandingSettings();
+        setBranding(brandingData);
+      } catch (error) {
+        console.error('Error loading branding:', error);
+      }
+    };
+    
+    loadBranding();
+  }, []);
 
   // 장바구니 아이템 수 업데이트
   useEffect(() => {
@@ -25,8 +44,15 @@ export default function Header({ navigateTo, language, changeLanguage }) {
     // 장바구니 변경 이벤트 리스너
     window.addEventListener('cartUpdated', updateCartCount);
     
+    // 브랜딩 업데이트 이벤트 리스너
+    const handleBrandingUpdate = () => {
+      loadBranding();
+    };
+    window.addEventListener('brandingUpdated', handleBrandingUpdate);
+    
     return () => {
       window.removeEventListener('cartUpdated', updateCartCount);
+      window.removeEventListener('brandingUpdated', handleBrandingUpdate);
     };
   }, []);
 
@@ -73,9 +99,17 @@ export default function Header({ navigateTo, language, changeLanguage }) {
             onClick={handleLogoClick}
             title={adminClicks > 0 ? `관리자 접근: ${adminClicks}/5` : "홈으로 이동"}
           >
-            <div className="text-2xl font-bold text-white">
-              🛁 Daddy Bath Bomb
-            </div>
+            {branding.logo_url ? (
+              <img 
+                src={branding.logo_url} 
+                alt={branding.site_title || 'Daddy Bath Bomb'}
+                className="h-8 w-auto max-w-[200px] object-contain"
+              />
+            ) : (
+              <div className="text-2xl font-bold text-white">
+                🛁 {branding.site_title || 'Daddy Bath Bomb'}
+              </div>
+            )}
             {adminClicks > 0 && (
               <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {adminClicks}

@@ -21,6 +21,7 @@ export default function AdminDashboard({ navigateTo }) {
   const [editingFAQ, setEditingFAQ] = useState(null);
   const [editingStep, setEditingStep] = useState(null);
   const [editingBanner, setEditingBanner] = useState(null);
+  const [branding, setBranding] = useState({});
 
   // 데이터 로드
   useEffect(() => {
@@ -53,6 +54,9 @@ export default function AdminDashboard({ navigateTo }) {
       } else if (activeTab === 'banners') {
         const bannersData = await cmsService.getBanners();
         setBanners(bannersData);
+      } else if (activeTab === 'branding') {
+        const brandingData = await brandingService.getBrandingSettings();
+        setBranding(brandingData);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -576,8 +580,18 @@ export default function AdminDashboard({ navigateTo }) {
                         Main Logo
                       </label>
                       <ImageUpload
-                        currentImage=""
-                        onImageUpload={(url) => console.log('Logo updated:', url)}
+                        currentImage={branding?.logo_url || ''}
+                        onImageUpload={async (url) => {
+                          console.log('Logo updated:', url);
+                          try {
+                            await brandingService.updateBrandingSettings({ logo_url: url });
+                            window.dispatchEvent(new CustomEvent('brandingUpdated'));
+                            alert('Logo updated successfully!');
+                          } catch (error) {
+                            console.error('Error updating logo:', error);
+                            alert('Failed to update logo. Please try again.');
+                          }
+                        }}
                         label="Upload Logo"
                       />
                       <p className="text-xs text-gray-500 mt-2">
@@ -754,9 +768,33 @@ export default function AdminDashboard({ navigateTo }) {
               <div className="flex justify-end">
                 <button 
                   className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-3 rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
-                  onClick={() => alert('Branding settings saved!')}
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      
+                      // 현재 폼의 값들을 수집 (실제로는 상태 관리 필요)
+                      const brandingData = {
+                        site_title: document.querySelector('input[placeholder="Your site title"]')?.value || 'Daddy Bath Bomb',
+                        site_description: document.querySelector('textarea[placeholder="Brief description of your site"]')?.value || 'Premium bath bombs',
+                        primary_color: document.querySelector('input[type="color"]')?.value || '#ec4899'
+                      };
+                      
+                      await brandingService.updateBrandingSettings(brandingData);
+                      
+                      // 브랜딩 업데이트 이벤트 발생
+                      window.dispatchEvent(new CustomEvent('brandingUpdated'));
+                      
+                      alert('Branding settings saved successfully!');
+                    } catch (error) {
+                      console.error('Error saving branding:', error);
+                      alert('Failed to save branding settings. Please try again.');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
                 >
-                  Save Branding Settings
+                  {loading ? 'Saving...' : 'Save Branding Settings'}
                 </button>
               </div>
             </div>
