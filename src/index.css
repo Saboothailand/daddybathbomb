@@ -156,8 +156,22 @@ html {
 .opacity-0 { opacity: 0; }
 .opacity-90 { opacity: 0.9; }
 .group:hover .group-hover\:opacity-100 { opacity: 1; }
-.cursor-pointer { cursor: pointer; }
+.cursor-pointer { cursor: pointer !important; }
 .cursor-not-allowed { cursor: not-allowed; }
+
+/* Button styles */
+button {
+  cursor: pointer;
+  user-select: none;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
 
 /* Gradients for text */
 .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }

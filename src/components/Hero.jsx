@@ -12,7 +12,10 @@ export default function Hero() {
       description: "สัมผัสประสบการณ์อาบน้ำสุดพิเศษด้วยบาธบอมธรรมชาติ",
       image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=800&fit=crop",
       buttonText: "ดูสินค้า",
-      buttonAction: () => window.dispatchEvent(new CustomEvent('navigate', { detail: 'products' }))
+      buttonAction: () => {
+        console.log('Navigate to products');
+        window.dispatchEvent(new CustomEvent('navigate', { detail: 'products' }));
+      }
     },
     {
       id: 2,
@@ -99,8 +102,14 @@ export default function Hero() {
                 
                 {slide.buttonText && (
                   <button
-                    onClick={slide.buttonAction}
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-300 shadow-2xl animate-fade-in-up animation-delay-600"
+                    onClick={() => {
+                      console.log('Hero button clicked:', slide.buttonText);
+                      if (slide.buttonAction) {
+                        slide.buttonAction();
+                      }
+                    }}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-300 shadow-2xl cursor-pointer"
+                    style={{ cursor: 'pointer' }}
                   >
                     {slide.buttonText}
                   </button>

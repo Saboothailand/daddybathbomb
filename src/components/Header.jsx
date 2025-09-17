@@ -25,32 +25,47 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <button
-              onClick={() => handleNavigation('home')}
-              className="text-white hover:text-pink-300 transition-colors"
+              onClick={() => {
+                console.log('Home clicked');
+                handleNavigation('home');
+              }}
+              className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
               หน้าแรก
             </button>
             <button
-              onClick={() => handleNavigation('about')}
-              className="text-white hover:text-pink-300 transition-colors"
+              onClick={() => {
+                console.log('About clicked');
+                handleNavigation('about');
+              }}
+              className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
               เกี่ยวกับเรา
             </button>
             <button
-              onClick={() => handleNavigation('notice')}
-              className="text-white hover:text-pink-300 transition-colors"
+              onClick={() => {
+                console.log('Notice clicked');
+                handleNavigation('notice');
+              }}
+              className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
               ประกาศ
             </button>
             <button
-              onClick={() => handleNavigation('faq')}
-              className="text-white hover:text-pink-300 transition-colors"
+              onClick={() => {
+                console.log('FAQ clicked');
+                handleNavigation('faq');
+              }}
+              className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
               FAQ
             </button>
             <button
-              onClick={() => handleNavigation('contact')}
-              className="text-white hover:text-pink-300 transition-colors"
+              onClick={() => {
+                console.log('Contact clicked');
+                handleNavigation('contact');
+              }}
+              className="text-white hover:text-pink-300 transition-colors cursor-pointer"
             >
               ติดต่อเรา
             </button>

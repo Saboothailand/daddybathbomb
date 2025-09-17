@@ -20,15 +20,32 @@ export default function App() {
 
   useEffect(() => {
     const handleNavigation = (event) => {
+      console.log('Navigation event received:', event.detail);
       setCurrentPage(event.detail);
     };
 
+    // 네비게이션 이벤트 리스너 등록
     window.addEventListener('navigate', handleNavigation);
-    return () => window.removeEventListener('navigate', handleNavigation);
+    
+    // 전역 네비게이션 함수 등록 (디버깅용)
+    window.navigateTo = (page) => {
+      console.log('Direct navigation to:', page);
+      setCurrentPage(page);
+    };
+
+    return () => {
+      window.removeEventListener('navigate', handleNavigation);
+      delete window.navigateTo;
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-dark-theme font-nunito">
+      {/* Debug Info */}
+      <div className="fixed top-20 right-4 z-50 bg-black/50 text-white p-2 rounded text-xs">
+        Page: {currentPage}
+      </div>
+      
       <SmoothScroll />
       <SparkleEffect />
       
