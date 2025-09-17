@@ -19,9 +19,13 @@ export default function Header({ navigateTo, language, changeLanguage }) {
   const handleLogoClick = () => {
     setAdminClicks(prev => {
       const newCount = prev + 1;
+      console.log(`Logo clicked ${newCount} times`);
+      
       if (newCount >= 5) {
-        console.log('Admin access activated!');
+        console.log('🔑 Admin access activated!');
+        alert('관리자 페이지로 이동합니다!');
         handleNavigation('admin');
+        window.location.hash = '#admin';
         setAdminClicks(0);
         return 0;
       }
@@ -29,7 +33,10 @@ export default function Header({ navigateTo, language, changeLanguage }) {
     });
     
     // 3초 후 카운트 리셋
-    setTimeout(() => setAdminClicks(0), 3000);
+    setTimeout(() => {
+      setAdminClicks(0);
+      console.log('Admin click counter reset');
+    }, 3000);
   };
 
   return (
