@@ -52,7 +52,7 @@ export default function AdminDashboard({ navigateTo }) {
         const stepsData = await cmsService.getHowToSteps();
         setHowToSteps(stepsData);
       } else if (activeTab === 'banners') {
-        const bannersData = await cmsService.getBanners();
+        const bannersData = await cmsService.getBanners(null, { activeOnly: false });
         setBanners(bannersData);
       } else if (activeTab === 'branding') {
         const brandingData = await brandingService.getBrandingSettings();
@@ -130,6 +130,83 @@ export default function AdminDashboard({ navigateTo }) {
     { id: 'orders', label: 'Orders', icon: '🛒', desc: 'Customer orders' },
     { id: 'settings', label: 'Settings', icon: '⚙️', desc: 'Site configuration' }
   ];
+
+  const bannerPositions = [
+    { id: 'hero', label: 'Hero', icon: '🎯', description: 'Top hero section banners' },
+    { id: 'middle', label: 'Middle', icon: '📍', description: 'Mid-page promotional banners' },
+    { id: 'bottom', label: 'Bottom', icon: '⬇️', description: 'Bottom call-to-action banners' },
+    { id: 'sidebar', label: 'Sidebar', icon: '🧭', description: 'Sidebar or floating banners' }
+  ];
+
+  const normalizeDateForPayload = (value) => {
+    if (!value) return null;
+    if (value.includes('T')) return value;
+    return `${value}T00:00:00Z`;
+  };
+
+  const formatDateForInput = (value) => {
+    if (!value) return '';
+    return value.split('T')[0];
+  };
+
+  const handleBannerSave = async (banner) => {
+    try {
+      setLoading(true);
+
+      const payload = {
+        title: banner.title,
+        description: banner.description || '',
+        image_url: banner.image_url || banner.image || '',
+        link_url: banner.link_url || null,
+        position: banner.position || 'hero',
+        display_order: Number(banner.display_order) || 0,
+        is_active: banner.is_active ?? banner.isActive ?? true,
+        start_date: normalizeDateForPayload(banner.start_date),
+        end_date: normalizeDateForPayload(banner.end_date)
+      };
+
+      if (!payload.title || !payload.image_url) {
+        alert('Please provide at least a title and banner image.');
+        return;
+      }
+
+      const existingBanner = banner.id && banners.find((b) => b.id === banner.id);
+
+      if (existingBanner) {
+        await cmsService.updateBanner(banner.id, payload);
+        alert('Banner updated successfully!');
+      } else {
+        await cmsService.createBanner(payload);
+        alert('New banner added successfully!');
+      }
+
+      setEditingBanner(null);
+      await loadData();
+    } catch (error) {
+      console.error('Error saving banner:', error);
+      alert('Failed to save banner. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBannerDelete = async (bannerId) => {
+    if (!confirm('Are you sure you want to delete this banner?')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await cmsService.deleteBanner(bannerId);
+      alert('Banner deleted successfully!');
+      await loadData();
+    } catch (error) {
+      console.error('Error deleting banner:', error);
+      alert('Failed to delete banner. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFeatureSave = async (feature) => {
     console.log('Saving feature:', feature);
@@ -286,8 +363,16 @@ export default function AdminDashboard({ navigateTo }) {
           </div>
           
           <button
-            onClick={() => navigateTo('home')}
-            className={`w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
+            onClick={() => {
+              console.log('Back to website clicked from sidebar');
+              if (navigateTo) {
+                navigateTo('home');
+              } else {
+                window.dispatchEvent(new CustomEvent('navigate', { detail: 'home' }));
+              }
+              window.location.hash = '';
+            }}
+            className={`w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-3 py-2 rounded-lg transition-all duration-300 text-sm font-medium transform hover:scale-105 shadow-lg ${
               sidebarCollapsed ? 'px-2' : ''
             }`}
           >
@@ -309,11 +394,30 @@ export default function AdminDashboard({ navigateTo }) {
                 {menuItems.find(item => item.id === activeTab)?.desc}
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-500">
-                Last updated: {new Date().toLocaleDateString()}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Last updated: {new Date().toLocaleDateString()}</span>
               </div>
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              
+              {/* Main Back Button */}
+              <button
+                onClick={() => {
+                  console.log('Back to website clicked from header');
+                  if (navigateTo) {
+                    navigateTo('home');
+                  } else {
+                    window.dispatchEvent(new CustomEvent('navigate', { detail: 'home' }));
+                  }
+                  window.location.hash = '';
+                }}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Website
+              </button>
             </div>
           </div>
         </header>
@@ -429,60 +533,150 @@ export default function AdminDashboard({ navigateTo }) {
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">Banner Management</h3>
-                  <p className="text-gray-600">Manage hero, middle, and bottom section banners</p>
+                  <p className="text-gray-600">Manage hero, middle, bottom, and sidebar banners</p>
                 </div>
-                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+                <button
+                  onClick={() => {
+                    setEditingBanner({
+                      id: Date.now(),
+                      title: '',
+                      description: '',
+                      image_url: '',
+                      link_url: '',
+                      position: 'hero',
+                      display_order: (banners.filter((b) => b.position === 'hero').length || 0) + 1,
+                      is_active: true,
+                      start_date: '',
+                      end_date: ''
+                    });
+                  }}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
+                >
                   + Add New Banner
                 </button>
               </div>
 
-              {/* Banner Sections */}
-              {['hero', 'middle', 'bottom'].map((position) => (
-                <div key={position} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                  <div className="flex justify-between items-center mb-6">
-                    <h4 className="text-lg font-semibold text-gray-800 capitalize flex items-center gap-2">
-                      {position === 'hero' && '🎯'}
-                      {position === 'middle' && '📍'}
-                      {position === 'bottom' && '⬇️'}
-                      {position} Banners
-                    </h4>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium">
-                      Add {position} Banner
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2].map((banner) => (
-                      <div key={banner} className="border border-gray-200 rounded-xl overflow-hidden">
-                        <div className="relative h-32">
-                          <img
-                            src={`https://images.unsplash.com/photo-157101961345${banner}?w=400&h=200&fit=crop`}
-                            alt={`${position} banner ${banner}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                              Active
-                            </span>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <h5 className="font-medium text-gray-800 mb-2">Banner Title {banner}</h5>
-                          <p className="text-gray-600 text-sm mb-3">Banner description here...</p>
-                          <div className="flex gap-2">
-                            <button className="flex-1 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
-                              Edit
-                            </button>
-                            <button className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
-                              Delete
-                            </button>
-                          </div>
-                        </div>
+              {bannerPositions.map((position) => {
+                const positionBanners = banners.filter((banner) => banner.position === position.id);
+
+                return (
+                  <div key={position.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-800 capitalize flex items-center gap-2">
+                          <span className="text-2xl">{position.icon}</span>
+                          {position.label} Banners
+                        </h4>
+                        <p className="text-sm text-gray-500">{position.description}</p>
                       </div>
-                    ))}
+                      <button
+                        onClick={() => {
+                          setEditingBanner({
+                            id: Date.now(),
+                            title: '',
+                            description: '',
+                            image_url: '',
+                            link_url: '',
+                            position: position.id,
+                            display_order: (positionBanners.length || 0) + 1,
+                            is_active: true,
+                            start_date: '',
+                            end_date: ''
+                          });
+                        }}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                      >
+                        Add {position.label} Banner
+                      </button>
+                    </div>
+
+                    {positionBanners.length === 0 ? (
+                      <div className="border border-dashed border-gray-200 rounded-xl p-10 text-center text-gray-500">
+                        No {position.label.toLowerCase()} banners yet. Click "Add {position.label} Banner" to create one.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                        {positionBanners.map((banner) => (
+                          <div key={banner.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-shadow">
+                            <div className="relative h-40 bg-gray-100">
+                              {banner.image_url ? (
+                                <img
+                                  src={banner.image_url}
+                                  alt={banner.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                                  No image
+                                </div>
+                              )}
+                              <div className="absolute top-3 right-3 flex flex-col gap-2">
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  banner.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'
+                                }`}>
+                                  {banner.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/80 text-gray-700 shadow-sm">
+                                  Order #{banner.display_order ?? 0}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-5 space-y-3">
+                              <div>
+                                <h5 className="font-semibold text-gray-800 text-lg leading-tight">{banner.title}</h5>
+                                {banner.description && (
+                                  <p className="text-sm text-gray-600 mt-1 line-clamp-3">{banner.description}</p>
+                                )}
+                              </div>
+
+                              <div className="text-xs text-gray-500 space-y-1">
+                                {banner.link_url && (
+                                  <div className="truncate">
+                                    🔗 <a href={banner.link_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                                      {banner.link_url}
+                                    </a>
+                                  </div>
+                                )}
+                                {(banner.start_date || banner.end_date) && (
+                                  <div className="flex flex-wrap gap-2">
+                                    {banner.start_date && (
+                                      <span className="bg-gray-100 px-2 py-1 rounded-full">Start: {new Date(banner.start_date).toLocaleDateString()}</span>
+                                    )}
+                                    {banner.end_date && (
+                                      <span className="bg-gray-100 px-2 py-1 rounded-full">End: {new Date(banner.end_date).toLocaleDateString()}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex flex-wrap gap-2 pt-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingBanner({
+                                      ...banner,
+                                      start_date: formatDateForInput(banner.start_date || ''),
+                                      end_date: formatDateForInput(banner.end_date || '')
+                                    });
+                                  }}
+                                  className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors font-medium"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleBannerDelete(banner.id)}
+                                  className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors font-medium"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
