@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { AuthProvider } from "./hooks/useAuth";
-import { CartProvider } from "./hooks/useCart";
-import { I18nProvider } from "./hooks/useI18n";
+import { AuthProvider } from "./hooks/useAuth.js";
+import { CartProvider } from "./hooks/useCart.js";
+import { I18nProvider } from "./hooks/useI18n.js";
 import SEOHead from "./components/SEOHead";
 import Header from "./components/Header";
 import Hero from "./components/Hero";

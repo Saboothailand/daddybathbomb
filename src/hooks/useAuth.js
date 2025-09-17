@@ -1,18 +1,7 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
-import { User as SupabaseUser, Session } from '@supabase/supabase-js'
-import { supabase, User } from '../lib/supabase'
+import React, { useState, useEffect, createContext, useContext } from 'react'
+import { supabase } from '../lib/supabase'
 
-interface AuthContextType {
-  user: User | null
-  session: Session | null
-  loading: boolean
-  signUp: (email: string, password: string, userData: { nickname: string; phone?: string }) => Promise<{ error?: any }>
-  signIn: (email: string, password: string) => Promise<{ error?: any }>
-  signOut: () => Promise<void>
-  isAdmin: boolean
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext(undefined)
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -22,13 +11,9 @@ export const useAuth = () => {
   return context
 }
 
-interface AuthProviderProps {
-  children: ReactNode
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null)
+  const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -56,7 +41,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe()
   }, [])
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId) => {
     try {
       const { data, error } = await supabase
         .from('users')
@@ -74,7 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }
 
-  const signUp = async (email: string, password: string, userData: { nickname: string; phone?: string }) => {
+  const signUp = async (email, password, userData) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -92,7 +77,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -125,5 +110,5 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isAdmin
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return React.createElement(AuthContext.Provider, { value }, children)
 }

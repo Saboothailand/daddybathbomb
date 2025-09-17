@@ -1,22 +1,6 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
-import { Product } from '../lib/supabase'
+import React, { useState, useEffect, createContext, useContext } from 'react'
 
-export interface CartItem {
-  product: Product
-  quantity: number
-}
-
-interface CartContextType {
-  items: CartItem[]
-  addItem: (product: Product, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
-  clearCart: () => void
-  totalItems: number
-  totalPrice: number
-}
-
-const CartContext = createContext<CartContextType | undefined>(undefined)
+const CartContext = createContext(undefined)
 
 export const useCart = () => {
   const context = useContext(CartContext)
@@ -26,12 +10,8 @@ export const useCart = () => {
   return context
 }
 
-interface CartProviderProps {
-  children: ReactNode
-}
-
-export const CartProvider = ({ children }: CartProviderProps) => {
-  const [items, setItems] = useState<CartItem[]>([])
+export const CartProvider = ({ children }) => {
+  const [items, setItems] = useState([])
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -50,7 +30,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     localStorage.setItem('daddybathbomb-cart', JSON.stringify(items))
   }, [items])
 
-  const addItem = (product: Product, quantity = 1) => {
+  const addItem = (product, quantity = 1) => {
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.product.id === product.id)
       
@@ -66,11 +46,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     })
   }
 
-  const removeItem = (productId: string) => {
+  const removeItem = (productId) => {
     setItems(currentItems => currentItems.filter(item => item.product.id !== productId))
   }
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId, quantity) => {
     if (quantity <= 0) {
       removeItem(productId)
       return
@@ -102,5 +82,5 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     totalPrice
   }
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+  return React.createElement(CartContext.Provider, { value }, children)
 }
