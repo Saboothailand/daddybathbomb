@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
+import { featuresService, galleryService, settingsService } from '../lib/supabase';
 
 export default function AdminDashboard({ navigateTo }) {
   const [activeTab, setActiveTab] = useState('features');
@@ -11,6 +12,34 @@ export default function AdminDashboard({ navigateTo }) {
     instagram: 'https://instagram.com/daddybathbomb',
     facebook: 'https://facebook.com/daddybathbomb'
   });
+  const [loading, setLoading] = useState(false);
+
+  // 데이터 로드
+  useEffect(() => {
+    loadData();
+  }, [activeTab]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      if (activeTab === 'features') {
+        const featuresData = await featuresService.getActiveFeatures();
+        setFeatures(featuresData);
+      } else if (activeTab === 'gallery') {
+        const galleryData = await galleryService.getActiveGalleryImages();
+        setGalleryImages(galleryData);
+        const settings = await settingsService.getSettings();
+        setSocialLinks({
+          instagram: settings.instagram_url || 'https://instagram.com/daddybathbomb',
+          facebook: settings.facebook_url || 'https://facebook.com/daddybathbomb'
+        });
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Sample data
   const sampleFeatures = [
@@ -66,6 +95,7 @@ export default function AdminDashboard({ navigateTo }) {
   ];
 
   const menuItems = [
+    { id: 'branding', label: 'Branding', icon: '🎨', desc: 'Logo, colors, site identity' },
     { id: 'features', label: 'Features', icon: '⭐', desc: 'Manage feature highlights' },
     { id: 'gallery', label: 'Gallery', icon: '📸', desc: 'Instagram gallery management' },
     { id: 'slider', label: 'Hero Slider', icon: '🖼️', desc: 'Homepage slider images' },
@@ -75,18 +105,66 @@ export default function AdminDashboard({ navigateTo }) {
     { id: 'settings', label: 'Settings', icon: '⚙️', desc: 'Site configuration' }
   ];
 
-  const handleFeatureSave = (feature) => {
-    if (feature.id && sampleFeatures.find(f => f.id === feature.id)) {
-      alert('Feature updated successfully!');
-    } else {
-      alert('New feature added successfully!');
+  const handleFeatureSave = async (feature) => {
+    try {
+      setLoading(true);
+      if (feature.id && features.find(f => f.id === feature.id)) {
+        // 업데이트
+        await featuresService.updateFeature(feature.id, {
+          title: feature.title,
+          description: feature.description,
+          image_url: feature.image_url || feature.image,
+          is_active: feature.isActive
+        });
+        alert('Feature updated successfully!');
+      } else {
+        // 새로 생성
+        await featuresService.createFeature({
+          title: feature.title,
+          description: feature.description,
+          image_url: feature.image_url || feature.image,
+          is_active: feature.isActive,
+          display_order: features.length + 1
+        });
+        alert('New feature added successfully!');
+      }
+      setEditingFeature(null);
+      loadData(); // 데이터 다시 로드
+    } catch (error) {
+      console.error('Error saving feature:', error);
+      alert('Failed to save feature. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setEditingFeature(null);
   };
 
-  const handleFeatureDelete = (featureId) => {
+  const handleFeatureDelete = async (featureId) => {
     if (confirm('Are you sure you want to delete this feature?')) {
-      alert('Feature deleted successfully!');
+      try {
+        setLoading(true);
+        await featuresService.deleteFeature(featureId);
+        alert('Feature deleted successfully!');
+        loadData(); // 데이터 다시 로드
+      } catch (error) {
+        console.error('Error deleting feature:', error);
+        alert('Failed to delete feature. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleSocialLinksSave = async () => {
+    try {
+      setLoading(true);
+      await settingsService.updateSetting('instagram_url', socialLinks.instagram);
+      await settingsService.updateSetting('facebook_url', socialLinks.facebook);
+      alert('Social media links updated successfully!');
+    } catch (error) {
+      console.error('Error saving social links:', error);
+      alert('Failed to save social links. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -193,6 +271,216 @@ export default function AdminDashboard({ navigateTo }) {
 
         {/* Content Area */}
         <main className="flex-1 p-8 overflow-y-auto">
+          {activeTab === 'branding' && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Branding & Logo Management</h3>
+                  <p className="text-gray-600">Manage your site logo, colors, and brand identity</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Logo Settings */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🖼️</span>
+                    Logo Settings
+                  </h4>
+                  
+                  <div className="space-y-6">
+                    {/* Main Logo */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Main Logo
+                      </label>
+                      <ImageUpload
+                        currentImage=""
+                        onImageUpload={(url) => console.log('Logo updated:', url)}
+                        label="Upload Logo"
+                      />
+                      <p className="text-xs text-gray-500 mt-2">
+                        Recommended: PNG format, 200x60px, transparent background
+                      </p>
+                    </div>
+
+                    {/* Dark Mode Logo */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Dark Mode Logo (Optional)
+                      </label>
+                      <ImageUpload
+                        currentImage=""
+                        onImageUpload={(url) => console.log('Dark logo updated:', url)}
+                        label="Upload Dark Logo"
+                      />
+                    </div>
+
+                    {/* Favicon */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Favicon
+                      </label>
+                      <ImageUpload
+                        currentImage=""
+                        onImageUpload={(url) => console.log('Favicon updated:', url)}
+                        label="Upload Favicon"
+                      />
+                      <p className="text-xs text-gray-500 mt-2">
+                        Recommended: ICO or PNG format, 32x32px
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Site Information */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">📝</span>
+                    Site Information
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Site Title
+                      </label>
+                      <input
+                        type="text"
+                        defaultValue="Daddy Bath Bomb"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        placeholder="Your site title"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Site Description
+                      </label>
+                      <textarea
+                        rows={3}
+                        defaultValue="Premium natural bath bombs for ultimate relaxation experience"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        placeholder="Brief description of your site"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tagline
+                      </label>
+                      <input
+                        type="text"
+                        defaultValue="Premium Bath Experience"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        placeholder="Your brand tagline"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Color Scheme */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🎨</span>
+                    Color Scheme
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Primary Color
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            defaultValue="#ec4899"
+                            className="w-12 h-12 rounded-lg border border-gray-300 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            defaultValue="#ec4899"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Secondary Color
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            defaultValue="#8b5cf6"
+                            className="w-12 h-12 rounded-lg border border-gray-300 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            defaultValue="#8b5cf6"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Accent Color
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          defaultValue="#06b6d4"
+                          className="w-12 h-12 rounded-lg border border-gray-300 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          defaultValue="#06b6d4"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">👁️</span>
+                    Live Preview
+                  </h4>
+                  
+                  <div className="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-xl p-6 text-white">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-2xl">
+                        🛁
+                      </div>
+                      <div>
+                        <div className="font-bold">Daddy Bath Bomb</div>
+                        <div className="text-sm opacity-75">Premium Bath Experience</div>
+                      </div>
+                    </div>
+                    <p className="text-sm opacity-90">
+                      This is how your brand will appear on the website.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end">
+                <button 
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-3 rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
+                  onClick={() => alert('Branding settings saved!')}
+                >
+                  Save Branding Settings
+                </button>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'features' && (
             <div className="space-y-8">
               <div className="flex justify-between items-center">
@@ -214,20 +502,27 @@ export default function AdminDashboard({ navigateTo }) {
                 </button>
               </div>
 
+              {loading && (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading...</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sampleFeatures.map((feature) => (
+                {features.map((feature) => (
                   <div key={feature.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow">
                     <div className="relative h-48">
                       <img
-                        src={feature.image}
+                        src={feature.image_url || feature.image}
                         alt={feature.title}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-3 right-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          feature.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                          feature.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
                         }`}>
-                          {feature.isActive ? 'Active' : 'Inactive'}
+                          {feature.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </div>
                     </div>
@@ -298,18 +593,22 @@ export default function AdminDashboard({ navigateTo }) {
                     />
                   </div>
                 </div>
-                <button className="mt-4 bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors font-medium">
-                  Save Links
+                <button 
+                  onClick={handleSocialLinksSave}
+                  disabled={loading}
+                  className="mt-4 bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors font-medium disabled:opacity-50"
+                >
+                  {loading ? 'Saving...' : 'Save Links'}
                 </button>
               </div>
 
               {/* Gallery Images */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sampleGallery.map((item) => (
+                {galleryImages.map((item) => (
                   <div key={item.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
                     <div className="relative h-64">
                       <img
-                        src={item.image}
+                        src={item.image_url}
                         alt={item.caption}
                         className="w-full h-full object-cover"
                       />

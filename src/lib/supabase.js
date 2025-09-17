@@ -92,33 +92,50 @@ function getMockData(table, filter = {}) {
         id: 1,
         title: 'Natural Ingredients',
         description: 'Made from 100% natural ingredients, safe for the whole family',
-        image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=500&h=400&fit=crop',
+        image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=500&h=400&fit=crop',
+        icon: '🌿',
         is_active: true,
+        display_order: 1,
         created_at: new Date().toISOString()
       },
       {
         id: 2,
         title: 'Beautiful Fizzy Colors',
         description: 'Beautiful colorful fizz with relaxing aromatherapy scents',
-        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
+        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
+        icon: '✨',
         is_active: true,
+        display_order: 2,
         created_at: new Date().toISOString()
       },
       {
         id: 3,
         title: 'Skin Nourishing',
         description: 'Moisturizes and nourishes skin for smooth, soft feeling after bath',
-        image: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=500&h=400&fit=crop',
+        image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=500&h=400&fit=crop',
+        icon: '💧',
         is_active: true,
+        display_order: 3,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 4,
+        title: 'Perfect Gift',
+        description: 'Perfect gift for special people on any occasion',
+        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop&sig=gift',
+        icon: '🎁',
+        is_active: true,
+        display_order: 4,
         created_at: new Date().toISOString()
       }
     ],
-    gallery: [
+    gallery_images: [
       {
         id: 1,
         image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop',
         caption: 'Relaxing bath time with our premium bath bombs',
         is_active: true,
+        display_order: 1,
         created_at: new Date().toISOString()
       },
       {
@@ -126,7 +143,93 @@ function getMockData(table, filter = {}) {
         image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=400&fit=crop',
         caption: 'Natural ingredients for healthy skin',
         is_active: true,
+        display_order: 2,
         created_at: new Date().toISOString()
+      },
+      {
+        id: 3,
+        image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=400&fit=crop',
+        caption: 'Luxury spa experience at home',
+        is_active: true,
+        display_order: 3,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 4,
+        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&sig=2',
+        caption: 'Beautiful fizzy colors and scents',
+        is_active: true,
+        display_order: 4,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 5,
+        image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=400&fit=crop&sig=3',
+        caption: 'Perfect for family relaxation time',
+        is_active: true,
+        display_order: 5,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 6,
+        image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=400&fit=crop&sig=4',
+        caption: 'Premium quality bath products',
+        is_active: true,
+        display_order: 6,
+        created_at: new Date().toISOString()
+      }
+    ],
+    hero_slides: [
+      {
+        id: 1,
+        title: 'Premium Bath Bombs',
+        subtitle: '100% Natural',
+        description: 'Experience the ultimate bathing experience with natural bath bombs',
+        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=800&fit=crop',
+        button_text: 'View Products',
+        button_action: 'products',
+        display_order: 1,
+        is_active: true
+      },
+      {
+        id: 2,
+        title: 'Luxury Spa Experience',
+        subtitle: 'Relax at Home',
+        description: 'Transform your home into a luxury spa with aromatherapy scents',
+        image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1200&h=800&fit=crop',
+        button_text: 'About Us',
+        button_action: 'about',
+        display_order: 2,
+        is_active: true
+      },
+      {
+        id: 3,
+        title: 'Perfect Gift for Loved Ones',
+        subtitle: 'Special Gift',
+        description: 'Give happiness and relaxation to your loved ones with Daddy Bath Bomb',
+        image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1200&h=800&fit=crop',
+        button_text: 'Contact Us',
+        button_action: 'contact',
+        display_order: 3,
+        is_active: true
+      }
+    ],
+    social_links: [
+      {
+        id: 1,
+        platform: 'instagram',
+        url: 'https://instagram.com/daddybathbomb',
+        icon: '📸',
+        is_active: true,
+        display_order: 1
+      },
+      {
+        id: 2,
+        platform: 'facebook',
+        url: 'https://facebook.com/daddybathbomb',
+        icon: '📘',
+        is_active: true,
+        display_order: 2
       }
     ],
     app_settings: [
@@ -163,47 +266,67 @@ export const featuresService = {
   // 모든 활성 features 가져오기
   async getActiveFeatures() {
     try {
-      const { data, error } = await supabase
-        .from('features')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      // 실제 Supabase 연결 시도
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('features')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true });
 
-      if (error) throw error;
-      return data || [];
+        if (error) throw error;
+        return data || [];
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_features');
+        if (stored) {
+          return JSON.parse(stored).filter(f => f.is_active);
+        } else {
+          // 초기 데이터 설정
+          const initialFeatures = getMockData('features');
+          localStorage.setItem('daddy_features', JSON.stringify(initialFeatures));
+          return initialFeatures.filter(f => f.is_active);
+        }
+      }
     } catch (error) {
       console.error('Error fetching features:', error);
-      // 임시 샘플 데이터 반환
-      return [
-        {
-          id: 1,
-          title: 'Natural Ingredients',
-          description: 'Made from 100% natural ingredients, safe for the whole family',
-          image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=500&h=400&fit=crop',
-          is_active: true
-        },
-        {
-          id: 2,
-          title: 'Beautiful Fizzy Colors',
-          description: 'Beautiful colorful fizz with relaxing aromatherapy scents',
-          image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
-          is_active: true
-        }
-      ];
+      // 로컬 스토리지 폴백
+      const stored = localStorage.getItem('daddy_features');
+      if (stored) {
+        return JSON.parse(stored).filter(f => f.is_active);
+      }
+      return getMockData('features').filter(f => f.is_active);
     }
   },
 
   // 새 feature 추가
   async createFeature(featureData) {
     try {
-      const { data, error } = await supabase
-        .from('features')
-        .insert([featureData])
-        .select()
-        .single();
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('features')
+          .insert([featureData])
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_features');
+        const features = stored ? JSON.parse(stored) : getMockData('features');
+        
+        const newFeature = {
+          ...featureData,
+          id: Date.now(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        features.push(newFeature);
+        localStorage.setItem('daddy_features', JSON.stringify(features));
+        return newFeature;
+      }
     } catch (error) {
       console.error('Error creating feature:', error);
       throw error;
@@ -213,15 +336,33 @@ export const featuresService = {
   // Feature 업데이트
   async updateFeature(id, updateData) {
     try {
-      const { data, error } = await supabase
-        .from('features')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('features')
+          .update({...updateData, updated_at: new Date().toISOString()})
+          .eq('id', id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_features');
+        const features = stored ? JSON.parse(stored) : getMockData('features');
+        
+        const index = features.findIndex(f => f.id == id);
+        if (index !== -1) {
+          features[index] = {
+            ...features[index],
+            ...updateData,
+            updated_at: new Date().toISOString()
+          };
+          localStorage.setItem('daddy_features', JSON.stringify(features));
+          return features[index];
+        }
+        throw new Error('Feature not found');
+      }
     } catch (error) {
       console.error('Error updating feature:', error);
       throw error;
@@ -231,13 +372,23 @@ export const featuresService = {
   // Feature 삭제
   async deleteFeature(id) {
     try {
-      const { error } = await supabase
-        .from('features')
-        .delete()
-        .eq('id', id);
+      if (supabaseUrl && supabaseAnonKey) {
+        const { error } = await supabase
+          .from('features')
+          .delete()
+          .eq('id', id);
 
-      if (error) throw error;
-      return true;
+        if (error) throw error;
+        return true;
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_features');
+        const features = stored ? JSON.parse(stored) : getMockData('features');
+        
+        const filteredFeatures = features.filter(f => f.id != id);
+        localStorage.setItem('daddy_features', JSON.stringify(filteredFeatures));
+        return true;
+      }
     } catch (error) {
       console.error('Error deleting feature:', error);
       throw error;
