@@ -665,7 +665,7 @@ export default function AdminDashboard({ navigateTo }) {
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-800">
-                  {editingFeature.id && sampleFeatures.find(f => f.id === editingFeature.id) ? 'Edit Feature' : 'Add New Feature'}
+                  {editingFeature?.id && features.find(f => f.id === editingFeature.id) ? 'Edit Feature' : 'Add New Feature'}
                 </h3>
                 <button
                   onClick={() => setEditingFeature(null)}
@@ -678,29 +678,29 @@ export default function AdminDashboard({ navigateTo }) {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Feature Title</label>
-                  <input
-                    type="text"
-                    value={editingFeature.title}
-                    onChange={(e) => setEditingFeature({...editingFeature, title: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="Enter feature title"
-                  />
+                        <input
+                          type="text"
+                          value={editingFeature?.title || ''}
+                          onChange={(e) => setEditingFeature({...editingFeature, title: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          placeholder="Enter feature title"
+                        />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                   <textarea
-                    value={editingFeature.description}
-                    onChange={(e) => setEditingFeature({...editingFeature, description: e.target.value})}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="Enter feature description"
-                  />
+                          value={editingFeature?.description || ''}
+                          onChange={(e) => setEditingFeature({...editingFeature, description: e.target.value})}
+                          rows={4}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          placeholder="Enter feature description"
+                        />
                 </div>
                 
                 <ImageUpload
-                  currentImage={editingFeature.image}
-                  onImageUpload={(url) => setEditingFeature({...editingFeature, image: url})}
+                  currentImage={editingFeature?.image_url || editingFeature?.image || ''}
+                  onImageUpload={(url) => setEditingFeature({...editingFeature, image_url: url, image: url})}
                   label="Feature Image"
                 />
                 
@@ -708,8 +708,8 @@ export default function AdminDashboard({ navigateTo }) {
                   <input
                     type="checkbox"
                     id="isActive"
-                    checked={editingFeature.isActive}
-                    onChange={(e) => setEditingFeature({...editingFeature, isActive: e.target.checked})}
+                    checked={editingFeature?.is_active || editingFeature?.isActive || false}
+                    onChange={(e) => setEditingFeature({...editingFeature, is_active: e.target.checked, isActive: e.target.checked})}
                     className="w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 rounded focus:ring-pink-500"
                   />
                   <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
@@ -728,7 +728,7 @@ export default function AdminDashboard({ navigateTo }) {
                     onClick={() => handleFeatureSave(editingFeature)}
                     className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all duration-300 font-medium"
                   >
-                    {editingFeature.id && sampleFeatures.find(f => f.id === editingFeature.id) ? 'Update Feature' : 'Add Feature'}
+                    {editingFeature?.id && features.find(f => f.id === editingFeature.id) ? 'Update Feature' : 'Add Feature'}
                   </button>
                 </div>
               </div>

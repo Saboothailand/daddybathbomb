@@ -519,22 +519,37 @@ export const settingsService = {
   // 설정 가져오기
   async getSettings() {
     try {
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('*');
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .select('*');
 
-      if (error) throw error;
-      
-      // 배열을 객체로 변환
-      const settings = {};
-      data?.forEach(setting => {
-        settings[setting.key] = setting.value;
-      });
-      
-      return settings;
+        if (error) throw error;
+        
+        // 배열을 객체로 변환
+        const settings = {};
+        data?.forEach(setting => {
+          settings[setting.key] = setting.value;
+        });
+        
+        return settings;
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_settings');
+        if (stored) {
+          return JSON.parse(stored);
+        } else {
+          const defaultSettings = {
+            instagram_url: 'https://instagram.com/daddybathbomb',
+            facebook_url: 'https://facebook.com/daddybathbomb',
+            hero_slider_interval: '5000'
+          };
+          localStorage.setItem('daddy_settings', JSON.stringify(defaultSettings));
+          return defaultSettings;
+        }
+      }
     } catch (error) {
       console.error('Error fetching settings:', error);
-      // 기본 설정 반환
       return {
         instagram_url: 'https://instagram.com/daddybathbomb',
         facebook_url: 'https://facebook.com/daddybathbomb',
@@ -546,16 +561,102 @@ export const settingsService = {
   // 설정 업데이트
   async updateSetting(key, value) {
     try {
-      const { data, error } = await supabase
-        .from('app_settings')
-        .upsert([{ key, value }])
-        .select()
-        .single();
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .upsert([{ key, value }])
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_settings');
+        const settings = stored ? JSON.parse(stored) : {};
+        settings[key] = value;
+        localStorage.setItem('daddy_settings', JSON.stringify(settings));
+        return { key, value };
+      }
     } catch (error) {
       console.error('Error updating setting:', error);
+      throw error;
+    }
+  }
+};
+
+// 브랜딩 관련 함수들
+export const brandingService = {
+  // 브랜딩 설정 가져오기
+  async getBrandingSettings() {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('branding_settings')
+          .select('*')
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+        return data || this.getDefaultBranding();
+      } else {
+        // 로컬 스토리지 사용
+        const stored = localStorage.getItem('daddy_branding');
+        if (stored) {
+          return JSON.parse(stored);
+        } else {
+          const defaultBranding = this.getDefaultBranding();
+          localStorage.setItem('daddy_branding', JSON.stringify(defaultBranding));
+          return defaultBranding;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching branding settings:', error);
+      return this.getDefaultBranding();
+    }
+  },
+
+  // 기본 브랜딩 설정
+  getDefaultBranding() {
+    return {
+      logo_url: '',
+      logo_dark_url: '',
+      favicon_url: '',
+      site_title: 'Daddy Bath Bomb',
+      site_description: 'Premium natural bath bombs for ultimate relaxation experience',
+      primary_color: '#ec4899',
+      secondary_color: '#8b5cf6',
+      accent_color: '#06b6d4'
+    };
+  },
+
+  // 브랜딩 설정 업데이트
+  async updateBrandingSettings(brandingData) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { data, error } = await supabase
+          .from('branding_settings')
+          .upsert([{
+            ...brandingData,
+            updated_at: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      } else {
+        // 로컬 스토리지 사용
+        const updatedBranding = {
+          ...brandingData,
+          updated_at: new Date().toISOString()
+        };
+        localStorage.setItem('daddy_branding', JSON.stringify(updatedBranding));
+        return updatedBranding;
+      }
+    } catch (error) {
+      console.error('Error updating branding settings:', error);
       throw error;
     }
   }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AuthModal from './AuthModal';
+import { t } from '../utils/translations';
 
 export default function Header({ navigateTo, language, changeLanguage }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
