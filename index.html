@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daddy Bath Bomb - บาธบอมพรีเมียมจากวัตถุดิบธรรมชาติ</title>
+    <meta name="description" content="ร้านบาธบอมออนไลน์ชั้นนำของไทย จำหน่าย Bath Bomb, Bubble Bath Bomb คุณภาพสูงจากวัตถุดิบธรรมชาติ 100% เพื่อประสบการณ์อาบน้ำสุดพิเศษ" />
+    <meta name="keywords" content="บาธบอม, Bath Bomb, Bubble Bath Bomb, Bathbomb Thailand, Natural Bath Bomb, บาธบอมธรรมชาติ, อุปกรณ์อาบน้ำ" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://daddybathbomb.vercel.app/" />
+    <meta property="og:title" content="Daddy Bath Bomb - บาธบอมพรีเมียมจากวัตถุดิบธรรมชาติ" />
+    <meta property="og:description" content="ร้านบาธบอมออนไลน์ชั้นนำของไทย จำหน่าย Bath Bomb คุณภาพสูงจากวัตถุดิบธรรมชาติ 100%" />
+    <meta property="og:image" content="https://daddybathbomb.vercel.app/og-image.jpg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://daddybathbomb.vercel.app/" />
+    <meta property="twitter:title" content="Daddy Bath Bomb - บาธบอมพรีเมียมจากวัตถุดิบธรรมชาติ" />
+    <meta property="twitter:description" content="ร้านบาธบอมออนไลน์ชั้นนำของไทย จำหน่าย Bath Bomb คุณภาพสูงจากวัตถุดิบธรรมชาติ 100%" />
+    <meta property="twitter:image" content="https://daddybathbomb.vercel.app/og-image.jpg" />
+
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'nunito': ['Nunito', 'sans-serif'],
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+              'slide-up': 'slideUp 0.5s ease-out',
+              'bounce-slow': 'bounce 2s infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
