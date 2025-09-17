@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('products');
+export default function AdminDashboard({ navigateTo }) {
+  const [activeTab, setActiveTab] = useState('features');
+  const [features, setFeatures] = useState([]);
+  const [editingFeature, setEditingFeature] = useState(null);
 
   // 임시 관리자 체크 (추후 실제 인증 시스템으로 교체)
   const isAdmin = true; // 추후 실제 로그인 체크로 변경
@@ -41,9 +43,10 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <nav className="flex space-x-8">
             {[
+              { id: 'features', label: '특징 관리', icon: '⭐' },
+              { id: 'slider', label: '슬라이더 관리', icon: '🖼️' },
               { id: 'products', label: '제품 관리', icon: '📦' },
               { id: 'notices', label: '공지사항 관리', icon: '📢' },
-              { id: 'slider', label: '슬라이더 관리', icon: '🖼️' },
               { id: 'orders', label: '주문 관리', icon: '🛒' },
               { id: 'instagram', label: 'Instagram 관리', icon: '📸' }
             ].map((tab) => (
@@ -65,6 +68,173 @@ export default function AdminDashboard() {
 
         {/* Tab Content */}
         <div className="bg-white shadow rounded-lg">
+          {activeTab === 'features' && (
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-semibold">특징 섹션 관리 (ทำไมต้องเลือกเรา?)</h2>
+                <button 
+                  onClick={() => setEditingFeature({ id: Date.now(), title: '', description: '', image: '', isActive: true })}
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors"
+                >
+                  새 특징 추가
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  {
+                    id: 1,
+                    title: 'วัตถุดิบธรรมชาติ',
+                    description: 'ผลิตจากส่วนผสมธรรมชาติ 100% ปลอดภัยสำหรับทุกสมาชิกในครอบครัว',
+                    image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=500&h=400&fit=crop',
+                    isActive: true
+                  },
+                  {
+                    id: 2,
+                    title: 'ฟองฟู่สีสวย',
+                    description: 'ฟองฟู่สีสันสวยงาม พร้อมกลิ่นหอมที่ผ่อนคลาย',
+                    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
+                    isActive: true
+                  },
+                  {
+                    id: 3,
+                    title: 'บำรุงผิว',
+                    description: 'เติมความชุ่มชื้นและบำรุงผิวให้นุ่มเนียนหลังอาบน้ำ',
+                    image: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=500&h=400&fit=crop',
+                    isActive: true
+                  },
+                  {
+                    id: 4,
+                    title: 'ของขวัญสุดพิเศษ',
+                    description: 'ของขวัญที่เหมาะสำหรับคนพิเศษในทุกโอกาส',
+                    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop&sig=gift',
+                    isActive: true
+                  }
+                ].map((feature) => (
+                  <div key={feature.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="relative h-32">
+                      <img
+                        src={feature.image}
+                        alt={feature.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40"></div>
+                      <div className="absolute bottom-2 left-2 text-white text-xs font-medium">
+                        미리보기
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h4 className="font-medium text-gray-800 mb-2">{feature.title}</h4>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{feature.description}</p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setEditingFeature(feature)}
+                          className="flex-1 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
+                        >
+                          수정
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm('정말 삭제하시겠습니까?')) {
+                              // 삭제 로직 (추후 Supabase 연결)
+                              alert('삭제되었습니다.');
+                            }
+                          }}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Feature Edit Modal */}
+              {editingFeature && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-lg max-w-md w-full p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">특징 편집</h3>
+                      <button
+                        onClick={() => setEditingFeature(null)}
+                        className="text-gray-400 hover:text-gray-600 text-xl"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                        <input
+                          type="text"
+                          value={editingFeature.title}
+                          onChange={(e) => setEditingFeature({...editingFeature, title: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          placeholder="특징 제목을 입력하세요"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+                        <textarea
+                          value={editingFeature.description}
+                          onChange={(e) => setEditingFeature({...editingFeature, description: e.target.value})}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          placeholder="특징 설명을 입력하세요"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">이미지 URL</label>
+                        <input
+                          type="url"
+                          value={editingFeature.image}
+                          onChange={(e) => setEditingFeature({...editingFeature, image: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        {editingFeature.image && (
+                          <div className="mt-2">
+                            <img
+                              src={editingFeature.image}
+                              alt="미리보기"
+                              className="w-full h-32 object-cover rounded-lg"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setEditingFeature(null)}
+                          className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                        >
+                          취소
+                        </button>
+                        <button
+                          onClick={() => {
+                            // 저장 로직 (추후 Supabase 연결)
+                            alert('저장되었습니다!');
+                            setEditingFeature(null);
+                          }}
+                          className="flex-1 bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition-colors"
+                        >
+                          저장
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'products' && (
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">

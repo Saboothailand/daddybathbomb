@@ -17,65 +17,76 @@ import AdminDashboard from "./components/AdminDashboard";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [language, setLanguage] = useState('th');
+
+  // 전역 네비게이션 함수
+  const navigateTo = (page) => {
+    console.log('Navigating to:', page);
+    setCurrentPage(page);
+  };
+
+  // 언어 변경 함수
+  const changeLanguage = (lang) => {
+    console.log('Language changed to:', lang);
+    setLanguage(lang);
+  };
 
   useEffect(() => {
+    // 전역 함수들을 window에 등록
+    window.navigateTo = navigateTo;
+    window.changeLanguage = changeLanguage;
+    window.currentPage = currentPage;
+    window.currentLanguage = language;
+
     const handleNavigation = (event) => {
       console.log('Navigation event received:', event.detail);
       setCurrentPage(event.detail);
     };
 
-    // 네비게이션 이벤트 리스너 등록
     window.addEventListener('navigate', handleNavigation);
     
-    // 전역 네비게이션 함수 등록 (디버깅용)
-    window.navigateTo = (page) => {
-      console.log('Direct navigation to:', page);
-      setCurrentPage(page);
-    };
-
     return () => {
       window.removeEventListener('navigate', handleNavigation);
-      delete window.navigateTo;
     };
-  }, []);
+  }, [currentPage, language]);
 
   return (
     <div className="min-h-screen bg-dark-theme font-nunito">
       {/* Debug Info */}
       <div className="fixed top-20 right-4 z-50 bg-black/50 text-white p-2 rounded text-xs">
-        Page: {currentPage}
+        Page: {currentPage} | Lang: {language}
       </div>
       
       <SmoothScroll />
       <SparkleEffect />
       
       {currentPage === 'admin' ? (
-        <AdminDashboard />
+        <AdminDashboard navigateTo={navigateTo} />
       ) : (
         <>
-          <Header />
+          <Header navigateTo={navigateTo} language={language} changeLanguage={changeLanguage} />
           
           {currentPage === 'home' ? (
             <main>
-              <Hero />
-              <ProductGrid />
-              <FunFeatures />
-              <InstagramGallery />
-              <HowToUse />
+              <Hero navigateTo={navigateTo} language={language} />
+              <ProductGrid language={language} />
+              <FunFeatures language={language} />
+              <InstagramGallery language={language} />
+              <HowToUse language={language} />
             </main>
           ) : currentPage === 'about' ? (
-            <AboutPage />
+            <AboutPage navigateTo={navigateTo} language={language} />
           ) : currentPage === 'products' ? (
-            <ProductListing />
+            <ProductListing language={language} />
           ) : currentPage === 'notice' ? (
-            <NoticePage />
+            <NoticePage navigateTo={navigateTo} language={language} />
           ) : currentPage === 'faq' ? (
-            <FAQPage />
+            <FAQPage navigateTo={navigateTo} language={language} />
           ) : currentPage === 'contact' ? (
-            <ContactPage />
+            <ContactPage navigateTo={navigateTo} language={language} />
           ) : null}
           
-          <Footer />
+          <Footer navigateTo={navigateTo} language={language} />
         </>
       )}
     </div>

@@ -1,28 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function FunFeatures() {
-  const features = [
+export default function FunFeatures({ language = 'th' }) {
+  const [features, setFeatures] = useState([]);
+
+  // 샘플 피처 데이터 (추후 관리자가 수정할 수 있도록)
+  const defaultFeatures = [
     {
-      icon: '🌿',
+      id: 1,
       title: 'วัตถุดิบธรรมชาติ',
-      description: 'ผลิตจากส่วนผสมธรรมชาติ 100% ปลอดภัยสำหรับทุกสมาชิกในครอบครัว'
+      description: 'ผลิตจากส่วนผสมธรรมชาติ 100% ปลอดภัยสำหรับทุกสมาชิกในครอบครัว',
+      image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=500&h=400&fit=crop',
+      isActive: true
     },
     {
-      icon: '✨',
+      id: 2,
       title: 'ฟองฟู่สีสวย',
-      description: 'ฟองฟู่สีสันสวยงาม พร้อมกลิ่นหอมที่ผ่อนคลาย'
+      description: 'ฟองฟู่สีสันสวยงาม พร้อมกลิ่นหอมที่ผ่อนคลาย',
+      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
+      isActive: true
     },
     {
-      icon: '💧',
+      id: 3,
       title: 'บำรุงผิว',
-      description: 'เติมความชุ่มชื้นและบำรุงผิวให้นุ่มเนียนหลังอาบน้ำ'
+      description: 'เติมความชุ่มชื้นและบำรุงผิวให้นุ่มเนียนหลังอาบน้ำ',
+      image: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=500&h=400&fit=crop',
+      isActive: true
     },
     {
-      icon: '🎁',
+      id: 4,
       title: 'ของขวัญสุดพิเศษ',
-      description: 'ของขวัญที่เหมาะสำหรับคนพิเศษในทุกโอกาส'
+      description: 'ของขวัญที่เหมาะสำหรับคนพิเศษในทุกโอกาส',
+      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop&sig=gift',
+      isActive: true
     }
   ];
+
+  useEffect(() => {
+    // 추후 Supabase에서 데이터를 가져올 예정
+    // 현재는 샘플 데이터 사용
+    setFeatures(defaultFeatures);
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
@@ -37,20 +54,32 @@ export default function FunFeatures() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
+          {features.filter(f => f.isActive).map((feature, index) => (
             <div
-              key={index}
-              className="group bg-white/10 backdrop-blur-md rounded-3xl p-8 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              key={feature.id}
+              className="group bg-white/10 backdrop-blur-md rounded-3xl overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
-              <div className="text-6xl mb-6 text-center group-hover:animate-bounce">
-                {feature.icon}
+              {/* Feature Image */}
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                {/* Gray overlay with white text */}
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300"></div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/80 to-transparent p-4">
+                  <h3 className="text-lg font-bold text-white mb-1">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-200 text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+                
+                {/* Hover effect overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <h3 className="text-xl font-bold text-white mb-4 text-center">
-                {feature.title}
-              </h3>
-              <p className="text-blue-100 text-center leading-relaxed">
-                {feature.description}
-              </p>
             </div>
           ))}
         </div>

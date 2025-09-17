@@ -1,25 +1,55 @@
 import React, { useState } from 'react';
+import AuthModal from './AuthModal';
 
-export default function Header() {
+export default function Header({ navigateTo, language, changeLanguage }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [adminClicks, setAdminClicks] = useState(0);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handleNavigation = (page) => {
-    window.dispatchEvent(new CustomEvent('navigate', { detail: page }));
+    if (navigateTo) {
+      navigateTo(page);
+    } else {
+      window.dispatchEvent(new CustomEvent('navigate', { detail: page }));
+    }
     setIsMenuOpen(false);
+  };
+
+  // 로고를 5번 클릭하면 관리자 페이지로 이동
+  const handleLogoClick = () => {
+    setAdminClicks(prev => {
+      const newCount = prev + 1;
+      if (newCount >= 5) {
+        console.log('Admin access activated!');
+        handleNavigation('admin');
+        setAdminClicks(0);
+        return 0;
+      }
+      return newCount;
+    });
+    
+    // 3초 후 카운트 리셋
+    setTimeout(() => setAdminClicks(0), 3000);
   };
 
   return (
     <header className="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - 5번 클릭하면 관리자 페이지 */}
           <div 
-            className="flex items-center cursor-pointer"
-            onClick={() => handleNavigation('home')}
+            className="flex items-center cursor-pointer relative"
+            onClick={handleLogoClick}
+            title={adminClicks > 0 ? `관리자 접근: ${adminClicks}/5` : "홈으로 이동"}
           >
             <div className="text-2xl font-bold text-white">
               🛁 Daddy Bath Bomb
             </div>
+            {adminClicks > 0 && (
+              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {adminClicks}
+              </div>
+            )}
           </div>
 
           {/* Desktop Navigation */}
@@ -74,7 +104,16 @@ export default function Header() {
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
             {/* Language Selector */}
-            <select className="bg-transparent text-white border border-white/20 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500">
+            <select 
+              value={language}
+              onChange={(e) => {
+                console.log('Language changing to:', e.target.value);
+                if (changeLanguage) {
+                  changeLanguage(e.target.value);
+                }
+              }}
+              className="bg-transparent text-white border border-white/20 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+            >
               <option value="th" className="bg-gray-800 text-white">🇹🇭 ไทย</option>
               <option value="en" className="bg-gray-800 text-white">🇺🇸 English</option>
             </select>
@@ -90,8 +129,14 @@ export default function Header() {
             </button>
 
             {/* Login Button */}
-            <button className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-full transition-colors">
-              เข้าสู่ระบบ
+            <button 
+              onClick={() => {
+                console.log('Login button clicked');
+                setShowAuth(true);
+              }}
+              className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-full transition-colors cursor-pointer"
+            >
+              {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
             </button>
 
             {/* Mobile Menu Button */}
@@ -144,6 +189,13 @@ export default function Header() {
           </div>
         )}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuth}
+        onClose={() => setShowAuth(false)}
+        language={language}
+      />
     </header>
   );
 }
