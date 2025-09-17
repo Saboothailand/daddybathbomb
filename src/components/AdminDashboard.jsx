@@ -179,12 +179,20 @@ export default function AdminDashboard({ navigateTo }) {
   const handleSocialLinksSave = async () => {
     try {
       setLoading(true);
+      console.log('Saving social links:', socialLinks);
+      
+      // 소셜 링크 저장
       await settingsService.updateSetting('instagram_url', socialLinks.instagram);
       await settingsService.updateSetting('facebook_url', socialLinks.facebook);
+      
+      console.log('Social links saved successfully');
       alert('Social media links updated successfully!');
+      
+      // 데이터 다시 로드
+      loadData();
     } catch (error) {
       console.error('Error saving social links:', error);
-      alert('Failed to save social links. Please try again.');
+      alert(`Failed to save social links: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -802,20 +810,26 @@ export default function AdminDashboard({ navigateTo }) {
                     <div className="p-6">
                       <h4 className="font-bold text-gray-800 mb-2 text-lg">{feature.title}</h4>
                       <p className="text-gray-600 text-sm mb-4 line-clamp-2">{feature.description}</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setEditingFeature(feature)}
-                          className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors font-medium"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleFeatureDelete(feature.id)}
-                          className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-600 transition-colors font-medium"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          console.log('Editing feature:', feature);
+                          setEditingFeature(feature);
+                        }}
+                        className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          console.log('Deleting feature:', feature.id);
+                          handleFeatureDelete(feature.id);
+                        }}
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-600 transition-colors font-medium"
+                      >
+                        Delete
+                      </button>
+                    </div>
                     </div>
                   </div>
                 ))}

@@ -4,6 +4,7 @@ import CartSidebar from './CartSidebar';
 import OrderForm from './OrderForm';
 import { t } from '../utils/translations';
 import { getCartItemCount } from '../utils/cart';
+import { brandingService } from '../lib/supabase';
 
 export default function Header({ navigateTo, language, changeLanguage }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
