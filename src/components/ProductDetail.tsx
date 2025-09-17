@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useCart } from '../hooks/useCart'
 import { useAuth } from '../hooks/useAuth'
+import { useI18n } from '../hooks/useI18n'
 import { Product, supabase } from '../lib/supabase'
+import SEOHead, { createProductStructuredData } from './SEOHead'
 import AuthModal from './AuthModal'
 
 interface ProductDetailProps {
@@ -19,6 +21,7 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
   
   const { addItem } = useCart()
   const { user } = useAuth()
+  const { language, t, formatPrice } = useI18n()
 
   useEffect(() => {
     fetchProduct()
@@ -108,8 +111,30 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
     ? [product.image_url] 
     : ['/placeholder-product.jpg']
 
+  // SEO 데이터 생성
+  const seoTitle = `${product.name} - Bath Bomb Thailand | Daddy Bath Bomb`
+  const seoDescription = `${product.description?.replace(/<[^>]*>/g, '').substring(0, 150) || 'Premium bath bomb'} ฿${product.price} - Natural ingredients, ${product.scent || 'amazing scent'}, ${product.weight || '100g'}. Free shipping in Thailand.`
+  const seoKeywords = [
+    product.name,
+    'Bath Bomb',
+    'Bubble Bath Bomb',
+    'Bathbomb Thailand',
+    product.category || 'Bath Products',
+    product.scent || 'Scented Bath Bomb',
+    'Natural Bath Bomb',
+    'Premium Bath Bomb'
+  ]
+
   return (
     <>
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        ogImage={product.image_url}
+        structuredData={createProductStructuredData(product, language)}
+      />
+      
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
           {/* Header */}

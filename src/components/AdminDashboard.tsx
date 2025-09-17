@@ -4,7 +4,7 @@ import { supabase, Product, Content, Order, OrderItem, InstagramPost } from '../
 
 export default function AdminDashboard() {
   const { user, isAdmin } = useAuth()
-  const [activeTab, setActiveTab] = useState<'products' | 'content' | 'orders' | 'instagram'>('products')
+  const [activeTab, setActiveTab] = useState<'products' | 'content' | 'orders' | 'instagram' | 'notices' | 'slider'>('products')
   const [products, setProducts] = useState<Product[]>([])
   const [content, setContent] = useState<Content[]>([])
   const [orders, setOrders] = useState<(Order & { order_items: (OrderItem & { product: Product })[] })[]>([])
@@ -161,7 +161,9 @@ export default function AdminDashboard() {
               { id: 'products', label: '제품 관리', icon: '📦' },
               { id: 'content', label: '콘텐츠 관리', icon: '📝' },
               { id: 'orders', label: '주문 관리', icon: '🛒' },
-              { id: 'instagram', label: 'Instagram 관리', icon: '📸' }
+              { id: 'instagram', label: 'Instagram 관리', icon: '📸' },
+              { id: 'notices', label: '공지사항 관리', icon: '📢' },
+              { id: 'slider', label: '슬라이더 관리', icon: '🖼️' }
             ].map((tab) => (
               <button
                 key={tab.id}

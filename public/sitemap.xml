@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- Homepage -->
+  <url>
+    <loc>https://daddybathbomb.vercel.app/</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://daddybathbomb.vercel.app/?lang=th" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://daddybathbomb.vercel.app/?lang=en" />
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://daddybathbomb.vercel.app/about</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://daddybathbomb.vercel.app/about?lang=th" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://daddybathbomb.vercel.app/about?lang=en" />
+  </url>
+
+  <!-- Products Pages (will be dynamically generated) -->
+  <!-- Add individual product URLs here when products are created -->
+  
+  <!-- Category Pages -->
+  <url>
+    <loc>https://daddybathbomb.vercel.app/products/relaxing</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://daddybathbomb.vercel.app/products/romantic</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://daddybathbomb.vercel.app/products/fresh</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Search optimized pages -->
+  <url>
+    <loc>https://daddybathbomb.vercel.app/search/bath-bomb</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://daddybathbomb.vercel.app/search/bubble-bath-bomb</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://daddybathbomb.vercel.app/search/bathbomb-thailand</loc>
+    <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>

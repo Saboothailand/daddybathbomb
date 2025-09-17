@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# SEO optimized for bath bomb searches
+Allow: /products
+Allow: /about
+Allow: /
+
+# Block admin and private areas
+Disallow: /admin
+Disallow: /api
+Disallow: /_next
+Disallow: /checkout
+
+# Sitemap location
+Sitemap: https://daddybathbomb.vercel.app/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
