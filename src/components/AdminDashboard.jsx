@@ -132,33 +132,48 @@ export default function AdminDashboard({ navigateTo }) {
   ];
 
   const handleFeatureSave = async (feature) => {
+    console.log('Saving feature:', feature);
+    
+    // 입력 값 검증
+    if (!feature.title || !feature.description) {
+      alert('Please fill in both title and description');
+      return;
+    }
+    
     try {
       setLoading(true);
-      if (feature.id && features.find(f => f.id === feature.id)) {
+      
+      const featureData = {
+        title: feature.title,
+        description: feature.description,
+        image_url: feature.image_url || feature.image || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop',
+        is_active: feature.is_active !== undefined ? feature.is_active : feature.isActive !== undefined ? feature.isActive : true
+      };
+      
+      console.log('Feature data to save:', featureData);
+      
+      if (feature.id && features.find(f => f.id == feature.id)) {
         // 업데이트
-        await featuresService.updateFeature(feature.id, {
-          title: feature.title,
-          description: feature.description,
-          image_url: feature.image_url || feature.image,
-          is_active: feature.isActive
-        });
+        console.log('Updating existing feature:', feature.id);
+        await featuresService.updateFeature(feature.id, featureData);
         alert('Feature updated successfully!');
       } else {
         // 새로 생성
-        await featuresService.createFeature({
-          title: feature.title,
-          description: feature.description,
-          image_url: feature.image_url || feature.image,
-          is_active: feature.isActive,
+        console.log('Creating new feature');
+        const newFeature = await featuresService.createFeature({
+          ...featureData,
           display_order: features.length + 1
         });
+        console.log('New feature created:', newFeature);
         alert('New feature added successfully!');
       }
+      
       setEditingFeature(null);
-      loadData(); // 데이터 다시 로드
+      await loadData(); // 데이터 다시 로드
+      
     } catch (error) {
       console.error('Error saving feature:', error);
-      alert('Failed to save feature. Please try again.');
+      alert(`Failed to save feature: ${error.message}`);
     } finally {
       setLoading(false);
     }

@@ -838,36 +838,50 @@ export const cmsService = {
   },
 
   // 배너 관리
-  async getBanners(position = null) {
+  async getBanners(position = null, options = {}) {
+    const { activeOnly = true } = options;
     try {
       if (supabaseUrl && supabaseAnonKey) {
         let query = supabase
           .from('banner_images')
-          .select('*')
-          .eq('is_active', true);
-        
+          .select('*');
+
+        if (activeOnly) {
+          query = query.eq('is_active', true);
+        }
+
         if (position) {
           query = query.eq('position', position);
         }
-        
+
         const { data, error } = await query.order('display_order', { ascending: true });
-        
+
         if (error) throw error;
         return data || [];
       } else {
         const stored = localStorage.getItem('daddy_banners');
+        let banners;
+
         if (stored) {
-          const banners = JSON.parse(stored);
-          return position ? banners.filter(b => b.position === position) : banners;
+          banners = JSON.parse(stored);
         } else {
-          const defaultBanners = [
+          banners = [
             { id: 1, title: 'Welcome Banner', description: 'Premium bath bombs', image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', position: 'hero', display_order: 1, is_active: true },
             { id: 2, title: 'Special Offer', description: 'Limited time promotion', image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', position: 'middle', display_order: 1, is_active: true },
             { id: 3, title: 'Follow Us', description: 'Social media updates', image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', position: 'bottom', display_order: 1, is_active: true }
           ];
-          localStorage.setItem('daddy_banners', JSON.stringify(defaultBanners));
-          return position ? defaultBanners.filter(b => b.position === position) : defaultBanners;
+          localStorage.setItem('daddy_banners', JSON.stringify(banners));
         }
+
+        if (activeOnly) {
+          banners = banners.filter(b => b.is_active);
+        }
+
+        if (position) {
+          banners = banners.filter(b => b.position === position);
+        }
+
+        return banners;
       }
     } catch (error) {
       console.error('Error fetching banners:', error);
@@ -880,22 +894,86 @@ export const cmsService = {
       if (supabaseUrl && supabaseAnonKey) {
         const { data, error } = await supabase
           .from('banner_images')
-          .insert([bannerData])
+          .insert([{ ...bannerData, updated_at: new Date().toISOString() }])
           .select()
           .single();
-        
+
         if (error) throw error;
         return data;
       } else {
         const stored = localStorage.getItem('daddy_banners');
         const banners = stored ? JSON.parse(stored) : [];
-        const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString() };
+        const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
         banners.push(newBanner);
         localStorage.setItem('daddy_banners', JSON.stringify(banners));
         return newBanner;
       }
     } catch (error) {
       console.error('Error creating banner:', error);
+      throw error;
+    }
+  },
+
+  async updateBanner(id, updateData) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const payload = {
+          ...updateData,
+          updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await supabase
+          .from('banner_images')
+          .update(payload)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      } else {
+        const stored = localStorage.getItem('daddy_banners');
+        const banners = stored ? JSON.parse(stored) : [];
+        const index = banners.findIndex(b => b.id == id);
+
+        if (index === -1) {
+          throw new Error('Banner not found');
+        }
+
+        banners[index] = {
+          ...banners[index],
+          ...updateData,
+          updated_at: new Date().toISOString()
+        };
+
+        localStorage.setItem('daddy_banners', JSON.stringify(banners));
+        return banners[index];
+      }
+    } catch (error) {
+      console.error('Error updating banner:', error);
+      throw error;
+    }
+  },
+
+  async deleteBanner(id) {
+    try {
+      if (supabaseUrl && supabaseAnonKey) {
+        const { error } = await supabase
+          .from('banner_images')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        return true;
+      } else {
+        const stored = localStorage.getItem('daddy_banners');
+        const banners = stored ? JSON.parse(stored) : [];
+        const filtered = banners.filter(b => b.id != id);
+        localStorage.setItem('daddy_banners', JSON.stringify(filtered));
+        return true;
+      }
+    } catch (error) {
+      console.error('Error deleting banner:', error);
       throw error;
     }
   }
