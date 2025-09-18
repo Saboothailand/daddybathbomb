@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Zap, Star, Heart } from "lucide-react";
 
 import type { LanguageKey, PageKey } from "../App";
@@ -6,83 +6,27 @@ import { addToCart } from "../utils/cart";
 import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
 import { Button } from "./ui/button";
+import { AdminService } from "../lib/adminService";
 
 type Product = {
-  id: number;
+  id: string;
   name: string;
   price: number;
-  image: string;
+  original_price?: number;
+  image_url: string;
   description: string;
+  short_description?: string;
   color: string;
   category: string;
-  stock?: number;
+  stock_quantity?: number;
   scent?: string;
   weight?: string;
   ingredients?: string;
+  rating?: number;
+  review_count?: number;
+  is_featured?: boolean;
+  is_active?: boolean;
 };
-
-const fallbackProducts: Product[] = [
-  {
-    id: 1,
-    name: "SUPER RED FIZZ",
-    price: 12.99,
-    image:
-      "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGJhdGglMjBib21iJTIwYnViYmxlcyUyMGNhcnRvb24lMjBzdHlsZXxlbnwxfHx8fDE3NTgwMTM2Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    description: "POW! Cherry explosion with super bubbles and strawberry fun power!",
-    color: "#FF2D55",
-    category: "Hero Series",
-  },
-  {
-    id: 2,
-    name: "HERO BLUE BLAST",
-    price: 14.99,
-    image:
-      "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGJhdGglMjBib21iJTIwYnViYmxlcyUyMGNhcnRvb24lMjBzdHlsZXxlbnwxfHx8fDE3NTgwMTM2Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    description: "BOOM! Ocean breeze with cooling mint and superhero strength bubbles!",
-    color: "#007AFF",
-    category: "Hero Series",
-  },
-  {
-    id: 3,
-    name: "MAGIC GREEN GO",
-    price: 13.99,
-    image:
-      "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGJhdGglMjBib21iJTIwYnViYmxlcyUyMGNhcnRvb24lMjBzdHlsZXxlbnwxfHx8fDE3NTgwMTM2Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    description: "ZAP! Tropical lime with energizing bubbles and adventure scent power!",
-    color: "#00FF88",
-    category: "Adventure",
-  },
-  {
-    id: 4,
-    name: "GOLDEN SUN POWER",
-    price: 15.99,
-    image:
-      "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGJhdGglMjBib21iJTIwYnViYmxlcyUyMGNhcnRvb24lMjBzdHlsZXxlbnwxfHx8fDE3NTgwMTM2Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    description: "SHINE! Sunny orange with citrus burst and happiness bubble magic!",
-    color: "#FFD700",
-    category: "Adventure",
-  },
-  {
-    id: 5,
-    name: "PURPLE STORM FUN",
-    price: 16.99,
-    image:
-      "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGJhdGglMjBib21iJTIwYnViYmxlcyUyMGNhcnRvb24lMjBzdHlsZXxlbnwxfHx8fDE3NTgwMTM2Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    description: "WHOOSH! Lavender lightning with dreamy bubbles and calm superhero vibes!",
-    color: "#AF52DE",
-    category: "Calm",
-  },
-  {
-    id: 6,
-    name: "RAINBOW MEGA MIX",
-    price: 18.99,
-    image:
-      "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGJhdGglMjBib21iJTIwYnViYmxlcyUyMGNhcnRvb24lMjBzdHlsZXxlbnwxfHx8fDE3NTgwMTM2Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    description: "AMAZING! All colors unite for the ultimate superhero bath adventure!",
-    color: "#FF69B4",
-    category: "Special",
-  },
-];
 
 type ProductGridProps = {
   language: LanguageKey;
@@ -91,12 +35,135 @@ type ProductGridProps = {
 
 export default function ProductGrid({ language, navigateTo }: ProductGridProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const products = useMemo(() => fallbackProducts, []);
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const data = await AdminService.getProducts();
+      
+      // 홈페이지에는 featured 제품 6개만 표시
+      const featuredProducts = data
+        .filter(product => product.is_active && product.is_featured)
+        .slice(0, 6);
+      
+      // 데이터 변환 (기존 구조에 맞춤)
+      const transformedProducts = featuredProducts.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        original_price: product.original_price,
+        image_url: product.image_url,
+        description: product.description,
+        short_description: product.short_description,
+        color: product.color || "#FF2D55",
+        category: product.category || "Bath Bombs",
+        stock_quantity: product.stock_quantity,
+        scent: product.scent,
+        weight: product.weight,
+        ingredients: product.ingredients,
+        rating: product.rating,
+        review_count: product.review_count,
+        is_featured: product.is_featured,
+        is_active: product.is_active
+      }));
+
+      setProducts(transformedProducts);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      // 에러 시 fallback 데이터 사용
+      setProducts(fallbackProducts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback 제품 데이터 (태국 바트로 수정)
+  const fallbackProducts: Product[] = [
+    {
+      id: "1",
+      name: "SUPER RED FIZZ",
+      price: 390, // 태국 바트
+      original_price: 450,
+      image_url: "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop",
+      description: "POW! Cherry explosion with super bubbles and strawberry fun power!",
+      color: "#FF2D55",
+      category: "Hero Series",
+    },
+    {
+      id: "2",
+      name: "HERO BLUE BLAST",
+      price: 420, // 태국 바트
+      original_price: 480,
+      image_url: "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop&sig=blue",
+      description: "BOOM! Ocean breeze with cooling mint and superhero strength bubbles!",
+      color: "#007AFF",
+      category: "Hero Series",
+    },
+    {
+      id: "3",
+      name: "MAGIC GREEN GO",
+      price: 380, // 태국 바트
+      original_price: 430,
+      image_url: "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop&sig=green",
+      description: "ZAP! Tropical lime with energizing bubbles and adventure scent power!",
+      color: "#00FF88",
+      category: "Adventure",
+    },
+    {
+      id: "4",
+      name: "GOLDEN SUN POWER",
+      price: 450, // 태국 바트
+      original_price: 520,
+      image_url: "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop&sig=gold",
+      description: "SHINE! Sunny orange with citrus burst and happiness bubble magic!",
+      color: "#FFD700",
+      category: "Adventure",
+    },
+    {
+      id: "5",
+      name: "PURPLE STORM FUN",
+      price: 430, // 태국 바트
+      original_price: 480,
+      image_url: "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop&sig=purple",
+      description: "WHOOSH! Lavender lightning with dreamy bubbles and calm superhero vibes!",
+      color: "#AF52DE",
+      category: "Calm",
+    },
+    {
+      id: "6",
+      name: "RAINBOW MEGA MIX",
+      price: 580, // 태국 바트
+      original_price: 650,
+      image_url: "https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop&sig=rainbow",
+      description: "AMAZING! All colors unite for the ultimate superhero bath adventure!",
+      color: "#FF69B4",
+      category: "Special",
+    },
+  ];
 
   const handleAddToCart = (product: Product) => {
-    addToCart(product);
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url
+    });
   };
+
+  if (loading) {
+    return (
+      <section id="products" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0B0F1A] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-white text-xl">Loading products...</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="products" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0B0F1A] relative overflow-hidden">

@@ -1,8 +1,15 @@
-import { useState } from "react";
-import { Star, ShoppingCart, Heart, Zap } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Star, ShoppingCart, Heart, Zap, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
 
 interface Product {
   id: string;
@@ -17,6 +24,8 @@ interface Product {
   inStock: boolean;
   isNew?: boolean;
   isBestseller?: boolean;
+  description?: string;
+  gallery?: string[];
 }
 
 interface ProductListingCardProps {
@@ -34,6 +43,13 @@ export default function ProductListingCard({
 }: ProductListingCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const images = useMemo(() => {
+    if (product.gallery && product.gallery.length > 0) {
+      return product.gallery;
+    }
+    return [product.image];
+  }, [product.gallery, product.image]);
 
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, i) => (
@@ -113,37 +129,56 @@ export default function ProductListingCard({
         </button>
       )}
 
-      {/* Product image */}
-      <div className="relative aspect-square overflow-hidden rounded-t-2xl">
-        <ImageWithFallback
-          src={product.image}
-          alt={product.name}
-          className={`w-full h-full object-cover transition-all duration-500 ${
-            isHovered ? 'scale-110' : 'scale-100'
-          } ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
-          onLoad={() => setImageLoading(false)}
-        />
-        
-        {/* Loading shimmer */}
+      {/* Product image carousel */}
+      <div className="relative overflow-hidden rounded-t-2xl">
+        <Carousel
+          className="h-full"
+          opts={{ loop: images.length > 1, align: "start" }}
+        >
+          <CarouselContent className="aspect-square">
+            {images.map((imageSrc, index) => (
+              <CarouselItem key={`${product.id}-image-${index}`} className="h-full">
+                <ImageWithFallback
+                  src={imageSrc}
+                  alt={`${product.name} 이미지 ${index + 1}`}
+                  className={`h-full w-full rounded-t-2xl object-cover transition-transform duration-500 ${
+                    isHovered ? "scale-105" : "scale-100"
+                  } ${imageLoading ? "opacity-0" : "opacity-100"}`}
+                  onLoad={() => setImageLoading(false)}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+
+          {images.length > 1 && (
+            <>
+              <CarouselPrevious className="left-3 top-1/2 -translate-y-1/2 size-8 bg-black/50 text-white hover:bg-black/70" />
+              <CarouselNext className="right-3 top-1/2 -translate-y-1/2 size-8 bg-black/50 text-white hover:bg-black/70" />
+            </>
+          )}
+        </Carousel>
+
         {imageLoading && (
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1E293B] via-[#334155] to-[#1E293B] animate-pulse" />
+          <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-[#1E293B] via-[#334155] to-[#1E293B]" />
         )}
-        
-        {/* Hover overlay */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`} />
-        
-        {/* Quick add button on hover */}
-        <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
-          isHovered && product.inStock ? 'opacity-100' : 'opacity-0'
-        }`}>
+
+        <div
+          className={`pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
+            isHovered ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+            isHovered && product.inStock ? "opacity-100" : "opacity-0"
+          }`}
+        >
           <Button
             onClick={handleAddToCart}
             size="sm"
-            className="bg-[#FF2D55] hover:bg-[#FF1744] text-white px-4 py-2 rounded-xl comic-button font-bold shadow-lg"
+            className="pointer-events-auto rounded-xl bg-[#FF2D55] px-4 py-2 font-bold text-white shadow-lg hover:bg-[#FF1744]"
           >
-            <ShoppingCart className="w-4 h-4 mr-2" />
+            <ShoppingCart className="mr-2 h-4 w-4" />
             Quick Add
           </Button>
         </div>
@@ -152,10 +187,19 @@ export default function ProductListingCard({
       {/* Product info */}
       <div className="p-4">
         {/* Category */}
-        <div className="flex items-center mb-2">
-          <Badge variant="secondary" className="bg-[#334155] text-[#94A3B8] text-xs">
-            {product.category}
-          </Badge>
+        <div className="mb-3">
+          <button
+            type="button"
+            onClick={() => setDetailsOpen((prev) => !prev)}
+            className="flex w-full items-center justify-between rounded-xl border border-[#334155] bg-[#10172B] px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-[#94A3B8] transition hover:border-[#007AFF] hover:text-white"
+          >
+            <span>{product.category}</span>
+            {detailsOpen ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
         </div>
 
         {/* Product name */}
@@ -192,11 +236,11 @@ export default function ProductListingCard({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-xl text-[#00FF88]">
-              ${product.price.toFixed(2)}
+              ฿{product.price.toLocaleString()}
             </span>
             {product.originalPrice && (
               <span className="text-[#64748B] line-through text-sm">
-                ${product.originalPrice.toFixed(2)}
+                ฿{product.originalPrice.toLocaleString()}
               </span>
             )}
           </div>
@@ -206,6 +250,14 @@ export default function ProductListingCard({
             </Badge>
           )}
         </div>
+
+        {detailsOpen && (
+          <div className="mb-4 rounded-xl border border-[#1E293B] bg-[#10172B] p-4 text-sm text-[#94A3C4]">
+            <p className="leading-relaxed">
+              {product.description ?? "이 제품은 천연 성분으로 만들어져 아이들과 가족 모두가 즐길 수 있는 슈퍼 히어로 테마 배쓰밤입니다."}
+            </p>
+          </div>
+        )}
 
         {/* Add to cart button */}
         <Button

@@ -403,10 +403,10 @@ export const galleryService = {
   async getActiveGalleryImages() {
     try {
       const { data, error } = await supabase
-        .from('gallery')
+        .from('gallery_images')
         .select('*')
         .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .order('display_order', { ascending: true });
 
       if (error) throw error;
       return data || [];
@@ -434,7 +434,7 @@ export const galleryService = {
   async createGalleryImage(imageData) {
     try {
       const { data, error } = await supabase
-        .from('gallery')
+        .from('gallery_images')
         .insert([imageData])
         .select()
         .single();
@@ -462,7 +462,7 @@ export const ordersService = {
             product_id,
             quantity,
             price,
-            products (name, image)
+            products (name, image_url)
           )
         `)
         .order('created_at', { ascending: false });
@@ -587,75 +587,133 @@ export const settingsService = {
 };
 
 // 브랜딩 관련 함수들
+const BRANDING_LOCAL_STORAGE_KEY = 'daddy_branding';
+const BRANDING_DEFAULTS = {
+  logo_url: '',
+  logo_dark_url: '',
+  favicon_url: '',
+  site_title: 'Daddy Bath Bomb',
+  site_description: 'Premium natural bath bombs for ultimate relaxation experience',
+  primary_color: '#FF2D55',
+  secondary_color: '#007AFF',
+  accent_color: '#FFD700'
+};
+
+const BRANDING_KEY_META: Record<keyof typeof BRANDING_DEFAULTS, { settingKey: string; type: 'text' | 'image' }> = {
+  logo_url: { settingKey: 'site_logo', type: 'image' },
+  logo_dark_url: { settingKey: 'site_logo_dark', type: 'image' },
+  favicon_url: { settingKey: 'site_favicon', type: 'image' },
+  site_title: { settingKey: 'site_name', type: 'text' },
+  site_description: { settingKey: 'site_description', type: 'text' },
+  primary_color: { settingKey: 'primary_color', type: 'text' },
+  secondary_color: { settingKey: 'secondary_color', type: 'text' },
+  accent_color: { settingKey: 'accent_color', type: 'text' }
+};
+
+const BRANDING_SETTING_KEYS = Object.values(BRANDING_KEY_META).map((meta) => meta.settingKey);
+
 export const brandingService = {
   // 브랜딩 설정 가져오기
   async getBrandingSettings() {
     try {
       if (supabaseUrl && supabaseAnonKey) {
         const { data, error } = await supabase
-          .from('branding_settings')
-          .select('*')
-          .order('updated_at', { ascending: false })
-          .limit(1)
-          .single();
+          .from('site_settings')
+          .select('setting_key, setting_value')
+          .in('setting_key', BRANDING_SETTING_KEYS);
 
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
-        return data || this.getDefaultBranding();
-      } else {
-        // 로컬 스토리지 사용
-        const stored = localStorage.getItem('daddy_branding');
-        if (stored) {
-          return JSON.parse(stored);
-        } else {
-          const defaultBranding = this.getDefaultBranding();
-          localStorage.setItem('daddy_branding', JSON.stringify(defaultBranding));
-          return defaultBranding;
+        if (error) throw error;
+
+        const settingsMap = new Map<string, string>();
+        data?.forEach((item) => {
+          if (item.setting_key && item.setting_value !== null && item.setting_value !== undefined) {
+            settingsMap.set(item.setting_key, item.setting_value);
+          }
+        });
+
+        const hasSiteSettings = (data?.length ?? 0) > 0;
+        const result = { ...BRANDING_DEFAULTS } as Record<string, string>;
+
+        for (const [field, meta] of Object.entries(BRANDING_KEY_META)) {
+          const value = settingsMap.get(meta.settingKey);
+          if (value !== undefined) {
+            result[field] = value;
+          }
         }
+
+        if (!hasSiteSettings) {
+          const { data: rows, error: brandingError } = await supabase
+            .from('branding_settings')
+            .select('*')
+            .order('updated_at', { ascending: false })
+            .limit(1);
+
+          if (!brandingError && rows && rows.length > 0) {
+            return { ...result, ...rows[0] };
+          }
+        }
+
+        return result;
       }
+
+      const stored = localStorage.getItem(BRANDING_LOCAL_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+
+      localStorage.setItem(BRANDING_LOCAL_STORAGE_KEY, JSON.stringify(BRANDING_DEFAULTS));
+      return { ...BRANDING_DEFAULTS };
     } catch (error) {
       console.error('Error fetching branding settings:', error);
-      return this.getDefaultBranding();
+      return { ...BRANDING_DEFAULTS };
     }
   },
 
   // 기본 브랜딩 설정
   getDefaultBranding() {
-    return {
-      logo_url: '',
-      logo_dark_url: '',
-      favicon_url: '',
-      site_title: 'Daddy Bath Bomb',
-      site_description: 'Premium natural bath bombs for ultimate relaxation experience',
-      primary_color: '#ec4899',
-      secondary_color: '#8b5cf6',
-      accent_color: '#06b6d4'
-    };
+    return { ...BRANDING_DEFAULTS };
   },
 
   // 브랜딩 설정 업데이트
-  async updateBrandingSettings(brandingData) {
+  async updateBrandingSettings(brandingData = {}) {
     try {
       if (supabaseUrl && supabaseAnonKey) {
-        const { data, error } = await supabase
-          .from('branding_settings')
-          .upsert([{
-            ...brandingData,
-            updated_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
+        const now = new Date().toISOString();
+        const rows = Object.entries(BRANDING_KEY_META)
+          .map(([field, meta]) => {
+            if (brandingData[field] === undefined) {
+              return null;
+            }
 
-        if (error) throw error;
-        return data;
-      } else {
-        // 로컬 스토리지 사용
-        const updatedBranding = {
-          ...brandingData,
-          updated_at: new Date().toISOString()
-        };
-        localStorage.setItem('daddy_branding', JSON.stringify(updatedBranding));
-        return updatedBranding;
+            return {
+              setting_key: meta.settingKey,
+              setting_value: brandingData[field] ?? '',
+              setting_type: meta.type,
+              category: 'branding',
+              is_public: true,
+              updated_at: now
+            };
+          })
+          .filter(Boolean);
+
+        if (rows.length > 0) {
+          const { error } = await supabase
+            .from('site_settings')
+            .upsert(rows, { onConflict: 'setting_key' });
+
+          if (error) throw error;
+        }
+
+        return this.getBrandingSettings();
       }
+
+      const updatedBranding = {
+        ...BRANDING_DEFAULTS,
+        ...brandingData,
+        updated_at: new Date().toISOString()
+      };
+      localStorage.setItem(BRANDING_LOCAL_STORAGE_KEY, JSON.stringify(updatedBranding));
+      return updatedBranding;
     } catch (error) {
       console.error('Error updating branding settings:', error);
       throw error;

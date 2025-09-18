@@ -13,6 +13,22 @@ export default function CartSidebar({ isOpen, onClose, onCheckout, language = 't
     }
   }, [isOpen]);
 
+  // cartSidebar:open 이벤트 리스너 추가
+  useEffect(() => {
+    const handleCartOpen = () => {
+      loadCartData();
+      if (onOpen) {
+        onOpen();
+      }
+    };
+
+    window.addEventListener('cartSidebar:open', handleCartOpen);
+    
+    return () => {
+      window.removeEventListener('cartSidebar:open', handleCartOpen);
+    };
+  }, []);
+
   const loadCartData = () => {
     const items = getCart();
     const totalAmount = getCartTotal();
@@ -47,8 +63,10 @@ export default function CartSidebar({ isOpen, onClose, onCheckout, language = 't
       alert(language === 'th' ? 'ตะกร้าว่างเปล่า' : 'Cart is empty');
       return;
     }
-    onCheckout && onCheckout();
-    onClose();
+    
+    // 주문 폼 열기
+    onClose(); // 장바구니 닫기
+    window.dispatchEvent(new CustomEvent('openCheckoutForm')); // 주문 폼 열기 이벤트
   };
 
   const texts = {

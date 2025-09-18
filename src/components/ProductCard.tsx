@@ -52,7 +52,7 @@ export default function ProductCard({
         {/* Price tag */}
         <div className="absolute top-6 right-6">
           <div className="bg-[#FF2D55] text-white px-4 py-2 rounded-full font-fredoka font-bold text-lg comic-border border-3 border-black transform rotate-12">
-            ${price}
+            ฿{price.toLocaleString()} {/* $ → ฿ 변경 */}
           </div>
         </div>
         

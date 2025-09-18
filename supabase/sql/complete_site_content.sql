@@ -1,7 +1,6 @@
 -- 사이트 전체 콘텐츠를 테이블로 관리
 -- Supabase 대시보드 → SQL Editor에서 실행하세요
 
--- 1. 페이지별 배너 테이블
 CREATE TABLE IF NOT EXISTS public.page_banners (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     page_name TEXT NOT NULL, -- 'home', 'about', 'products', 'contact', 'faq', 'notice'
@@ -17,8 +16,22 @@ CREATE TABLE IF NOT EXISTS public.page_banners (
     display_order INTEGER DEFAULT 0,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE (page_name, section_name, title)
 );
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   pg_constraint
+        WHERE  conname = 'page_banners_page_name_section_name_title_key'
+    ) THEN
+        ALTER TABLE public.page_banners
+            ADD CONSTRAINT page_banners_page_name_section_name_title_key
+            UNIQUE (page_name, section_name, title);
+    END IF;
+END $$;
 
 -- 2. 사이트 콘텐츠 테이블 (모든 텍스트 콘텐츠)
 CREATE TABLE IF NOT EXISTS public.site_content (
@@ -47,8 +60,22 @@ CREATE TABLE IF NOT EXISTS public.menu_items (
     is_active BOOLEAN DEFAULT true,
     is_external BOOLEAN DEFAULT false, -- 외부 링크 여부
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE (menu_type, label_en)
 );
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   pg_constraint
+        WHERE  conname = 'menu_items_menu_type_label_en_key'
+    ) THEN
+        ALTER TABLE public.menu_items
+            ADD CONSTRAINT menu_items_menu_type_label_en_key
+            UNIQUE (menu_type, label_en);
+    END IF;
+END $$;
 
 -- 4. 제품 정보 확장 (기존 products 테이블에 컬럼 추가)
 DO $$
@@ -85,8 +112,22 @@ CREATE TABLE IF NOT EXISTS public.faqs (
     display_order INTEGER DEFAULT 0,
     is_published BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE (question_en)
 );
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   pg_constraint
+        WHERE  conname = 'faqs_question_en_key'
+    ) THEN
+        ALTER TABLE public.faqs
+            ADD CONSTRAINT faqs_question_en_key
+            UNIQUE (question_en);
+    END IF;
+END $$;
 
 -- 6. How to Use 단계 테이블
 CREATE TABLE IF NOT EXISTS public.how_to_steps (
@@ -102,26 +143,89 @@ CREATE TABLE IF NOT EXISTS public.how_to_steps (
     tips_en TEXT,
     is_published BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE (step_number)
 );
 
--- RLS 정책 추가
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   pg_constraint
+        WHERE  conname = 'how_to_steps_step_number_key'
+    ) THEN
+        ALTER TABLE public.how_to_steps
+            ADD CONSTRAINT how_to_steps_step_number_key
+            UNIQUE (step_number);
+    END IF;
+END $$;
+
+-- RLS 정책 추가 (중복 실행 안전)
 ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.menu_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.how_to_steps ENABLE ROW LEVEL SECURITY;
 
--- 공개 읽기 정책
-CREATE POLICY "Public read site_content" ON public.site_content FOR SELECT USING (is_active = true);
-CREATE POLICY "Public read menu_items" ON public.menu_items FOR SELECT USING (is_active = true);
-CREATE POLICY "Public read faqs" ON public.faqs FOR SELECT USING (is_published = true);
-CREATE POLICY "Public read how_to_steps" ON public.how_to_steps FOR SELECT USING (is_published = true);
+DROP POLICY IF EXISTS "Public read site_content" ON public.site_content;
+DROP POLICY IF EXISTS "Public read menu_items" ON public.menu_items;
+DROP POLICY IF EXISTS "Public read faqs" ON public.faqs;
+DROP POLICY IF EXISTS "Public read how_to_steps" ON public.how_to_steps;
+DROP POLICY IF EXISTS "Admin full site_content" ON public.site_content;
+DROP POLICY IF EXISTS "Admin full menu_items" ON public.menu_items;
+DROP POLICY IF EXISTS "Admin full faqs" ON public.faqs;
+DROP POLICY IF EXISTS "Admin full how_to_steps" ON public.how_to_steps;
 
--- 관리자 전체 접근
-CREATE POLICY "Admin full site_content" ON public.site_content FOR ALL USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
-CREATE POLICY "Admin full menu_items" ON public.menu_items FOR ALL USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
-CREATE POLICY "Admin full faqs" ON public.faqs FOR ALL USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
-CREATE POLICY "Admin full how_to_steps" ON public.how_to_steps FOR ALL USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
+CREATE POLICY "Public read site_content"
+  ON public.site_content
+  FOR SELECT
+  TO public
+  USING (is_active = true);
+
+CREATE POLICY "Public read menu_items"
+  ON public.menu_items
+  FOR SELECT
+  TO public
+  USING (is_active = true);
+
+CREATE POLICY "Public read faqs"
+  ON public.faqs
+  FOR SELECT
+  TO public
+  USING (is_published = true);
+
+CREATE POLICY "Public read how_to_steps"
+  ON public.how_to_steps
+  FOR SELECT
+  TO public
+  USING (is_published = true);
+
+CREATE POLICY "Admin full site_content"
+  ON public.site_content
+  FOR ALL
+  TO authenticated
+  USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com')
+  WITH CHECK (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
+
+CREATE POLICY "Admin full menu_items"
+  ON public.menu_items
+  FOR ALL
+  TO authenticated
+  USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com')
+  WITH CHECK (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
+
+CREATE POLICY "Admin full faqs"
+  ON public.faqs
+  FOR ALL
+  TO authenticated
+  USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com')
+  WITH CHECK (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
+
+CREATE POLICY "Admin full how_to_steps"
+  ON public.how_to_steps
+  FOR ALL
+  TO authenticated
+  USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com')
+  WITH CHECK (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
 
 -- 현재 사이트 콘텐츠 데이터 삽입
 
@@ -173,7 +277,8 @@ INSERT INTO public.site_content (page_name, section_name, content_key, content_v
 ON CONFLICT (page_name, section_name, content_key) DO NOTHING;
 
 -- 페이지별 배너 데이터
-INSERT INTO public.page_banners (page_name, section_name, title, subtitle, description, image_url, button_text, button_link) VALUES
+INSERT INTO public.page_banners (page_name, section_name, title, subtitle, description, image_url, button_text, button_link)
+VALUES
 -- 홈페이지 Hero
 ('home', 'hero', 'Premium Bath Bombs', 'ธรรมชาติ 100%', 'สัมผัสประสบการณ์อาบน้ำสุดพิเศษด้วยบาธบอมธรรมชาติ', 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=800&fit=crop', 'ดูสินค้า', '/products'),
 ('home', 'hero', 'Luxury Spa Experience', 'ผ่อนคลายที่บ้าน', 'เปลี่ยนบ้านของคุณให้เป็นสปาสุดหรูด้วยกลิ่นหอมบำบัด', 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1200&h=800&fit=crop', 'เกี่ยวกับเรา', '/about'),
@@ -191,10 +296,17 @@ INSERT INTO public.page_banners (page_name, section_name, title, subtitle, descr
 -- Contact 페이지
 ('contact', 'hero', 'Contact Us', 'ติดต่อเรา', 'เรายินดีให้บริการและตอบคำถามของคุณ', 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1200&h=600&fit=crop', 'LINE Chat', 'https://line.me/ti/p/daddybathbomb')
 
-ON CONFLICT DO NOTHING;
+ON CONFLICT (page_name, section_name, title) DO UPDATE
+SET subtitle = EXCLUDED.subtitle,
+    description = EXCLUDED.description,
+    image_url = EXCLUDED.image_url,
+    button_text = EXCLUDED.button_text,
+    button_link = EXCLUDED.button_link,
+    updated_at = TIMEZONE('utc'::text, NOW());
 
 -- 메뉴 아이템 데이터
-INSERT INTO public.menu_items (menu_type, label_th, label_en, link_url, display_order) VALUES
+INSERT INTO public.menu_items (menu_type, label_th, label_en, link_url, display_order)
+VALUES
 ('header', 'หน้าแรก', 'Home', '/home', 1),
 ('header', 'เกี่ยวกับเรา', 'About Us', '/about', 2),
 ('header', 'สินค้า', 'Products', '/products', 3),
@@ -206,10 +318,17 @@ INSERT INTO public.menu_items (menu_type, label_th, label_en, link_url, display_
 ('footer', 'เงื่อนไขการใช้งาน', 'Terms of Service', '/terms', 2),
 ('footer', 'นโยบายการคืนสินค้า', 'Return Policy', '/returns', 3)
 
-ON CONFLICT DO NOTHING;
+ON CONFLICT (menu_type, label_en) DO UPDATE
+SET label_th = EXCLUDED.label_th,
+    link_url = EXCLUDED.link_url,
+    icon = EXCLUDED.icon,
+    display_order = EXCLUDED.display_order,
+    is_active = true,
+    updated_at = TIMEZONE('utc'::text, NOW());
 
 -- FAQ 샘플 데이터
-INSERT INTO public.faqs (question_th, question_en, answer_th, answer_en, category, display_order) VALUES
+INSERT INTO public.faqs (question_th, question_en, answer_th, answer_en, category, display_order)
+VALUES
 ('บาธบอมใช้ได้นานแค่ไหน?', 'How long do bath bombs last?', 'บาธบอมของเรามีอายุการเก็บรักษา 12 เดือน เมื่อเก็บในที่แห้งและเย็น', 'Our bath bombs have a shelf life of 12 months when stored in a cool, dry place.', 'product', 1),
 
 ('บาธบอมปลอดภัยสำหรับผิวแพ้ง่ายไหม?', 'Are your bath bombs safe for sensitive skin?', 'ใช่! บาธบอมของเราทำจากส่วนผสมธรรมชาติ 100% อ่อนโยนต่อทุกประเภทผิว', 'Yes! Our bath bombs are made with 100% natural ingredients and are gentle on all skin types.', 'product', 2),
@@ -220,10 +339,18 @@ INSERT INTO public.faqs (question_th, question_en, answer_th, answer_en, categor
 
 ('สามารถคืนสินค้าได้ไหมถ้าไม่พอใจ?', 'Can I return a product if I am not satisfied?', 'ได้ครับ เรามีนโยบายคืนสินค้าภายใน 30 วัน สำหรับสินค้าที่ยังไม่เปิด กรุณาติดต่อฝ่ายบริการลูกค้า', 'Yes, we offer a 30-day return policy for unopened products. Please contact our customer service for assistance.', 'policy', 5)
 
-ON CONFLICT DO NOTHING;
+ON CONFLICT (question_en) DO UPDATE
+SET question_th = EXCLUDED.question_th,
+    answer_th = EXCLUDED.answer_th,
+    answer_en = EXCLUDED.answer_en,
+    category = EXCLUDED.category,
+    display_order = EXCLUDED.display_order,
+    is_published = true,
+    updated_at = TIMEZONE('utc'::text, NOW());
 
 -- How to Use 단계 데이터
-INSERT INTO public.how_to_steps (step_number, title_th, title_en, description_th, description_en, icon, tips_th, tips_en) VALUES
+INSERT INTO public.how_to_steps (step_number, title_th, title_en, description_th, description_en, icon, tips_th, tips_en)
+VALUES
 (1, 'เติมน้ำในอ่าง', 'Fill Your Bathtub', 'เติมน้ำอุ่นในอ่างอาบน้ำ (ไม่ร้อนเกินไปเพื่อรักษาน้ำมันธรรมชาติ)', 'Fill your bathtub with warm water (not too hot to preserve the natural oils)', '🛁', 'อุณหภูมิน้ำที่เหมาะสมคือ 37-40°C', 'Ideal water temperature is between 37-40°C'),
 
 (2, 'หย่อนบาธบอม', 'Drop the Bath Bomb', 'วางบาธบอมลงในน้ำเบาๆ และดูฟองฟู่ที่สวยงาม', 'Gently place the bath bomb into the water and watch it fizz', '💧', 'หย่อนตรงกลางเพื่อผลลัพธ์ที่ดีที่สุด', 'Drop it in the center for the best fizzing effect'),
@@ -234,7 +361,16 @@ INSERT INTO public.how_to_steps (step_number, title_th, title_en, description_th
 
 (5, 'ล้างออก', 'Rinse Off', 'ล้างตัวด้วยน้ำสะอาดหลังแช่เสร็จ เพื่อล้างตะกอนที่อาจเหลืออยู่', 'Rinse with clean water after soaking to remove any residue', '🚿', 'เช็ดตัวเบาๆ ด้วยผ้าขนหนูนุ่ม', 'Pat dry gently with a soft towel')
 
-ON CONFLICT DO NOTHING;
+ON CONFLICT (step_number) DO UPDATE
+SET title_th = EXCLUDED.title_th,
+    title_en = EXCLUDED.title_en,
+    description_th = EXCLUDED.description_th,
+    description_en = EXCLUDED.description_en,
+    icon = EXCLUDED.icon,
+    tips_th = EXCLUDED.tips_th,
+    tips_en = EXCLUDED.tips_en,
+    is_published = true,
+    updated_at = TIMEZONE('utc'::text, NOW());
 
 -- 인덱스 추가
 CREATE INDEX IF NOT EXISTS idx_page_banners_page_section ON public.page_banners(page_name, section_name, display_order);

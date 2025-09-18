@@ -25,7 +25,16 @@ type Product = {
   inStock: boolean;
   isNew?: boolean;
   isBestseller?: boolean;
+  description?: string;
+  gallery?: string[];
 };
+
+const createGallery = (baseUrl: string, seed: string) =>
+  Array.from({ length: 5 }, (_, index) =>
+    `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}auto=format&fit=crop&ixlib=rb-4.1.0&sig=${seed}-${
+      index + 1
+    }`,
+  );
 
 const mockProducts: Product[] = [
   {
@@ -41,6 +50,12 @@ const mockProducts: Product[] = [
     inStock: true,
     isNew: true,
     isBestseller: true,
+    description:
+      "POW! 체리와 스트로베리의 상큼한 향을 한 번에 느낄 수 있는 슈퍼 히어로 배쓰밤. 아이들이 가장 좋아하는 폭발적인 버블로 욕조를 가득 채워줘요.",
+    gallery: createGallery(
+      "https://images.unsplash.com/photo-1629150098631-4d99ad4a53a4?w=600",
+      "superman-power",
+    ),
   },
   {
     id: "2",
@@ -53,6 +68,12 @@ const mockProducts: Product[] = [
     colors: ["#FF0000", "#FF8800", "#FFFF00", "#00FF00", "#0088FF", "#8800FF"],
     inStock: true,
     isBestseller: true,
+    description:
+      "무지개 은하처럼 반짝이는 버블이 욕조를 감싸는 특별한 배쓰밤. 다채로운 향이 하루의 피로를 싹 잊게 해줍니다.",
+    gallery: createGallery(
+      "https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=600",
+      "rainbow-galaxy",
+    ),
   },
   {
     id: "3",
@@ -64,6 +85,12 @@ const mockProducts: Product[] = [
     category: "Princess Power",
     colors: ["#FF69B4", "#FFB6C1"],
     inStock: true,
+    description:
+      "은은한 플로럴 향이 공주님들의 욕조 시간을 더욱 특별하게 만들어주는 핑크 배쓰밤. 피부를 촉촉하게 지켜줍니다.",
+    gallery: createGallery(
+      "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=600",
+      "princess-power",
+    ),
   },
   {
     id: "4",
@@ -76,6 +103,12 @@ const mockProducts: Product[] = [
     category: "Dino Destruction",
     colors: ["#00FF88", "#228B22"],
     inStock: false,
+    description:
+      "공룡의 에너지를 담은 상쾌한 라임 향. 초록빛 버블이 모험심을 깨우지만 현재는 일시 품절입니다.",
+    gallery: createGallery(
+      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600",
+      "dino-destruction",
+    ),
   },
   {
     id: "5",
@@ -88,6 +121,12 @@ const mockProducts: Product[] = [
     colors: ["#000000", "#FFD700"],
     inStock: true,
     isNew: true,
+    description:
+      "열어보기 전까지 알 수 없는 향과 색의 조합! 매번 새로움을 선사하는 미스터리 박스 한정 제품입니다.",
+    gallery: createGallery(
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600",
+      "mystery-box",
+    ),
   },
   {
     id: "6",
@@ -99,6 +138,12 @@ const mockProducts: Product[] = [
     category: "Superhero Series",
     colors: ["#007AFF", "#4169E1"],
     inStock: true,
+    description:
+      "바다 바람처럼 시원한 향을 담은 블루톤 배쓰밤. 상쾌한 민트와 해양 미네랄이 에너지를 북돋워줘요.",
+    gallery: createGallery(
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600",
+      "blue-ocean",
+    ),
   },
   ...Array.from({ length: 18 }, (_, i) => ({
     id: `${i + 7}`,
@@ -112,6 +157,11 @@ const mockProducts: Product[] = [
     inStock: Math.random() > 0.2,
     isNew: Math.random() > 0.8,
     isBestseller: Math.random() > 0.7,
+    description: "다채로운 향과 버블을 즐길 수 있는 한정판 배쓰밤입니다.",
+    gallery: createGallery(
+      `https://images.unsplash.com/photo-${1571019613454 + i}?w=600`,
+      `random-${i}`,
+    ),
   })),
 ];
 
@@ -214,6 +264,7 @@ export default function ProductListing({ language }: ProductListingProps) {
       });
       setCartCount(getCartItemCount());
       window.dispatchEvent(new CustomEvent("cartUpdated"));
+      window.dispatchEvent(new CustomEvent("cartSidebar:open"));
     }
   };
 
@@ -232,16 +283,19 @@ export default function ProductListing({ language }: ProductListingProps) {
     <div className="min-h-screen bg-[#0B0F1A] relative">
       <AnimatedBackground />
 
-      <ProductListingHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        cartItemCount={cartCount}
-        onToggleFilters={() => setFiltersOpen(!filtersOpen)}
-        language={language}
-        onCartClick={() => window.dispatchEvent(new CustomEvent("cartSidebar:open"))}
-      />
+      {/* 검색 헤더 - 상단 고정 */}
+      <div className="sticky top-0 z-40 bg-[#0B0F1A]/95 backdrop-blur-sm border-b border-[#334155]">
+        <ProductListingHeader
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          cartItemCount={cartCount}
+          onToggleFilters={() => setFiltersOpen(!filtersOpen)}
+          language={language}
+          onCartClick={() => window.dispatchEvent(new CustomEvent("cartSidebar:open"))}
+        />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-4">
         <ProductBreadcrumb items={breadcrumbItems} />
 
         <div className="flex gap-8">

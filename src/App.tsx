@@ -15,6 +15,8 @@ import FAQPage from "./components/FAQPage";
 import ContactPage from "./components/ContactPage";
 import AdminDashboard from "./components/AdminDashboard";
 import MiddleBanner from "./components/MiddleBanner";
+import CheckoutForm from "./components/CheckoutForm";
+import EditableContent from "./components/EditableContent";
 
 const NAVIGATION_EVENT_NAME = "navigate";
 
@@ -41,6 +43,7 @@ declare global {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageKey>("home");
   const [language, setLanguage] = useState<LanguageKey>("th");
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
   const navigateTo = useCallback((page: PageKey) => {
     setCurrentPage(page);
@@ -84,6 +87,11 @@ export default function App() {
     const handleHashNavigation = () => {
       if (window.location.hash === "#admin") {
         navigateTo("admin");
+        // 관리자 모드 활성화
+        localStorage.setItem('admin_mode', 'true');
+      } else {
+        // 관리자 모드 비활성화
+        localStorage.setItem('admin_mode', 'false');
       }
     };
 
@@ -91,6 +99,7 @@ export default function App() {
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
         navigateTo("admin");
         window.location.hash = "#admin";
+        localStorage.setItem('admin_mode', 'true');
       }
     };
 
@@ -106,6 +115,15 @@ export default function App() {
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [navigateTo]);
+
+  useEffect(() => {
+    const handleOpenCheckout = () => setShowCheckoutForm(true);
+    window.addEventListener('openCheckoutForm', handleOpenCheckout);
+    
+    return () => {
+      window.removeEventListener('openCheckoutForm', handleOpenCheckout);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] font-nunito">
@@ -152,6 +170,18 @@ export default function App() {
 
           {currentPage === "contact" && (
             <ContactPage navigateTo={navigateTo} language={language} />
+          )}
+
+          {showCheckoutForm && (
+            <CheckoutForm
+              onOrderComplete={() => {
+                setShowCheckoutForm(false);
+                // 장바구니 업데이트
+                window.dispatchEvent(new CustomEvent('cartUpdated'));
+              }}
+              onClose={() => setShowCheckoutForm(false)}
+              language={language}
+            />
           )}
 
           <Footer navigateTo={navigateTo} language={language} />

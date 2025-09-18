@@ -185,8 +185,8 @@ export default function ProductFilters({ isOpen, onClose, filters, onFiltersChan
                   className="w-full"
                 />
                 <div className="flex items-center justify-between text-sm text-[#B8C4DB]">
-                  <span>${filters.priceRange[0]}</span>
-                  <span>${filters.priceRange[1]}+</span>
+                  <span>฿{filters.priceRange[0]}</span>
+                  <span>฿{filters.priceRange[1]}+</span>
                 </div>
               </div>
             )}
