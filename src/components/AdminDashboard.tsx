@@ -13,6 +13,7 @@ import ProductDetailManager from "./admin/ProductDetailManager";
 import BannerManagement from "./admin/BannerManagement";
 import OrderManagement from "./admin/OrderManagement";
 import LogoManagement from "./admin/LogoManagement";
+import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 
 const DASHBOARD_BACKGROUND = "bg-white";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
@@ -105,9 +106,9 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
             <GalleryManagement />
           </TabsContent>
 
-          {/* Branding Tab - 실제 로고 관리 컴포넌트 */}
+          {/* Branding Tab - 개선된 로고 관리 컴포넌트 */}
           <TabsContent value="branding" className="mt-8">
-            <LogoManagement />
+            <ImprovedLogoManagement />
           </TabsContent>
         </Tabs>
       </main>

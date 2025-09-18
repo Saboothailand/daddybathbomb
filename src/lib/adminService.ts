@@ -5,6 +5,26 @@ export interface SiteSettings {
   [key: string]: string;
 }
 
+export interface LogoSettingsPayload {
+  logo_url?: string | null;
+  site_title?: string | null;
+  logo_width?: number | null;
+  logo_height?: number | null;
+  logo_alt_text?: string | null;
+  logo_enabled?: boolean | null;
+  logo_style?: 'rounded' | 'square' | 'circle' | null;
+  brand_color?: string | null;
+  brand_sub_color?: string | null;
+}
+
+export interface LogoSettingsResponse {
+  [key: string]: {
+    value: string | null;
+    type: string | null;
+    description: string | null;
+  };
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -88,6 +108,39 @@ export class AdminService {
     } catch (error) {
       console.error('Error updating site setting:', error);
       return false;
+    }
+  }
+
+  static async getLogoSettings(): Promise<LogoSettingsResponse | null> {
+    try {
+      const { data, error } = await supabase.rpc('get_logo_settings');
+      if (error) throw error;
+      return data as LogoSettingsResponse;
+    } catch (error) {
+      console.error('Error fetching logo settings:', error);
+      return null;
+    }
+  }
+
+  static async updateLogoSettings(payload: LogoSettingsPayload): Promise<LogoSettingsResponse | null> {
+    try {
+      const { data, error } = await supabase.rpc('update_logo_settings', {
+        p_logo_url: payload.logo_url ?? null,
+        p_site_title: payload.site_title ?? null,
+        p_logo_width: payload.logo_width ?? null,
+        p_logo_height: payload.logo_height ?? null,
+        p_logo_alt_text: payload.logo_alt_text ?? null,
+        p_logo_enabled: payload.logo_enabled ?? null,
+        p_logo_style: payload.logo_style ?? null,
+        p_brand_color: payload.brand_color ?? null,
+        p_brand_sub_color: payload.brand_sub_color ?? null
+      });
+
+      if (error) throw error;
+      return data as LogoSettingsResponse;
+    } catch (error) {
+      console.error('Error updating logo settings:', error);
+      throw error;
     }
   }
 

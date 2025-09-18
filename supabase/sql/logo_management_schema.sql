@@ -1,71 +1,26 @@
 -- 로고 관리 시스템을 위한 데이터베이스 스키마
--- 기존 site_settings 테이블 확장
+-- site_settings 테이블에 로고 관련 기본값을 키-값 형태로 보강
 
--- site_settings 테이블에 로고 관련 컬럼 추가 (이미 존재하는 경우 무시)
-DO $$ 
+-- 로고 관련 기본값 업서트 (브랜딩 카테고리, 공개 설정)
+DO $$
 BEGIN
-    -- 로고 이미지 URL
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'logo_url') THEN
-        ALTER TABLE public.site_settings ADD COLUMN logo_url TEXT;
-    END IF;
-    
-    -- 사이트 타이틀
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'site_title') THEN
-        ALTER TABLE public.site_settings ADD COLUMN site_title TEXT DEFAULT 'Daddy Bath Bomb';
-    END IF;
-    
-    -- 로고 너비 (픽셀)
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'logo_width') THEN
-        ALTER TABLE public.site_settings ADD COLUMN logo_width INTEGER DEFAULT 48;
-    END IF;
-    
-    -- 로고 높이 (픽셀)
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'logo_height') THEN
-        ALTER TABLE public.site_settings ADD COLUMN logo_height INTEGER DEFAULT 48;
-    END IF;
-    
-    -- 로고 설명/대체 텍스트
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'logo_alt_text') THEN
-        ALTER TABLE public.site_settings ADD COLUMN logo_alt_text TEXT DEFAULT 'Daddy Bath Bomb Logo';
-    END IF;
-    
-    -- 로고 활성화 상태
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'logo_enabled') THEN
-        ALTER TABLE public.site_settings ADD COLUMN logo_enabled BOOLEAN DEFAULT true;
-    END IF;
-    
-    -- 로고 스타일 (원형, 사각형 등)
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'logo_style') THEN
-        ALTER TABLE public.site_settings ADD COLUMN logo_style TEXT DEFAULT 'rounded' CHECK (logo_style IN ('rounded', 'square', 'circle'));
-    END IF;
-    
-    -- 브랜드 컬러 (헤더 배경 등에 사용)
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'brand_color') THEN
-        ALTER TABLE public.site_settings ADD COLUMN brand_color TEXT DEFAULT '#FF2D55';
-    END IF;
-    
-    -- 브랜드 서브 컬러 (그라데이션 등에 사용)
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'brand_sub_color') THEN
-        ALTER TABLE public.site_settings ADD COLUMN brand_sub_color TEXT DEFAULT '#007AFF';
-    END IF;
-END $$;
-
--- 기본 로고 설정 데이터 삽입 (존재하지 않는 경우에만)
-DO $$ 
-BEGIN
-    -- 기본 로고 설정이 없으면 삽입
-    IF NOT EXISTS (SELECT 1 FROM public.site_settings WHERE setting_key = 'logo_url') THEN
-        INSERT INTO public.site_settings (setting_key, setting_value, setting_type, description, language) VALUES
-        ('logo_url', '', 'image_url', '사이트 로고 이미지 URL', 'ko'),
-        ('site_title', 'Daddy Bath Bomb', 'text', '사이트 타이틀', 'ko'),
-        ('logo_width', '48', 'number', '로고 너비 (픽셀)', 'ko'),
-        ('logo_height', '48', 'number', '로고 높이 (픽셀)', 'ko'),
-        ('logo_alt_text', 'Daddy Bath Bomb Logo', 'text', '로고 대체 텍스트', 'ko'),
-        ('logo_enabled', 'true', 'boolean', '로고 표시 여부', 'ko'),
-        ('logo_style', 'rounded', 'select', '로고 스타일 (rounded, square, circle)', 'ko'),
-        ('brand_color', '#FF2D55', 'color', '브랜드 메인 컬러', 'ko'),
-        ('brand_sub_color', '#007AFF', 'color', '브랜드 서브 컬러', 'ko');
-    END IF;
+    INSERT INTO public.site_settings (setting_key, setting_value, setting_type, category, is_public, description)
+    VALUES
+        ('logo_url', '', 'image_url', 'branding', true, '사이트 로고 이미지 URL'),
+        ('site_title', 'Daddy Bath Bomb', 'text', 'branding', true, '사이트 타이틀'),
+        ('logo_width', '48', 'number', 'branding', true, '로고 너비 (픽셀)'),
+        ('logo_height', '48', 'number', 'branding', true, '로고 높이 (픽셀)'),
+        ('logo_alt_text', 'Daddy Bath Bomb Logo', 'text', 'branding', true, '로고 대체 텍스트'),
+        ('logo_enabled', 'true', 'boolean', 'branding', true, '로고 표시 여부'),
+        ('logo_style', 'rounded', 'select', 'branding', true, '로고 스타일 (rounded, square, circle)'),
+        ('brand_color', '#FF2D55', 'color', 'branding', true, '브랜드 메인 컬러'),
+        ('brand_sub_color', '#007AFF', 'color', 'branding', true, '브랜드 서브 컬러')
+    ON CONFLICT (setting_key) DO UPDATE
+        SET setting_type = EXCLUDED.setting_type,
+            category = EXCLUDED.category,
+            is_public = true,
+            description = COALESCE(site_settings.description, EXCLUDED.description),
+            updated_at = NOW();
 END $$;
 
 -- 로고 관리용 함수들
@@ -86,10 +41,31 @@ RETURNS JSON AS $$
 DECLARE
     result JSON;
 BEGIN
+    -- 유효성 검사
+    IF p_logo_width IS NOT NULL AND p_logo_width <= 0 THEN
+        RAISE EXCEPTION 'logo_width must be greater than zero';
+    END IF;
+
+    IF p_logo_height IS NOT NULL AND p_logo_height <= 0 THEN
+        RAISE EXCEPTION 'logo_height must be greater than zero';
+    END IF;
+
+    IF p_logo_style IS NOT NULL AND p_logo_style NOT IN ('rounded', 'square', 'circle') THEN
+        RAISE EXCEPTION 'logo_style must be one of rounded, square, circle';
+    END IF;
+
+    IF p_brand_color IS NOT NULL AND p_brand_color !~ '^#[0-9A-Fa-f]{6}$' THEN
+        RAISE EXCEPTION 'brand_color must be a valid hex color (e.g. #A1B2C3)';
+    END IF;
+
+    IF p_brand_sub_color IS NOT NULL AND p_brand_sub_color !~ '^#[0-9A-Fa-f]{6}$' THEN
+        RAISE EXCEPTION 'brand_sub_color must be a valid hex color (e.g. #A1B2C3)';
+    END IF;
+
     -- site_settings 테이블 업데이트
     UPDATE public.site_settings SET 
         setting_value = CASE 
-            WHEN setting_key = 'logo_url' THEN p_logo_url
+            WHEN setting_key = 'logo_url' AND p_logo_url IS NOT NULL THEN p_logo_url
             WHEN setting_key = 'site_title' AND p_site_title IS NOT NULL THEN p_site_title
             WHEN setting_key = 'logo_width' AND p_logo_width IS NOT NULL THEN p_logo_width::TEXT
             WHEN setting_key = 'logo_height' AND p_logo_height IS NOT NULL THEN p_logo_height::TEXT
@@ -108,11 +84,12 @@ BEGIN
     );
 
     -- 업데이트된 설정 반환
-    SELECT json_agg(
+    SELECT json_object_agg(
+        setting_key,
         json_build_object(
-            'key', setting_key,
             'value', setting_value,
-            'type', setting_type
+            'type', setting_type,
+            'description', description
         )
     ) INTO result
     FROM public.site_settings 
@@ -122,7 +99,7 @@ BEGIN
         'brand_color', 'brand_sub_color'
     );
 
-    RETURN result;
+    RETURN COALESCE(result, '{}'::json);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -209,8 +186,8 @@ BEGIN
     -- 기본 로고 URL이 비어있다면 샘플 로고 설정
     IF NOT EXISTS (SELECT 1 FROM public.site_settings WHERE setting_key = 'logo_url' AND setting_value != '') THEN
         UPDATE public.site_settings 
-        SET setting_value = 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=200&fit=crop&crop=center'
+        SET setting_value = 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=200&fit=crop&crop=center',
+            updated_at = NOW()
         WHERE setting_key = 'logo_url';
     END IF;
 END $$;
-
