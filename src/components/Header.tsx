@@ -18,6 +18,8 @@ import AuthModal from "./AuthModal";
 import CartSidebar from "./CartSidebar";
 import OrderForm from "./OrderForm";
 import { Button } from "./ui/button";
+import SimpleEditable from "./SimpleEditable";
+import { AdminService } from "../lib/adminService";
 
 type BrandingState = {
   logo_url?: string;
@@ -70,17 +72,30 @@ export default function Header({
 
   const loadBranding = useCallback(async () => {
     try {
-      const brandingData = await brandingService.getBrandingSettings();
-      if (brandingData) {
-        setBranding((prev) => ({
-          ...prev,
-          ...brandingData,
-        }));
-      }
+      const settings = await AdminService.getSiteSettings();
+      const logoSetting = settings.find(s => s.setting_key === 'logo_url');
+      const titleSetting = settings.find(s => s.setting_key === 'site_title');
+      
+      setBranding((prev) => ({
+        ...prev,
+        logo_url: logoSetting?.setting_value || "",
+        site_title: titleSetting?.setting_value || "Daddy Bath Bomb",
+      }));
     } catch (error) {
       console.error("Error loading branding:", error);
     }
   }, []);
+
+  const updateBranding = async (key: string, value: string) => {
+    try {
+      await AdminService.updateSiteSetting(key, value, 'text');
+      setBranding(prev => ({ ...prev, [key]: value }));
+      window.dispatchEvent(new CustomEvent('brandingUpdated'));
+    } catch (error) {
+      console.error('브랜딩 업데이트 실패:', error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
     loadBranding();
@@ -199,9 +214,16 @@ export default function Header({
                 <Zap className="w-6 h-6 text-white" />
               )}
             </div>
-            <h1 className="font-fredoka text-2xl font-bold text-white comic-shadow flex items-center gap-2">
-              <span>{branding.site_title || "DADDY BATH BOMB"}</span>
-            </h1>
+            <SimpleEditable
+              value={branding.site_title || "DADDY BATH BOMB"}
+              onSave={(value) => updateBranding('site_title', value)}
+              className="font-fredoka text-2xl font-bold text-white comic-shadow"
+              placeholder="사이트 타이틀을 입력하세요..."
+            >
+              <h1 className="font-fredoka text-2xl font-bold text-white comic-shadow flex items-center gap-2">
+                <span>{branding.site_title || "DADDY BATH BOMB"}</span>
+              </h1>
+            </SimpleEditable>
             {adminClicks > 0 && (
               <span className="bg-[#FF2D55] text-white text-xs font-bold px-2 py-1 rounded-full comic-border border-2 border-black">
                 {adminClicks}

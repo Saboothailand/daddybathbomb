@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Home, ExternalLink } from "lucide-react";
+import { 
+  Home, ExternalLink, Menu, X, 
+  BarChart3, ShoppingCart, Package, Image, 
+  Star, Camera, Palette, Settings, Users,
+  ChevronRight, ChevronDown
+} from "lucide-react";
 import type { PageKey } from "../App";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { cn } from "./ui/utils";
 import { AdminService } from "../lib/adminService";
 
@@ -18,14 +22,77 @@ import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 const DASHBOARD_BACKGROUND = "bg-white";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
-type DashboardTab = "overview" | "orders" | "products" | "banners" | "features" | "gallery" | "branding";
+type DashboardTab = "overview" | "orders" | "products" | "banners" | "features" | "gallery" | "branding" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
 };
 
+interface MenuItem {
+  id: DashboardTab;
+  label: string;
+  icon: React.ComponentType<any>;
+  description?: string;
+  badge?: string;
+  children?: MenuItem[];
+}
+
+const menuItems: MenuItem[] = [
+  {
+    id: "overview",
+    label: "대시보드",
+    icon: BarChart3,
+    description: "전체 현황 및 통계"
+  },
+  {
+    id: "orders",
+    label: "주문 관리",
+    icon: ShoppingCart,
+    description: "고객 주문 현황",
+    badge: "3"
+  },
+  {
+    id: "products",
+    label: "상품 관리",
+    icon: Package,
+    description: "상품 카탈로그 관리"
+  },
+  {
+    id: "banners",
+    label: "배너 관리",
+    icon: Image,
+    description: "헤로, 중간, 하단 배너"
+  },
+  {
+    id: "features",
+    label: "특징 관리",
+    icon: Star,
+    description: "사이트 특징 하이라이트"
+  },
+  {
+    id: "gallery",
+    label: "갤러리 관리",
+    icon: Camera,
+    description: "인스타그램 갤러리"
+  },
+  {
+    id: "branding",
+    label: "브랜딩 관리",
+    icon: Palette,
+    description: "로고, 컬러, 브랜드 아이덴티티"
+  },
+  {
+    id: "settings",
+    label: "설정",
+    icon: Settings,
+    description: "사이트 설정 및 관리"
+  }
+];
+
 export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
   return (
     <div className={cn("min-h-screen text-gray-900", DASHBOARD_BACKGROUND)}>
