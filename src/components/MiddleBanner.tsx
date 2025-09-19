@@ -1,23 +1,34 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { cmsService } from '../lib/supabase';
 
 export default function MiddleBanner({ language = 'th' }) {
   const [banners, setBanners] = useState([]);
   const [currentBanner, setCurrentBanner] = useState(0);
 
-  useEffect(() => {
-    loadBanners();
-  }, []);
-
-  const loadBanners = async () => {
+  const loadBanners = useCallback(async () => {
     try {
       const middleBanners = await cmsService.getBanners('middle');
       setBanners(middleBanners);
     } catch (error) {
       console.error('Error loading middle banners:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadBanners();
+  }, [loadBanners]);
+
+  useEffect(() => {
+    const handleBannersUpdated = () => {
+      loadBanners();
+    };
+
+    window.addEventListener('cms:bannersUpdated', handleBannersUpdated);
+    return () => {
+      window.removeEventListener('cms:bannersUpdated', handleBannersUpdated);
+    };
+  }, [loadBanners]);
 
   useEffect(() => {
     if (banners.length > 1) {

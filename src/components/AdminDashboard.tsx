@@ -41,52 +41,52 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   {
     id: "overview",
-    label: "대시보드",
+    label: "Dashboard",
     icon: BarChart3,
-    description: "전체 현황 및 통계"
+    description: "Overview & Analytics"
   },
   {
     id: "orders",
-    label: "주문 관리",
+    label: "Order Management",
     icon: ShoppingCart,
-    description: "고객 주문 현황",
+    description: "Customer Orders Status",
     badge: "3"
   },
   {
     id: "products",
-    label: "상품 관리",
+    label: "Product Management",
     icon: Package,
-    description: "상품 카탈로그 관리"
+    description: "Product Catalog Management"
   },
   {
     id: "banners",
-    label: "배너 관리",
+    label: "Banner Management",
     icon: Image,
-    description: "헤로, 중간, 하단 배너"
+    description: "Hero, Middle, Bottom Banners"
   },
   {
     id: "features",
-    label: "특징 관리",
+    label: "Features Management",
     icon: Star,
-    description: "사이트 특징 하이라이트"
+    description: "Site Feature Highlights"
   },
   {
     id: "gallery",
-    label: "갤러리 관리",
+    label: "Gallery Management",
     icon: Camera,
-    description: "인스타그램 갤러리"
+    description: "Instagram Gallery"
   },
   {
     id: "branding",
-    label: "브랜딩 관리",
+    label: "Brand Management",
     icon: Palette,
-    description: "로고, 컬러, 브랜드 아이덴티티"
+    description: "Logo, Colors, Brand Identity"
   },
   {
     id: "settings",
-    label: "설정",
+    label: "Settings",
     icon: Settings,
-    description: "사이트 설정 및 관리"
+    description: "Site Settings & Configuration"
   }
 ];
 
@@ -99,7 +99,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
     const newExpanded = new Set(expandedMenus);
     if (newExpanded.has(menuId)) {
       newExpanded.delete(menuId);
-    } else {
+      } else {
       newExpanded.add(menuId);
     }
     setExpandedMenus(newExpanded);
@@ -153,20 +153,20 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">DB</span>
-              </div>
+            </div>
               <div>
                 <h1 className="text-lg font-bold text-white font-fredoka">Admin Panel</h1>
                 <p className="text-xs text-gray-300">Daddy Bath Bomb</p>
               </div>
-            </div>
-          </div>
-          
+        </div>
+      </div>
+
           {/* 오른쪽: 현재 탭 표시 */}
           <div className="text-sm text-gray-300">
             {menuItems.find(item => item.id === activeTab)?.label || "Dashboard"}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       <div className="flex">
         {/* 사이드바 */}
@@ -175,7 +175,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
             <nav className="p-4 space-y-2">
               {menuItems.map((item) => (
                 <div key={item.id}>
-                  <button
+                <button 
                     onClick={() => setActiveTab(item.id)}
                     className={cn(
                       "w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all duration-200",
@@ -192,9 +192,9 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
                           {item.badge}
                         </Badge>
                       )}
-                    </div>
+                </div>
                     {item.children && (
-                      <button
+                <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleMenu(item.id);
@@ -213,7 +213,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
                   {item.children && expandedMenus.has(item.id) && (
                     <div className="ml-6 mt-1 space-y-1">
                       {item.children.map((child) => (
-                        <button
+                                <button
                           key={child.id}
                           onClick={() => setActiveTab(child.id as DashboardTab)}
                           className={cn(
@@ -225,11 +225,11 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
                         >
                           <child.icon className="w-3 h-3" />
                           {child.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                                </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
               ))}
             </nav>
           </aside>
@@ -239,8 +239,8 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
         <main className="flex-1 p-6">
           {renderContent()}
         </main>
-      </div>
-    </div>
+                </div>
+              </div>
   );
 }
 
@@ -263,7 +263,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
     try {
       const data = await AdminService.getDashboardStats();
       setStats(data);
-    } catch (error) {
+                          } catch (error) {
       console.error('Error loading dashboard stats:', error);
     } finally {
       setLoading(false);
@@ -313,7 +313,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
             </CardDescription>
           </CardHeader>
         </Card>
-      </div>
+                    </div>
 
       <Card className="border-white/10 bg-[#11162A] text-white shadow-lg">
         <CardHeader>
@@ -346,7 +346,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
           </Button>
         </CardContent>
       </Card>
-    </div>
+                    </div>
   );
 }
 
@@ -403,21 +403,21 @@ function FeaturesManagement() {
           <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
             Add New Feature
           </Button>
-        </div>
-      </div>
+                        </div>
+                      </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-12 text-gray-300">
           Loading features...
-        </div>
+                        </div>
       ) : errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
           {errorMessage}
-        </div>
+                      </div>
       ) : features.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-600 p-8 text-center text-gray-300">
-          등록된 Feature가 없습니다.
-        </div>
+          No features registered yet.
+                    </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature) => (
@@ -431,13 +431,13 @@ function FeaturesManagement() {
                 {feature.is_active === false && (
                   <Badge className="absolute top-2 left-2 bg-[#64748B] text-white">Inactive</Badge>
                 )}
-              </div>
+                      </div>
               <CardContent className="p-4 space-y-3">
                 <h3 className="text-white font-bold text-lg">
-                  {feature.title || '제목 없음'}
+                  {feature.title || 'No Title'}
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  {feature.description || '설명이 없습니다.'}
+                  {feature.description || 'No description available.'}
                 </p>
                 <div className="flex gap-2">
                   <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5]">
@@ -446,13 +446,13 @@ function FeaturesManagement() {
                   <Button size="sm" variant="destructive">
                     Delete
                   </Button>
-                </div>
+                    </div>
               </CardContent>
             </Card>
           ))}
-        </div>
+                  </div>
       )}
-    </div>
+                </div>
   );
 }
 
@@ -474,8 +474,8 @@ function GalleryManagement() {
   }, []);
 
   const loadImages = async () => {
-    try {
-      setLoading(true);
+                    try {
+                      setLoading(true);
       setErrorMessage(null);
 
       const { data, error } = await supabase
@@ -485,19 +485,19 @@ function GalleryManagement() {
 
       if (error) throw error;
       setImages((data as GalleryRecord[] | null) ?? []);
-    } catch (error) {
+                    } catch (error) {
       console.error('Error loading gallery images:', error);
-      setErrorMessage('갤러리 이미지를 불러오지 못했습니다.');
-    } finally {
-      setLoading(false);
-    }
+      setErrorMessage('Failed to load gallery images.');
+                    } finally {
+                      setLoading(false);
+                    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white">Instagram Gallery Management</h2>
-        <div className="flex gap-2">
+                    <div className="flex gap-2">
           <Button
             variant="outline"
             className="border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -508,21 +508,21 @@ function GalleryManagement() {
           <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
             Add New Image
           </Button>
-        </div>
-      </div>
+                    </div>
+                    </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-12 text-gray-300">
           Loading gallery images...
-        </div>
+                </div>
       ) : errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
           {errorMessage}
-        </div>
+              </div>
       ) : images.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-600 p-8 text-center text-gray-300">
-          등록된 갤러리 이미지가 없습니다.
-        </div>
+          No gallery images registered yet.
+                  </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((image) => (
@@ -531,17 +531,17 @@ function GalleryManagement() {
                 <img
                   src={image.image_url || 'https://placehold.co/400x400?text=Gallery'}
                   alt={image.caption || 'Gallery image'}
-                  className="w-full h-full object-cover"
-                />
+                        className="w-full h-full object-cover"
+                      />
                 <div className="absolute top-2 right-2">
                   <Badge className={image.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
                     {image.is_active ? 'Active' : 'Inactive'}
                   </Badge>
-                </div>
-              </div>
+                      </div>
+                    </div>
               <CardContent className="p-3 space-y-2">
                 <p className="text-white text-sm font-medium line-clamp-2">
-                  {image.caption || '캡션 없음'}
+                  {image.caption || 'No Caption'}
                 </p>
                 <div className="flex gap-1">
                   <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-xs">
@@ -550,7 +550,7 @@ function GalleryManagement() {
                   <Button size="sm" variant="destructive" className="text-xs">
                     Del
                   </Button>
-                </div>
+                      </div>
               </CardContent>
             </Card>
           ))}

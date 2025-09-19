@@ -17,7 +17,7 @@ import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
 import ImageUpload from '../ImageUpload';
-import { supabase } from '../../lib/supabase';
+import { cmsService } from '../../lib/supabase';
 
 type BannerPosition = 'hero' | 'middle' | 'bottom' | 'sidebar';
 
@@ -68,15 +68,9 @@ export default function BannerManagement() {
   const loadBanners = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('banner_images')
-        .select('*')
-        .order('position', { ascending: true })
-        .order('display_order', { ascending: true });
-      
-      if (error) throw error;
+      const data = await cmsService.getBanners(null, { activeOnly: false });
       const sortOrder: BannerPosition[] = ['hero', 'middle', 'bottom', 'sidebar'];
-      const sorted = (data || []).sort((a, b) => {
+      const sorted = (data || []).sort((a: Banner, b: Banner) => {
         const indexA = sortOrder.indexOf(a.position);
         const indexB = sortOrder.indexOf(b.position);
         const positionDiff = (indexA === -1 ? sortOrder.length : indexA) - (indexB === -1 ? sortOrder.length : indexB);
@@ -104,23 +98,9 @@ export default function BannerManagement() {
       };
 
       if (editingBanner) {
-        // 업데이트
-        const { error } = await supabase
-          .from('banner_images')
-          .update({
-            ...payload,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', editingBanner.id);
-        
-        if (error) throw error;
+        await cmsService.updateBanner(editingBanner.id, payload);
       } else {
-        // 새로 생성
-        const { error } = await supabase
-          .from('banner_images')
-          .insert([payload]);
-        
-        if (error) throw error;
+        await cmsService.createBanner(payload);
       }
       
       await loadBanners();
@@ -136,12 +116,7 @@ export default function BannerManagement() {
     if (!confirm('정말 이 배너를 삭제하시겠습니까?')) return;
     
     try {
-      const { error } = await supabase
-        .from('banner_images')
-        .delete()
-        .eq('id', bannerId);
-      
-      if (error) throw error;
+      await cmsService.deleteBanner(bannerId);
       await loadBanners();
       alert('배너가 삭제되었습니다.');
     } catch (error) {
@@ -152,12 +127,7 @@ export default function BannerManagement() {
 
   const toggleBannerStatus = async (bannerId: string, isActive: boolean) => {
     try {
-      const { error } = await supabase
-        .from('banner_images')
-        .update({ is_active: isActive })
-        .eq('id', bannerId);
-      
-      if (error) throw error;
+      await cmsService.updateBanner(bannerId, { is_active: isActive });
       await loadBanners();
     } catch (error) {
       console.error('Error updating banner status:', error);

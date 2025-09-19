@@ -723,6 +723,44 @@ export const brandingService = {
   }
 };
 
+const CMS_BANNERS_STORAGE_KEY = 'daddy_banners';
+const CMS_BANNERS_UPDATED_EVENT = 'cms:bannersUpdated';
+
+function emitCmsEvent(eventName: string) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(eventName));
+  }
+}
+
+function readCmsStorage<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) {
+      return fallback;
+    }
+    return JSON.parse(raw) as T;
+  } catch (error) {
+    console.error('Failed to read CMS storage:', key, error);
+    return fallback;
+  }
+}
+
+function writeCmsStorage<T>(key: string, value: T) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Failed to write CMS storage:', key, error);
+  }
+}
+
 // CMS 관련 서비스들
 export const cmsService = {
   // 페이지 관리
@@ -920,18 +958,15 @@ export const cmsService = {
         if (error) throw error;
         return data || [];
       } else {
-        const stored = localStorage.getItem('daddy_banners');
-        let banners;
+        let banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
 
-        if (stored) {
-          banners = JSON.parse(stored);
-        } else {
+        if (!banners || banners.length === 0) {
           banners = [
             { id: 1, title: 'Welcome Banner', description: 'Premium bath bombs', image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', position: 'hero', display_order: 1, is_active: true },
             { id: 2, title: 'Special Offer', description: 'Limited time promotion', image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', position: 'middle', display_order: 1, is_active: true },
             { id: 3, title: 'Follow Us', description: 'Social media updates', image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', position: 'bottom', display_order: 1, is_active: true }
           ];
-          localStorage.setItem('daddy_banners', JSON.stringify(banners));
+          writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
         }
 
         if (activeOnly) {
@@ -960,13 +995,14 @@ export const cmsService = {
           .single();
 
         if (error) throw error;
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return data;
       } else {
-        const stored = localStorage.getItem('daddy_banners');
-        const banners = stored ? JSON.parse(stored) : [];
+        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
         const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
         banners.push(newBanner);
-        localStorage.setItem('daddy_banners', JSON.stringify(banners));
+        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return newBanner;
       }
     } catch (error) {
@@ -991,10 +1027,10 @@ export const cmsService = {
           .single();
 
         if (error) throw error;
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return data;
       } else {
-        const stored = localStorage.getItem('daddy_banners');
-        const banners = stored ? JSON.parse(stored) : [];
+        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
         const index = banners.findIndex(b => b.id == id);
 
         if (index === -1) {
@@ -1007,7 +1043,8 @@ export const cmsService = {
           updated_at: new Date().toISOString()
         };
 
-        localStorage.setItem('daddy_banners', JSON.stringify(banners));
+        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return banners[index];
       }
     } catch (error) {
@@ -1025,12 +1062,13 @@ export const cmsService = {
           .eq('id', id);
 
         if (error) throw error;
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return true;
       } else {
-        const stored = localStorage.getItem('daddy_banners');
-        const banners = stored ? JSON.parse(stored) : [];
+        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
         const filtered = banners.filter(b => b.id != id);
-        localStorage.setItem('daddy_banners', JSON.stringify(filtered));
+        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return true;
       }
     } catch (error) {

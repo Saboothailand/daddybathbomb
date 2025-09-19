@@ -24,6 +24,7 @@ import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import ImageUpload from '../ImageUpload';
 import { AdminService } from '../../lib/adminService';
+import { supabase, hasSupabaseCredentials } from '../../lib/supabase';
 
 interface Product {
   id: string;
@@ -94,17 +95,28 @@ export default function ProductDetailManager() {
 
   const saveProduct = async () => {
     try {
-      if (selectedProduct?.id) {
-        const { error } = await supabase
-          .from('products')
-          .update(formData)
-          .eq('id', selectedProduct.id);
-        if (error) throw error;
+      if (hasSupabaseCredentials) {
+        if (selectedProduct?.id) {
+          const { error } = await supabase
+            .from('products')
+            .update(formData)
+            .eq('id', selectedProduct.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('products')
+            .insert([formData]);
+          if (error) throw error;
+        }
       } else {
-        const { error } = await supabase
-          .from('products')
-          .insert([formData]);
-        if (error) throw error;
+        const payload = prepareProductPayload(formData);
+        if (selectedProduct?.id) {
+          const success = await AdminService.updateProduct(selectedProduct.id, payload);
+          if (!success) throw new Error('제품 업데이트에 실패했습니다.');
+        } else {
+          const created = await AdminService.createProduct(payload);
+          if (!created) throw new Error('제품 생성에 실패했습니다.');
+        }
       }
       
       await loadData();
@@ -120,12 +132,17 @@ export default function ProductDetailManager() {
     if (!confirm('정말 이 제품을 삭제하시겠습니까?')) return;
     
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
-      
-      if (error) throw error;
+      if (hasSupabaseCredentials) {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', productId);
+        
+        if (error) throw error;
+      } else {
+        const success = await AdminService.deleteProduct(productId);
+        if (!success) throw new Error('로컬 제품 삭제에 실패했습니다.');
+      }
       await loadData();
       alert('제품이 삭제되었습니다.');
     } catch (error) {
@@ -301,6 +318,35 @@ export default function ProductDetailManager() {
       )}
     </div>
   );
+}
+
+function prepareProductPayload(formData: Partial<Product>): Omit<Product, 'id' | 'created_at' | 'updated_at'> {
+  return {
+    name: formData.name ?? 'New Product',
+    description: formData.description ?? '',
+    short_description: formData.short_description ?? '',
+    long_description: formData.long_description ?? '',
+    price: Number(formData.price ?? 0),
+    original_price:
+      formData.original_price !== undefined && formData.original_price !== null
+        ? Number(formData.original_price)
+        : undefined,
+    image_url: formData.image_url ?? '',
+    category: formData.category ?? formData.category_id ?? 'Bath Bombs',
+    sku: formData.sku ?? `SKU-${Date.now()}`,
+    stock_quantity: Number(formData.stock_quantity ?? 0),
+    is_active: formData.is_active ?? true,
+    is_featured: formData.is_featured ?? false,
+    color: formData.color ?? '#FF2D55',
+    scent: formData.scent ?? '',
+    weight: formData.weight ?? '',
+    ingredients: formData.ingredients ?? '',
+    rating: Number(formData.rating ?? 0),
+    review_count: Number(formData.review_count ?? 0),
+    colors: formData.colors ?? [],
+    tags: formData.tags ?? [],
+    benefits: formData.benefits ?? [],
+  };
 }
 
 // 제품 상세 편집 모달

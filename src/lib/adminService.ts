@@ -67,48 +67,140 @@ export interface Banner {
   updated_at?: string;
 }
 
+const SITE_SETTINGS_STORAGE_KEY = 'daddy_site_settings';
+const PRODUCTS_STORAGE_KEY = 'daddy_products';
+
+const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: 'sample-1',
+    name: 'SUPER RED FIZZ',
+    description: 'POW! Cherry explosion with super bubbles and strawberry fun power!',
+    short_description: 'Cherry explosion with fizz and fun.',
+    long_description: 'Cherry explosion with fizz and fun.',
+    price: 390,
+    original_price: 450,
+    image_url: 'https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop',
+    category: 'Hero Series',
+    sku: 'HERO-RED-001',
+    stock_quantity: 25,
+    is_featured: true,
+    is_active: true,
+    color: '#FF2D55',
+    scent: 'Cherry',
+    weight: '150g',
+    ingredients: 'Sodium Bicarbonate, Citric Acid, Essential Oils',
+    rating: 4.8,
+    review_count: 42,
+    colors: ['#FF2D55'],
+    tags: ['hero', 'fizzy'],
+    benefits: ['Relaxing', 'Colorful'],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'sample-2',
+    name: 'HERO BLUE BLAST',
+    description: 'BOOM! Ocean breeze with cooling mint and superhero strength bubbles!',
+    short_description: 'Ocean breeze with mint.',
+    long_description: 'Ocean breeze with mint and superhero bubbles.',
+    price: 420,
+    original_price: 480,
+    image_url: 'https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop&sig=blue',
+    category: 'Hero Series',
+    sku: 'HERO-BLUE-001',
+    stock_quantity: 18,
+    is_featured: true,
+    is_active: true,
+    color: '#007AFF',
+    scent: 'Ocean Breeze',
+    weight: '150g',
+    ingredients: 'Sodium Bicarbonate, Citric Acid, Essential Oils',
+    rating: 4.7,
+    review_count: 37,
+    colors: ['#007AFF'],
+    tags: ['hero', 'cooling'],
+    benefits: ['Refreshing', 'Cooling'],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
+
+const isBrowser = typeof window !== 'undefined';
+
+function readLocalStorage<T>(key: string, fallback: T): T {
+  if (!isBrowser) return fallback;
+  try {
+    const value = window.localStorage.getItem(key);
+    if (!value) return fallback;
+    return JSON.parse(value) as T;
+  } catch (error) {
+    console.error('Failed to read localStorage key:', key, error);
+    return fallback;
+  }
+}
+
+function writeLocalStorage<T>(key: string, value: T): void {
+  if (!isBrowser) return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Failed to write localStorage key:', key, error);
+  }
+}
+
 export class AdminService {
   // 사이트 설정 관리
   static async getSiteSettings(): Promise<SiteSettings> {
-    try {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('setting_key, setting_value')
-        .eq('is_public', true);
+    if (hasSupabaseCredentials) {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('setting_key, setting_value')
+          .eq('is_public', true);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const settings: SiteSettings = {};
-      data?.forEach(item => {
-        settings[item.setting_key] = item.setting_value;
-      });
+        const settings: SiteSettings = {};
+        data?.forEach((item) => {
+          settings[item.setting_key] = item.setting_value;
+        });
 
-      return settings;
-    } catch (error) {
-      console.error('Error fetching site settings:', error);
-      return {};
+        // 캐시 저장
+        writeLocalStorage(SITE_SETTINGS_STORAGE_KEY, settings);
+        return settings;
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      }
     }
+
+    return readLocalStorage<SiteSettings>(SITE_SETTINGS_STORAGE_KEY, {});
   }
 
   static async updateSiteSetting(key: string, value: string, type: string = 'text'): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('site_settings')
-        .upsert({
-          setting_key: key,
-          setting_value: value,
-          setting_type: type,
-          category: 'content',
-          is_public: true,
-          updated_at: new Date().toISOString()
-        });
+    if (hasSupabaseCredentials) {
+      try {
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert({
+            setting_key: key,
+            setting_value: value,
+            setting_type: type,
+            category: 'content',
+            is_public: true,
+            updated_at: new Date().toISOString(),
+          });
 
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error updating site setting:', error);
-      return false;
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error updating site setting:', error);
+        return false;
+      }
     }
+
+    const current = readLocalStorage<SiteSettings>(SITE_SETTINGS_STORAGE_KEY, {});
+    current[key] = value;
+    writeLocalStorage(SITE_SETTINGS_STORAGE_KEY, current);
+    return true;
   }
 
   static async getLogoSettings(): Promise<LogoSettingsResponse | null> {
@@ -146,64 +238,104 @@ export class AdminService {
 
   // 제품 관리
   static async getProducts(): Promise<Product[]> {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+    if (hasSupabaseCredentials) {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      return [];
+        if (error) throw error;
+        const products = (data || []) as Product[];
+        writeLocalStorage(PRODUCTS_STORAGE_KEY, products);
+        return products;
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
     }
+
+    return readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
   }
 
   static async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product | null> {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert(product)
-        .select()
-        .single();
+    const payload = {
+      ...product,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as Product;
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error creating product:', error);
-      return null;
+    if (hasSupabaseCredentials) {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert(product)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        const createdProduct = data as Product;
+        const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
+        writeLocalStorage(PRODUCTS_STORAGE_KEY, [createdProduct, ...stored]);
+        return createdProduct;
+      } catch (error) {
+        console.error('Error creating product:', error);
+      }
     }
+
+    const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
+    const newProduct: Product = {
+      ...payload,
+      id: `local-${Date.now()}`,
+    };
+    writeLocalStorage(PRODUCTS_STORAGE_KEY, [newProduct, ...stored]);
+    return newProduct;
   }
 
   static async updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('products')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id);
+    const timestamped = { ...updates, updated_at: new Date().toISOString() };
 
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error updating product:', error);
-      return false;
+    if (hasSupabaseCredentials) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update(timestamped)
+          .eq('id', id);
+
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error updating product:', error);
+        return false;
+      }
     }
+
+    const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
+    const updated = stored.map((product) =>
+      product.id === id ? { ...product, ...timestamped } : product,
+    );
+    writeLocalStorage(PRODUCTS_STORAGE_KEY, updated);
+    return true;
   }
 
   static async deleteProduct(id: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
+    if (hasSupabaseCredentials) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
 
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      return false;
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        return false;
+      }
     }
+
+    const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
+    const filtered = stored.filter((product) => product.id !== id);
+    writeLocalStorage(PRODUCTS_STORAGE_KEY, filtered);
+    return true;
   }
 
   // 배너 관리

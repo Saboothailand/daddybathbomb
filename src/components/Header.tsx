@@ -13,7 +13,6 @@ import {
 import type { LanguageKey, PageKey } from "../App";
 import { t } from "../utils/translations";
 import { getCartItemCount } from "../utils/cart";
-import { brandingService } from "../lib/supabase";
 import AuthModal from "./AuthModal";
 import CartSidebar from "./CartSidebar";
 import OrderForm from "./OrderForm";
@@ -74,13 +73,11 @@ export default function Header({
   const loadBranding = useCallback(async () => {
     try {
       const settings = await AdminService.getSiteSettings();
-      const logoSetting = settings.find(s => s.setting_key === 'logo_url');
-      const titleSetting = settings.find(s => s.setting_key === 'site_title');
-      
       setBranding((prev) => ({
         ...prev,
-        logo_url: logoSetting?.setting_value || "",
-        site_title: titleSetting?.setting_value || "Daddy Bath Bomb",
+        logo_url: settings.logo_url || prev.logo_url || "",
+        site_title: settings.site_title || prev.site_title || "Daddy Bath Bomb",
+        primary_color: settings.primary_color || prev.primary_color || "#FF2D55",
       }));
     } catch (error) {
       console.error("Error loading branding:", error);

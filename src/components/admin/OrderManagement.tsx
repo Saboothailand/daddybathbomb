@@ -66,16 +66,16 @@ interface OrderItem {
 }
 
 const ORDER_STATUSES: Record<OrderStatusKey, { label: string; color: string; icon: typeof Package }> = {
-  pending: { label: '주문 접수', color: 'bg-[#FF9F1C] text-black', icon: Clock },
-  payment_pending: { label: '입금 확인 대기', color: 'bg-[#FFB703] text-black', icon: Clock },
-  payment_confirmed: { label: '결제 확인', color: 'bg-[#22D3EE] text-black', icon: CheckCircle },
-  confirmed: { label: '주문 확인', color: 'bg-[#007AFF] text-white', icon: CheckCircle },
-  processing: { label: '주문 처리중', color: 'bg-[#5C6BC0] text-white', icon: Package },
-  preparing: { label: '상품 준비', color: 'bg-[#AF52DE] text-white', icon: Package },
-  ready_to_ship: { label: '배송 준비 완료', color: 'bg-[#00FF88] text-black', icon: Truck },
-  shipped: { label: '배송 중', color: 'bg-[#FFD700] text-black', icon: Truck },
-  delivered: { label: '배송 완료', color: 'bg-[#34D399] text-black', icon: CheckCircle },
-  cancelled: { label: '주문 취소', color: 'bg-[#FF2D55] text-white', icon: AlertCircle },
+  pending: { label: 'Order Received', color: 'bg-[#FF9F1C] text-black', icon: Clock },
+  payment_pending: { label: 'Payment Pending', color: 'bg-[#FFB703] text-black', icon: Clock },
+  payment_confirmed: { label: 'Payment Confirmed', color: 'bg-[#22D3EE] text-black', icon: CheckCircle },
+  confirmed: { label: 'Order Confirmed', color: 'bg-[#007AFF] text-white', icon: CheckCircle },
+  processing: { label: 'Processing', color: 'bg-[#5C6BC0] text-white', icon: Package },
+  preparing: { label: 'Preparing', color: 'bg-[#AF52DE] text-white', icon: Package },
+  ready_to_ship: { label: 'Ready to Ship', color: 'bg-[#00FF88] text-black', icon: Truck },
+  shipped: { label: 'Shipped', color: 'bg-[#FFD700] text-black', icon: Truck },
+  delivered: { label: 'Delivered', color: 'bg-[#34D399] text-black', icon: CheckCircle },
+  cancelled: { label: 'Cancelled', color: 'bg-[#FF2D55] text-white', icon: AlertCircle },
 };
 
 export default function OrderManagement() {
@@ -142,10 +142,10 @@ export default function OrderManagement() {
       if (error) throw error;
       
       await loadOrders();
-      alert('주문 상태가 업데이트되었습니다.');
+      alert('Order status has been updated.');
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('주문 상태 업데이트 중 오류가 발생했습니다.');
+      alert('An error occurred while updating the order status.');
     }
   };
 
@@ -167,10 +167,10 @@ export default function OrderManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-white font-fredoka comic-shadow">
-            🛒 주문 관리
+            🛒 Order Management
           </h2>
           <p className="text-gray-300 text-lg mt-2">
-            고객 주문을 확인하고 상태를 관리하세요
+            View and manage customer orders and their status
           </p>
         </div>
         
@@ -179,12 +179,12 @@ export default function OrderManagement() {
             onClick={loadOrders}
             className="bg-[#007AFF] hover:bg-[#0051D5] text-white"
           >
-            새로고침
+            Refresh
           </Button>
         </div>
       </div>
 
-      {/* 주문 상태 요약 */}
+      {/* Order Status Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {statusSummaries.map(({ statusKey, config, count }) => {
           const IconComponent = config.icon;
@@ -214,7 +214,7 @@ export default function OrderManagement() {
             {orders.map((order) => {
               const statusConfig = ORDER_STATUSES[order.status as OrderStatusKey];
               const IconComponent = statusConfig?.icon || Package;
-              const displayName = order.shipping_name || order.customer_name || '미기재';
+              const displayName = order.shipping_name || order.customer_name || 'Not provided';
               const displayPhone = order.shipping_phone || order.customer_phone || '-';
               const orderTotal = Number(order.total_amount ?? 0);
               
@@ -254,7 +254,7 @@ export default function OrderManagement() {
                     </div>
                   </div>
 
-                  {/* 주문 상품 미리보기 */}
+                  {/* Order Items Preview */}
                   {order.order_items && order.order_items.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <div className="flex items-center gap-2">
@@ -299,7 +299,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
     (ORDER_STATUSES[order.status as OrderStatusKey] ? order.status : 'pending') as OrderStatusKey,
   );
   const [adminNotes, setAdminNotes] = useState(order.admin_notes || '');
-  const displayName = order.shipping_name || order.customer_name || '미기재';
+  const displayName = order.shipping_name || order.customer_name || 'Not provided';
   const displayPhone = order.shipping_phone || order.customer_phone || '-';
   const displayEmail = order.shipping_email || order.customer_email || null;
   const customerNotes = order.customer_notes || order.notes;
@@ -333,28 +333,28 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <User className="w-5 h-5 mr-2" />
-                  고객 정보
+                  Customer Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <Label className="text-gray-400 text-xs">이름</Label>
+                  <Label className="text-gray-400 text-xs">Name</Label>
                   <p className="text-white font-medium">{displayName}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-400 text-xs">연락처</Label>
+                  <Label className="text-gray-400 text-xs">Phone</Label>
                   <p className="text-white font-medium">{displayPhone}</p>
                 </div>
                 {displayEmail && (
                   <div>
-                    <Label className="text-gray-400 text-xs">이메일</Label>
+                    <Label className="text-gray-400 text-xs">Email</Label>
                     <p className="text-white font-medium">{displayEmail}</p>
                   </div>
                 )}
                 <div>
-                  <Label className="text-gray-400 text-xs">배송 주소</Label>
+                  <Label className="text-gray-400 text-xs">Shipping Address</Label>
                   <p className="text-white font-medium">
-                    {order.shipping_address || '미기재'}
+                    {order.shipping_address || 'Not provided'}
                     {addressLine ? (
                       <>
                         <br />
@@ -379,7 +379,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <Package className="w-5 h-5 mr-2" />
-                  주문 상품
+                  Order Items
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -405,18 +405,18 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
                     </div>
                   ))}
                   
-                  {/* 금액 요약 */}
+                  {/* Amount Summary */}
                   <div className="border-t border-gray-200 pt-3 space-y-2">
                     <div className="flex justify-between text-[#B8C4DB]">
-                      <span>상품 금액</span>
+                      <span>Subtotal</span>
                       <span>฿{subtotalAmount.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-[#B8C4DB]">
-                      <span>배송비</span>
-                      <span>{shippingCost === 0 ? '무료' : `฿${shippingCost.toLocaleString()}`}</span>
+                      <span>Shipping</span>
+                      <span>{shippingCost === 0 ? 'Free' : `฿${shippingCost.toLocaleString()}`}</span>
                     </div>
                     <div className="flex justify-between text-white text-lg font-bold pt-2 border-t border-gray-600">
-                      <span>총 금액</span>
+                      <span>Total Amount</span>
                       <span className="text-[#00FF88]">
                         ฿{totalAmount.toLocaleString()}
                       </span>
@@ -432,13 +432,13 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <Edit3 className="w-5 h-5 mr-2" />
-                주문 상태 관리
+                Order Status Management
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-400 text-sm">주문 상태 변경</Label>
+                  <Label className="text-gray-400 text-sm">Change Order Status</Label>
                   <Select value={newStatus} onValueChange={(value) => setNewStatus(value as OrderStatusKey)}>
                     <SelectTrigger className="bg-[#0F1424] border-gray-600 text-white mt-1">
                       <SelectValue />
@@ -458,19 +458,19 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
                     onClick={handleStatusUpdate}
                     className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold w-full"
                   >
-                    상태 업데이트
+                    Update Status
                   </Button>
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-400 text-sm">관리자 메모</Label>
+                <Label className="text-gray-400 text-sm">Admin Notes</Label>
                 <Textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
                   className="bg-[#0F1424] border-gray-600 text-white mt-1"
                   rows={3}
-                  placeholder="고객에게 전달할 메시지나 내부 메모를 입력하세요..."
+                  placeholder="Enter messages to customers or internal notes..."
                 />
               </div>
             </CardContent>

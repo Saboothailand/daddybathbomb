@@ -300,52 +300,51 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
             
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="customerName" className="text-[#B8C4DB] font-medium">
-                        이름 *
-                      </Label>
-                      <Input
-                        id="customerName"
-                        name="customerName"
-                        value={formData.customerName}
-                        onChange={handleInputChange}
-                        className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                        placeholder="홍길동"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="customerPhone" className="text-[#B8C4DB] font-medium">
-                        전화번호 *
-                      </Label>
-                      <Input
-                        id="customerPhone"
-                        name="customerPhone"
-                        value={formData.customerPhone}
-                        onChange={handleInputChange}
-                        className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                        placeholder="010-1234-5678"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
                   <div>
-                    <Label htmlFor="customerEmail" className="text-[#B8C4DB] font-medium">
-                      이메일 *
+                    <Label htmlFor="customerName" className="text-[#B8C4DB] font-medium">
+                      이름 *
                     </Label>
                     <Input
-                      id="customerEmail"
-                      name="customerEmail"
-                      type="email"
-                      value={formData.customerEmail}
+                      id="customerName"
+                      name="customerName"
+                      value={formData.customerName}
                       onChange={handleInputChange}
                       className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                      placeholder="example@email.com"
+                      placeholder="홍길동"
                       required
                     />
                   </div>
+
+                  <div>
+                    <Label htmlFor="customerPhone" className="text-[#B8C4DB] font-medium">
+                      전화번호 *
+                    </Label>
+                    <Input
+                      id="customerPhone"
+                      name="customerPhone"
+                      value={formData.customerPhone}
+                      onChange={handleInputChange}
+                      className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
+                      placeholder="010-1234-5678"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="customerEmail" className="text-[#B8C4DB] font-medium">
+                    이메일 *
+                  </Label>
+                  <Input
+                    id="customerEmail"
+                    name="customerEmail"
+                    type="email"
+                    value={formData.customerEmail}
+                    onChange={handleInputChange}
+                    className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
+                    placeholder="example@email.com"
+                    required
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -361,64 +360,62 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
                   배송받을 주소를 입력해주세요
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
-                  
+                <div>
+                  <Label htmlFor="shippingAddress" className="text-[#B8C4DB] font-medium">
+                    주소
+                  </Label>
+                  <Input
+                    id="shippingAddress"
+                    name="shippingAddress"
+                    value={formData.shippingAddress}
+                    onChange={handleInputChange}
+                    className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
+                    placeholder="방콕시 수쿰빗로 123"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="shippingAddress" className="text-[#B8C4DB] font-medium">
-                      주소
+                    <Label htmlFor="shippingCity" className="text-[#B8C4DB] font-medium">
+                      도시
                     </Label>
                     <Input
-                      id="shippingAddress"
-                      name="shippingAddress"
-                      value={formData.shippingAddress}
+                      id="shippingCity"
+                      name="shippingCity"
+                      value={formData.shippingCity}
                       onChange={handleInputChange}
                       className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                      placeholder="방콕시 수쿰빗로 123"
+                      placeholder="방콕"
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="shippingCity" className="text-[#B8C4DB] font-medium">
-                        도시
-                      </Label>
-                      <Input
-                        id="shippingCity"
-                        name="shippingCity"
-                        value={formData.shippingCity}
-                        onChange={handleInputChange}
-                        className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                        placeholder="방콕"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="shippingProvince" className="text-[#B8C4DB] font-medium">
-                        주/도
-                      </Label>
-                      <Input
-                        id="shippingProvince"
-                        name="shippingProvince"
-                        value={formData.shippingProvince}
-                        onChange={handleInputChange}
-                        className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                        placeholder="수쿰빗"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="shippingPostal" className="text-[#B8C4DB] font-medium">
-                        우편번호
-                      </Label>
-                      <Input
-                        id="shippingPostal"
-                        name="shippingPostal"
-                        value={formData.shippingPostal}
-                        onChange={handleInputChange}
-                        className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
-                        placeholder="10110"
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="shippingProvince" className="text-[#B8C4DB] font-medium">
+                      주/도
+                    </Label>
+                    <Input
+                      id="shippingProvince"
+                      name="shippingProvince"
+                      value={formData.shippingProvince}
+                      onChange={handleInputChange}
+                      className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
+                      placeholder="수쿰빗"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="shippingPostal" className="text-[#B8C4DB] font-medium">
+                      우편번호
+                    </Label>
+                    <Input
+                      id="shippingPostal"
+                      name="shippingPostal"
+                      value={formData.shippingPostal}
+                      onChange={handleInputChange}
+                      className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
+                      placeholder="10110"
+                    />
                   </div>
                 </div>
               </CardContent>
