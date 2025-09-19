@@ -49,6 +49,7 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
     customerPhone: '',
     shippingAddress: '',
     shippingCity: '',
+    shippingProvince: '',
     shippingPostal: '',
     notes: ''
   });
@@ -102,46 +103,54 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
         customer_phone: formData.customerPhone,
         shipping_address: formData.shippingAddress,
         shipping_city: formData.shippingCity,
+        shipping_province: formData.shippingProvince,
         shipping_postal_code: formData.shippingPostal,
-        notes: formData.notes,
+        customer_notes: formData.notes,
         subtotal: total,
         shipping_cost: 0,
+        discount_amount: 0,
         total_amount: total,
         status: 'pending'
       };
 
-      // Supabase에 주문 저장 (모킹 모드에서는 시뮬레이션)
-      try {
-        const { data: order, error: orderError } = await supabase
-          .from('orders')
-          .insert(orderData)
-          .select()
-          .single();
+      const insertBuilder: any = supabase.from('orders').insert(orderData);
+      let createdOrderId: string | null = null;
+      let createdOrderNumber = newOrderNumber;
 
+      if (typeof insertBuilder.select === 'function') {
+        const { data: orderRow, error: orderError } = await insertBuilder.select().single();
         if (orderError) throw orderError;
+        createdOrderId = orderRow?.id ?? null;
+        createdOrderNumber = orderRow?.order_number ?? createdOrderNumber;
+      } else {
+        const { data: insertedRows, error: insertError } = await insertBuilder;
+        if (insertError) throw insertError;
+        const orderRow = Array.isArray(insertedRows) ? insertedRows[0] : insertedRows;
+        createdOrderId = orderRow?.id ?? null;
+      }
 
-        // 주문 아이템들 저장
-        const orderItems = cartItems.map(item => ({
-          order_id: order.id,
-          product_id: item.id,
-          product_name: item.name,
-          quantity: item.quantity,
-          unit_price: item.price,
-          total_price: item.price * item.quantity
-        }));
+      if (!createdOrderId) {
+        throw new Error('주문 ID를 가져오지 못했습니다.');
+      }
 
+      const orderItems = cartItems.map((item) => ({
+        order_id: createdOrderId,
+        product_id: item.id,
+        quantity: item.quantity,
+        unit_price: item.price,
+        total_price: item.price * item.quantity
+      }));
+
+      if (orderItems.length > 0) {
         const { error: itemsError } = await supabase
           .from('order_items')
           .insert(orderItems);
 
         if (itemsError) throw itemsError;
-      } catch (dbError) {
-        // 모킹 모드에서는 에러를 무시하고 계속 진행
-        console.log('Database operation simulated in mock mode');
       }
 
       // 성공 처리
-      setOrderNumber(newOrderNumber);
+      setOrderNumber(createdOrderNumber);
       setOrderComplete(true);
       clearCart();
 
@@ -324,7 +333,7 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="shippingCity" className="text-[#B8C4DB] font-medium">
                         도시
@@ -336,6 +345,19 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
                         onChange={handleInputChange}
                         className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
                         placeholder="방콕"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="shippingProvince" className="text-[#B8C4DB] font-medium">
+                        주/도
+                      </Label>
+                      <Input
+                        id="shippingProvince"
+                        name="shippingProvince"
+                        value={formData.shippingProvince}
+                        onChange={handleInputChange}
+                        className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF]"
+                        placeholder="수쿰빗"
                       />
                     </div>
                     

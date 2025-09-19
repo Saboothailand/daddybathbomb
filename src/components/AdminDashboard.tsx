@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { cn } from "./ui/utils";
 import { AdminService } from "../lib/adminService";
+import { supabase } from "../lib/supabase";
 
 // 실제 관리 컴포넌트들 import
 import ProductDetailManager from "./admin/ProductDetailManager";
@@ -301,9 +302,18 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
 }
 
 // Features 관리 컴포넌트
+type FeatureRecord = {
+  id: string;
+  title: string | null;
+  description: string | null;
+  image_url: string | null;
+  is_active: boolean | null;
+};
+
 function FeaturesManagement() {
-  const [features, setFeatures] = useState([]);
+  const [features, setFeatures] = useState<FeatureRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadFeatures();
@@ -311,28 +321,19 @@ function FeaturesManagement() {
 
   const loadFeatures = async () => {
     try {
-      // Features 테이블이 없으므로 임시 데이터 사용
-      const mockFeatures = [
-        {
-          id: '1',
-      title: 'Natural Ingredients',
-      description: 'Made from 100% natural ingredients, safe for the whole family',
-          image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=300&fit=crop',
-          is_active: true,
-          display_order: 1
-    },
-    {
-          id: '2', 
-      title: 'Beautiful Fizzy Colors',
-      description: 'Beautiful colorful fizz with relaxing aromatherapy scents',
-          image_url: 'https://images.unsplash.com/photo-1594736797933-d0601ba2fe65?w=400&h=300&fit=crop',
-          is_active: true,
-          display_order: 2
-        }
-      ];
-      setFeatures(mockFeatures);
+      setLoading(true);
+      setErrorMessage(null);
+
+      const { data, error } = await supabase
+        .from('features')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      setFeatures((data as FeatureRecord[] | null) ?? []);
     } catch (error) {
       console.error('Error loading features:', error);
+      setErrorMessage('피처 데이터를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
@@ -340,46 +341,84 @@ function FeaturesManagement() {
 
   return (
     <div className="space-y-6">
-          <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Features Management</h2>
-        <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
-          Add New Feature
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700"
+            onClick={loadFeatures}
+          >
+            Reload
+          </Button>
+          <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
+            Add New Feature
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {features.map((feature) => (
-            <Card key={feature.id} className="bg-gray-50 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-            <div className="aspect-video relative">
-              <img
-                src={feature.image_url}
-                alt={feature.title}
-                className="w-full h-full object-cover rounded-t-lg"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="text-white font-bold text-lg mb-2">{feature.title}</h3>
-              <p className="text-[#B8C4DB] text-sm mb-4">{feature.description}</p>
-                    <div className="flex gap-2">
-                <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5]">
-                        Edit
-                </Button>
-                <Button size="sm" variant="destructive">
-                        Delete
-                </Button>
+      {loading ? (
+        <div className="flex items-center justify-center py-12 text-gray-600">
+          Loading features...
+        </div>
+      ) : errorMessage ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
+          {errorMessage}
+        </div>
+      ) : features.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-600">
+          등록된 Feature가 없습니다.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {features.map((feature) => (
+            <Card key={feature.id} className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="aspect-video relative">
+                <img
+                  src={feature.image_url || 'https://placehold.co/800x450?text=Feature'}
+                  alt={feature.title || 'Feature image'}
+                  className="w-full h-full object-cover rounded-t-lg"
+                />
+                {feature.is_active === false && (
+                  <Badge className="absolute top-2 left-2 bg-[#64748B] text-white">Inactive</Badge>
+                )}
               </div>
-            </CardContent>
-          </Card>
-                ))}
-              </div>
-            </div>
+              <CardContent className="p-4 space-y-3">
+                <h3 className="text-gray-900 font-bold text-lg">
+                  {feature.title || '제목 없음'}
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {feature.description || '설명이 없습니다.'}
+                </p>
+                <div className="flex gap-2">
+                  <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5]">
+                    Edit
+                  </Button>
+                  <Button size="sm" variant="destructive">
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
+type GalleryRecord = {
+  id: string;
+  image_url: string | null;
+  caption: string | null;
+  is_active: boolean | null;
+};
+
 // Gallery 관리 컴포넌트
 function GalleryManagement() {
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<GalleryRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadImages();
@@ -387,69 +426,87 @@ function GalleryManagement() {
 
   const loadImages = async () => {
     try {
-      // Gallery 테이블이 없으므로 임시 데이터 사용
-      const mockImages = [
-        {
-          id: '1',
-          image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=300&fit=crop',
-          caption: 'Super Hero Bath Bomb in action',
-          is_active: true,
-          display_order: 1
-        },
-        {
-          id: '2',
-          image_url: 'https://images.unsplash.com/photo-1594736797933-d0601ba2fe65?w=300&h=300&fit=crop',
-          caption: 'Ocean Dreams collection',
-          is_active: true,
-          display_order: 2
-        }
-      ];
-      setImages(mockImages);
-                    } catch (error) {
+      setLoading(true);
+      setErrorMessage(null);
+
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      setImages((data as GalleryRecord[] | null) ?? []);
+    } catch (error) {
       console.error('Error loading gallery images:', error);
-                    } finally {
-                      setLoading(false);
-                    }
+      setErrorMessage('갤러리 이미지를 불러오지 못했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Instagram Gallery Management</h2>
-        <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
-          Add New Image
-        </Button>
-              </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image) => (
-          <Card key={image.id} className="bg-[#151B2E] border-[#334155] overflow-hidden">
-            <div className="aspect-square relative">
-              <img
-                src={image.image_url}
-                alt={image.caption}
-                        className="w-full h-full object-cover"
-                      />
-              <div className="absolute top-2 right-2">
-                <Badge className={image.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
-                  {image.is_active ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
-            </div>
-            <CardContent className="p-3">
-              <p className="text-gray-900 text-sm font-medium line-clamp-2">{image.caption}</p>
-              <div className="flex gap-1 mt-2">
-                <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-xs">
-                  Edit
-                </Button>
-                <Button size="sm" variant="destructive" className="text-xs">
-                  Del
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700"
+            onClick={loadImages}
+          >
+            Reload
+          </Button>
+          <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
+            Add New Image
+          </Button>
+        </div>
       </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12 text-gray-600">
+          Loading gallery images...
+        </div>
+      ) : errorMessage ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
+          {errorMessage}
+        </div>
+      ) : images.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-600">
+          등록된 갤러리 이미지가 없습니다.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((image) => (
+            <Card key={image.id} className="bg-white border-gray-200 overflow-hidden">
+              <div className="aspect-square relative">
+                <img
+                  src={image.image_url || 'https://placehold.co/400x400?text=Gallery'}
+                  alt={image.caption || 'Gallery image'}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 right-2">
+                  <Badge className={image.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
+                    {image.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-3 space-y-2">
+                <p className="text-gray-900 text-sm font-medium line-clamp-2">
+                  {image.caption || '캡션 없음'}
+                </p>
+                <div className="flex gap-1">
+                  <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-xs">
+                    Edit
+                  </Button>
+                  <Button size="sm" variant="destructive" className="text-xs">
+                    Del
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

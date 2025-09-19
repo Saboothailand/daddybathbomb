@@ -19,6 +19,7 @@ import CartSidebar from "./CartSidebar";
 import OrderForm from "./OrderForm";
 import { Button } from "./ui/button";
 import SimpleEditable from "./SimpleEditable";
+import LogoEditor from "./LogoEditor";
 import { AdminService } from "../lib/adminService";
 
 type BrandingState = {
@@ -203,17 +204,11 @@ export default function Header({
             onClick={handleLogoClick}
             title={adminClicks > 0 ? `관리자 접근: ${adminClicks}/5` : "홈으로 이동"}
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center comic-border overflow-hidden">
-              {branding.logo_url ? (
-                <img
-                  src={branding.logo_url}
-                  alt={branding.site_title || "Daddy Bath Bomb"}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Zap className="w-6 h-6 text-white" />
-              )}
-            </div>
+            <LogoEditor
+              currentLogoUrl={branding.logo_url}
+              onSave={(newLogoUrl) => updateBranding('logo_url', newLogoUrl)}
+              className="w-12 h-12 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center comic-border overflow-hidden"
+            />
             <SimpleEditable
               value={branding.site_title || "DADDY BATH BOMB"}
               onSave={(value) => updateBranding('site_title', value)}

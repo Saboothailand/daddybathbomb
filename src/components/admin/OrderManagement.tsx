@@ -32,18 +32,22 @@ type OrderStatusKey =
 interface Order {
   id: string;
   order_number?: string;
-  shipping_name: string;
-  shipping_phone: string;
-  shipping_email: string;
-  shipping_address: string;
-  shipping_city: string;
-  shipping_province: string;
-  shipping_postal_code: string;
-  notes?: string;
-  admin_notes?: string;
-  subtotal?: number;
-  shipping_cost?: number;
-  total_amount: number;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  customer_email?: string | null;
+  shipping_name?: string | null;
+  shipping_phone?: string | null;
+  shipping_email?: string | null;
+  shipping_address?: string | null;
+  shipping_city?: string | null;
+  shipping_province?: string | null;
+  shipping_postal_code?: string | null;
+  customer_notes?: string | null;
+  notes?: string | null;
+  admin_notes?: string | null;
+  subtotal?: number | null;
+  shipping_cost?: number | null;
+  total_amount: number | null;
   status: string;
   created_at: string;
   order_items?: OrderItem[];
@@ -210,6 +214,9 @@ export default function OrderManagement() {
             {orders.map((order) => {
               const statusConfig = ORDER_STATUSES[order.status as OrderStatusKey];
               const IconComponent = statusConfig?.icon || Package;
+              const displayName = order.shipping_name || order.customer_name || '미기재';
+              const displayPhone = order.shipping_phone || order.customer_phone || '-';
+              const orderTotal = Number(order.total_amount ?? 0);
               
               return (
                 <div 
@@ -227,9 +234,9 @@ export default function OrderManagement() {
                         <h3 className="text-gray-900 font-bold">{order.order_number ?? order.id}</h3>
                         <p className="text-[#B8C4DB] text-sm flex items-center">
                           <User className="w-3 h-3 mr-1" />
-                          {order.shipping_name}
+                          {displayName}
                           <Phone className="w-3 h-3 ml-3 mr-1" />
-                          {order.shipping_phone}
+                          {displayPhone}
                         </p>
                       </div>
                     </div>
@@ -239,7 +246,7 @@ export default function OrderManagement() {
                         {statusConfig?.label || order.status}
                       </Badge>
                       <div className="text-[#00FF88] font-bold text-lg">
-                        ฿{Number(order.total_amount ?? 0).toLocaleString()}
+                        ฿{orderTotal.toLocaleString()}
                       </div>
                       <div className="text-[#64748B] text-xs">
                         {new Date(order.created_at).toLocaleString()}
@@ -292,6 +299,16 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
     (ORDER_STATUSES[order.status as OrderStatusKey] ? order.status : 'pending') as OrderStatusKey,
   );
   const [adminNotes, setAdminNotes] = useState(order.admin_notes || '');
+  const displayName = order.shipping_name || order.customer_name || '미기재';
+  const displayPhone = order.shipping_phone || order.customer_phone || '-';
+  const displayEmail = order.shipping_email || order.customer_email || null;
+  const customerNotes = order.customer_notes || order.notes;
+  const addressLine = [order.shipping_city, order.shipping_province, order.shipping_postal_code]
+    .filter(Boolean)
+    .join(' ');
+  const subtotalAmount = Number(order.subtotal ?? order.total_amount ?? 0);
+  const shippingCost = Number(order.shipping_cost ?? 0);
+  const totalAmount = Number(order.total_amount ?? subtotalAmount + shippingCost);
 
   const handleStatusUpdate = () => {
     onStatusUpdate(order.id, newStatus, adminNotes);
@@ -322,30 +339,35 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
               <CardContent className="space-y-3">
                 <div>
                   <Label className="text-[#64748B] text-xs">이름</Label>
-                  <p className="text-gray-900 font-medium">{order.shipping_name}</p>
+                  <p className="text-gray-900 font-medium">{displayName}</p>
                 </div>
                 <div>
                   <Label className="text-[#64748B] text-xs">연락처</Label>
-                  <p className="text-gray-900 font-medium">{order.shipping_phone}</p>
+                  <p className="text-gray-900 font-medium">{displayPhone}</p>
                 </div>
-                {order.shipping_email && (
+                {displayEmail && (
                   <div>
                     <Label className="text-[#64748B] text-xs">이메일</Label>
-                    <p className="text-gray-900 font-medium">{order.shipping_email}</p>
+                    <p className="text-gray-900 font-medium">{displayEmail}</p>
                   </div>
                 )}
                 <div>
                   <Label className="text-[#64748B] text-xs">배송 주소</Label>
                   <p className="text-gray-900 font-medium">
-                    {order.shipping_address}<br />
-                    {order.shipping_city} {order.shipping_province} {order.shipping_postal_code}
+                    {order.shipping_address || '미기재'}
+                    {addressLine ? (
+                      <>
+                        <br />
+                        {addressLine}
+                      </>
+                    ) : null}
                   </p>
                 </div>
-                {order.notes && (
+                {customerNotes && (
                   <div>
                     <Label className="text-[#64748B] text-xs">고객 메모</Label>
                     <p className="text-[#B8C4DB] text-sm bg-[#0F1424] p-3 rounded-lg">
-                      {order.notes}
+                      {customerNotes}
                     </p>
                   </div>
                 )}
@@ -387,20 +409,16 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
                   <div className="border-t border-gray-200 pt-3 space-y-2">
                     <div className="flex justify-between text-[#B8C4DB]">
                       <span>상품 금액</span>
-                      <span>฿{Number(order.subtotal ?? order.total_amount).toLocaleString()}</span>
+                      <span>฿{subtotalAmount.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-[#B8C4DB]">
                       <span>배송비</span>
-                      <span>
-                        {Number(order.shipping_cost ?? 0) === 0
-                          ? '무료'
-                          : `฿${Number(order.shipping_cost ?? 0).toLocaleString()}`}
-                      </span>
+                      <span>{shippingCost === 0 ? '무료' : `฿${shippingCost.toLocaleString()}`}</span>
                     </div>
                     <div className="flex justify-between text-gray-900 text-lg font-bold pt-2 border-t border-gray-200">
                       <span>총 금액</span>
                       <span className="text-[#00FF88]">
-                        ฿{Number(order.total_amount ?? 0).toLocaleString()}
+                        ฿{totalAmount.toLocaleString()}
                       </span>
                     </div>
                   </div>

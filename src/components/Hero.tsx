@@ -5,6 +5,7 @@ import AnimatedBackground from "./AnimatedBackground";
 import { Zap, Heart, Star } from "lucide-react";
 import SimpleEditable from "./SimpleEditable";
 import AdminToggle from "./AdminToggle";
+import HeroImageEditor from "./HeroImageEditor";
 import { AdminService } from "../lib/adminService";
 
 const copyMap: Record<LanguageKey, {
@@ -188,25 +189,12 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               className="w-96 h-96 mx-auto bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] rounded-full comic-border border-8 border-white flex items-center justify-center relative overflow-hidden animate-bounce"
               style={{ animationDuration: "3s" }}
             >
-              {heroContent.hero_character_image ? (
-                <img
-                  src={heroContent.hero_character_image}
-                  alt="Hero Character"
-                  className="w-64 h-64 object-contain animate-bounce"
-                  style={{ animationDuration: "2s" }}
-                />
-              ) : (
-                <SimpleEditable
-                  value={heroContent.hero_character}
-                  onSave={(value) => updateContent('hero_character', value)}
-                  className="text-8xl animate-bounce"
-                  placeholder="이모지를 입력하세요..."
-                >
-                  <div className="text-8xl animate-bounce" style={{ animationDuration: "2s" }}>
-                    {heroContent.hero_character}
-                  </div>
-                </SimpleEditable>
-              )}
+              <HeroImageEditor
+                currentImageUrl={heroContent.hero_character_image}
+                currentEmoji={heroContent.hero_character}
+                onSave={(newImageUrl) => updateContent('hero_character_image', newImageUrl)}
+                className="w-64 h-64 flex items-center justify-center"
+              />
 
               {/* 장식 요소들 */}
               <div className="absolute bottom-8 right-8 comic-button">

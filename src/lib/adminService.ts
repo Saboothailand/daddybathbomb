@@ -286,10 +286,14 @@ export class AdminService {
           *,
           order_items (
             id,
-            product_name,
+            product_id,
             quantity,
             unit_price,
-            total_price
+            total_price,
+            products (
+              name,
+              image_url
+            )
           )
         `)
         .order('created_at', { ascending: false });
