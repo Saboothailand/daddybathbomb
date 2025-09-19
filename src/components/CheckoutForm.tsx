@@ -225,45 +225,81 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#FF2D55]/20 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* 헤더 */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Star className="w-8 h-8 text-[#FFD700] mr-2 animate-spin" />
-            <h1 className="font-fredoka text-4xl font-bold text-white">
-              주문하기
-            </h1>
-            <Star className="w-8 h-8 text-[#FFD700] ml-2 animate-spin" />
+    <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]">
+      {/* 페이지 헤더 */}
+      <header className="bg-gradient-to-r from-[#11162A] to-[#1E293B] border-b border-[#334155] sticky top-0 z-50 shadow-2xl backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => navigateTo?.('home')}
+                className="flex items-center space-x-2 text-white hover:text-[#00FF88] transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-medium">돌아가기</span>
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#FF2D55] to-[#FF6B9D] rounded-full flex items-center justify-center">
+                <ShoppingCart className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="font-fredoka text-2xl font-bold text-white">체크아웃</h1>
+                <p className="text-[#94A3C4] text-sm">안전한 결제 진행</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <div className="bg-[#00FF88] text-black px-4 py-2 rounded-full font-bold text-sm">
+                총 {cartItems.length}개 상품
+              </div>
+            </div>
           </div>
-          <p className="text-[#B8C4DB] text-lg">
-            슈퍼 히어로 바스 밤으로 특별한 목욕 시간을 만들어보세요! 🦸‍♂️
-          </p>
+        </div>
+      </header>
+
+      {/* 메인 컨텐츠 */}
+      <main className="py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+
+        {/* 진행 상태 표시 */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-[#00FF88] rounded-full flex items-center justify-center text-black font-bold text-sm">1</div>
+              <span className="ml-2 text-white font-medium">장바구니</span>
+            </div>
+            <div className="w-12 h-0.5 bg-[#00FF88]"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-[#007AFF] rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+              <span className="ml-2 text-[#007AFF] font-medium">주문 정보</span>
+            </div>
+            <div className="w-12 h-0.5 bg-[#334155]"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-[#334155] rounded-full flex items-center justify-center text-[#64748B] font-bold text-sm">3</div>
+              <span className="ml-2 text-[#64748B] font-medium">완료</span>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 주문 정보 폼 */}
-          <Card className="bg-[#11162A]/80 backdrop-blur-xl border-[#334155] shadow-2xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white text-2xl font-bold">
-                <User className="w-6 h-6 mr-3 text-[#007AFF]" />
-                주문 정보
-              </CardTitle>
-              <CardDescription className="text-[#94A3C4]">
-                배송을 위한 정보를 입력해주세요
-              </CardDescription>
-            </CardHeader>
+          <div className="lg:col-span-2 space-y-6">
+            {/* 고객 정보 카드 */}
+            <Card className="bg-[#11162A]/90 backdrop-blur-xl border-[#334155] shadow-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center text-white text-xl font-bold">
+                  <User className="w-5 h-5 mr-3 text-[#007AFF]" />
+                  고객 정보
+                </CardTitle>
+                <CardDescription className="text-[#94A3C4]">
+                  주문자 정보를 입력해주세요
+                </CardDescription>
+              </CardHeader>
             
-            <CardContent className="space-y-6">
-              <form onSubmit={handleSubmitOrder} className="space-y-6">
-                {/* 고객 정보 */}
-                <div className="space-y-4">
-                  <h3 className="flex items-center text-white font-semibold text-lg">
-                    <User className="w-5 h-5 mr-2 text-[#00FF88]" />
-                    고객 정보
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="customerName" className="text-[#B8C4DB] font-medium">
                         이름 *
@@ -311,13 +347,22 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
                     />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* 배송 정보 */}
-                <div className="space-y-4">
-                  <h3 className="flex items-center text-white font-semibold text-lg">
-                    <Truck className="w-5 h-5 mr-2 text-[#FF2D55]" />
-                    배송 정보
-                  </h3>
+            {/* 배송 정보 카드 */}
+            <Card className="bg-[#11162A]/90 backdrop-blur-xl border-[#334155] shadow-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center text-white text-xl font-bold">
+                  <Truck className="w-5 h-5 mr-3 text-[#FF2D55]" />
+                  배송 정보
+                </CardTitle>
+                <CardDescription className="text-[#94A3C4]">
+                  배송받을 주소를 입력해주세요
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
                   
                   <div>
                     <Label htmlFor="shippingAddress" className="text-[#B8C4DB] font-medium">
@@ -376,37 +421,45 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* 특별 요청사항 */}
-                <div className="space-y-4">
-                  <h3 className="flex items-center text-white font-semibold text-lg">
-                    <MessageSquare className="w-5 h-5 mr-2 text-[#FFD700]" />
-                    특별 요청사항
-                  </h3>
-                  
-                  <Textarea
-                    name="notes"
-                    value={formData.notes}
-                    onChange={handleInputChange}
-                    className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF] min-h-[100px]"
-                    placeholder="배송 시 주의사항이나 특별 요청사항을 입력해주세요..."
-                  />
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+            {/* 특별 요청사항 카드 */}
+            <Card className="bg-[#11162A]/90 backdrop-blur-xl border-[#334155] shadow-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center text-white text-xl font-bold">
+                  <MessageSquare className="w-5 h-5 mr-3 text-[#FFD700]" />
+                  특별 요청사항
+                </CardTitle>
+                <CardDescription className="text-[#94A3C4]">
+                  배송 시 주의사항이나 요청사항을 적어주세요 (선택)
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                <Textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  className="bg-[#1E293B] border-[#334155] text-white placeholder-[#64748B] focus:border-[#007AFF] focus:ring-[#007AFF] min-h-[120px] resize-none"
+                  placeholder="예: 문 앞에 놓아주세요, 오후 2시 이후 배송 부탁드립니다..."
+                />
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* 주문 요약 */}
-          <Card className="bg-[#11162A]/80 backdrop-blur-xl border-[#334155] shadow-2xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white text-2xl font-bold">
-                <ShoppingCart className="w-6 h-6 mr-3 text-[#00FF88]" />
-                주문 요약
-              </CardTitle>
-              <CardDescription className="text-[#94A3C4]">
-                {cartItems.length}개 상품
-              </CardDescription>
-            </CardHeader>
+          {/* 주문 요약 사이드바 */}
+          <div className="space-y-6">
+            <Card className="bg-[#11162A]/90 backdrop-blur-xl border-[#334155] shadow-2xl sticky top-24">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center text-white text-xl font-bold">
+                  <ShoppingCart className="w-5 h-5 mr-3 text-[#00FF88]" />
+                  주문 요약
+                </CardTitle>
+                <CardDescription className="text-[#94A3C4]">
+                  {cartItems.length}개 상품 • 총 {total.toLocaleString()}원
+                </CardDescription>
+              </CardHeader>
             
             <CardContent className="space-y-6">
               {/* 상품 목록 */}
@@ -475,40 +528,94 @@ export default function CheckoutForm({ navigateTo }: CheckoutFormProps) {
                     </div>
                   </div>
 
-                  {/* 주문 버튼 */}
-                  <Button
-                    onClick={handleSubmitOrder}
-                    disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-[#FF2D55] to-[#FF1744] hover:from-[#FF1744] hover:to-[#E91E63] text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300"
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        주문 처리 중...
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <Zap className="w-5 h-5 mr-2" />
-                        ฿{total.toFixed(2)} 주문하기
-                      </div>
-                    )}
-                  </Button>
                 </>
               )}
-
-              {/* 뒤로가기 버튼 */}
-              <Button
-                onClick={() => navigateTo?.('products')}
-                variant="outline"
-                className="w-full border-[#334155] text-[#B8C4DB] hover:bg-[#1E293B] hover:text-white py-3 rounded-2xl transition-all"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                계속 쇼핑하기
-              </Button>
             </CardContent>
-          </Card>
+            </Card>
+
+            {/* 주문 완료 버튼 카드 */}
+            <Card className="bg-gradient-to-r from-[#FF2D55]/20 to-[#FF1744]/20 backdrop-blur-xl border-[#FF2D55]/30 shadow-2xl">
+              <CardContent className="p-6 space-y-4">
+                <Button
+                  onClick={handleSubmitOrder}
+                  disabled={isSubmitting || cartItems.length === 0}
+                  className="w-full bg-gradient-to-r from-[#FF2D55] to-[#FF1744] hover:from-[#FF1744] hover:to-[#E91E63] text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      주문 처리 중...
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <Zap className="w-5 h-5 mr-2" />
+                      ฿{total.toFixed(2)} 주문 완료하기
+                    </div>
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={() => navigateTo?.('products')}
+                  variant="outline"
+                  className="w-full border-[#334155] text-[#B8C4DB] hover:bg-[#1E293B] hover:text-white py-3 rounded-2xl transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  계속 쇼핑하기
+                </Button>
+                
+                <div className="text-center pt-2">
+                  <p className="text-[#64748B] text-xs">
+                    🔒 SSL 보안 결제 • 안전한 개인정보 보호
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+        </div>
+      </main>
+
+      {/* 푸터 */}
+      <footer className="bg-gradient-to-r from-[#11162A] to-[#1E293B] border-t border-[#334155] mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* 보안 정보 */}
+            <div className="text-center">
+              <div className="w-12 h-12 bg-[#00FF88] rounded-full flex items-center justify-center mx-auto mb-3">
+                <CheckCircle className="w-6 h-6 text-black" />
+              </div>
+              <h3 className="font-bold text-white mb-2">안전한 결제</h3>
+              <p className="text-[#94A3C4] text-sm">SSL 암호화로 보호되는 안전한 결제 시스템</p>
+            </div>
+            
+            {/* 배송 정보 */}
+            <div className="text-center">
+              <div className="w-12 h-12 bg-[#007AFF] rounded-full flex items-center justify-center mx-auto mb-3">
+                <Truck className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-bold text-white mb-2">빠른 배송</h3>
+              <p className="text-[#94A3C4] text-sm">주문 후 1-2일 내 신속 배송</p>
+            </div>
+            
+            {/* 고객 지원 */}
+            <div className="text-center">
+              <div className="w-12 h-12 bg-[#FF2D55] rounded-full flex items-center justify-center mx-auto mb-3">
+                <MessageSquare className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-bold text-white mb-2">고객 지원</h3>
+              <p className="text-[#94A3C4] text-sm">언제든지 문의해 주세요</p>
+            </div>
+          </div>
+          
+          <div className="border-t border-[#334155] mt-8 pt-6 text-center">
+            <p className="text-[#64748B] text-sm">
+              © 2024 Daddy Bath Bomb. 모든 권리 보유. 
+              <span className="mx-2">|</span>
+              안전하고 즐거운 쇼핑을 위해 최선을 다하겠습니다.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

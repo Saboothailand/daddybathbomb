@@ -1,5 +1,5 @@
 // 관리자 서비스 - 실제 Supabase 연동
-import { supabase } from './supabase';
+import { supabase, hasSupabaseCredentials } from './supabase';
 
 export interface SiteSettings {
   [key: string]: string;
