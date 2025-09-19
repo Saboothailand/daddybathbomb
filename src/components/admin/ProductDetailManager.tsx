@@ -176,7 +176,7 @@ export default function ProductDetailManager() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-gray-900 text-lg">Loading products...</div>
+        <div className="text-white text-lg">Loading products...</div>
       </div>
     );
   }
@@ -186,10 +186,10 @@ export default function ProductDetailManager() {
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 font-fredoka">
+          <h2 className="text-3xl font-bold text-white font-fredoka">
             📦 제품 상세 관리
           </h2>
-          <p className="text-[#B8C4DB] text-lg mt-2">
+          <p className="text-gray-300 text-lg mt-2">
             제품의 모든 정보를 관리하고 다국어 지원을 설정하세요
           </p>
         </div>
@@ -206,7 +206,7 @@ export default function ProductDetailManager() {
       {/* 제품 목록 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <Card key={product.id} className="bg-white border-gray-200 overflow-hidden hover:border-[#007AFF] transition-all shadow-sm hover:shadow-md">
+          <Card key={product.id} className="bg-[#11162A] border-gray-600 overflow-hidden hover:border-[#007AFF] transition-all shadow-sm hover:shadow-md">
             <div className="aspect-square relative">
               <img
                 src={product.image_url}
@@ -217,50 +217,50 @@ export default function ProductDetailManager() {
                 {product.is_featured && (
                   <Badge className="bg-[#FFD700] text-black">Featured</Badge>
                 )}
-                <Badge className={product.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-gray-900"}>
+                <Badge className={product.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
                   {product.is_active ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
               <div className="absolute top-2 left-2">
-                <Badge className="bg-[#007AFF] text-gray-900 text-xs">
+                <Badge className="bg-[#007AFF] text-white text-xs">
                   {product.sku}
                 </Badge>
               </div>
             </div>
             
             <CardContent className="p-4">
-              <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{product.name}</h3>
-              <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.short_description}</p>
+              <h3 className="font-bold text-white text-lg mb-2 line-clamp-1">{product.name}</h3>
+              <p className="text-gray-300 text-sm mb-3 line-clamp-2">{product.short_description}</p>
               
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[#00FF88] font-bold text-xl">฿{product.price}</span>
                   {product.original_price && (
-                    <span className="text-[#64748B] line-through text-sm">฿{product.original_price}</span>
+                    <span className="text-gray-400 line-through text-sm">฿{product.original_price}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 text-[#FFD700] fill-current" />
-                  <span className="text-gray-900 text-sm">{product.rating}</span>
-                  <span className="text-[#64748B] text-xs">({product.review_count})</span>
+                  <span className="text-white text-sm">{product.rating}</span>
+                  <span className="text-gray-400 text-xs">({product.review_count})</span>
                 </div>
               </div>
 
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-2 text-sm">
-                  <Package className="w-3 h-3 text-[#64748B]" />
-                  <span className="text-[#B8C4DB]">Stock: {product.stock_quantity}</span>
+                  <Package className="w-3 h-3 text-gray-400" />
+                  <span className="text-gray-300">Stock: {product.stock_quantity}</span>
                 </div>
                 {product.scent && (
                   <div className="flex items-center gap-2 text-sm">
-                    <Droplets className="w-3 h-3 text-[#64748B]" />
-                    <span className="text-[#B8C4DB]">{product.scent}</span>
+                    <Droplets className="w-3 h-3 text-gray-400" />
+                    <span className="text-gray-300">{product.scent}</span>
                   </div>
                 )}
                 {product.weight && (
                   <div className="flex items-center gap-2 text-sm">
-                    <Weight className="w-3 h-3 text-[#64748B]" />
-                    <span className="text-[#B8C4DB]">{product.weight}</span>
+                    <Weight className="w-3 h-3 text-gray-400" />
+                    <span className="text-gray-300">{product.weight}</span>
                   </div>
                 )}
               </div>

@@ -157,7 +157,7 @@ export default function OrderManagement() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-gray-900 text-lg">Loading orders...</div>
+        <div className="text-white text-lg">Loading orders...</div>
       </div>
     );
   }
@@ -166,10 +166,10 @@ export default function OrderManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 font-fredoka comic-shadow">
+          <h2 className="text-3xl font-bold text-white font-fredoka comic-shadow">
             🛒 주문 관리
           </h2>
-          <p className="text-[#B8C4DB] text-lg mt-2">
+          <p className="text-gray-300 text-lg mt-2">
             고객 주문을 확인하고 상태를 관리하세요
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function OrderManagement() {
         <div className="flex gap-3">
           <Button
             onClick={loadOrders}
-            className="bg-[#007AFF] hover:bg-[#0051D5] text-gray-900"
+            className="bg-[#007AFF] hover:bg-[#0051D5] text-white"
           >
             새로고침
           </Button>
@@ -190,11 +190,11 @@ export default function OrderManagement() {
           const IconComponent = config.icon;
 
           return (
-            <Card key={statusKey} className="bg-white border-gray-200">
+            <Card key={statusKey} className="bg-[#11162A] border-gray-600">
               <CardContent className="p-4 text-center">
                 <IconComponent className="w-6 h-6 mx-auto mb-2 text-[#007AFF]" />
-                <div className="text-2xl font-bold text-gray-900">{count}</div>
-                <div className="text-xs text-[#B8C4DB]">{config.label}</div>
+                <div className="text-2xl font-bold text-white">{count}</div>
+                <div className="text-xs text-gray-300">{config.label}</div>
               </CardContent>
             </Card>
           );
@@ -202,10 +202,10 @@ export default function OrderManagement() {
       </div>
 
       {/* 주문 목록 */}
-      <Card className="bg-white border-gray-200">
+      <Card className="bg-[#11162A] border-gray-600">
         <CardHeader>
-          <CardTitle className="text-gray-900">최근 주문</CardTitle>
-          <CardDescription className="text-[#B8C4DB]">
+          <CardTitle className="text-white">최근 주문</CardTitle>
+          <CardDescription className="text-gray-300">
             총 {orders.length}개의 주문
           </CardDescription>
         </CardHeader>
@@ -231,8 +231,8 @@ export default function OrderManagement() {
                       </div>
                       
                       <div>
-                        <h3 className="text-gray-900 font-bold">{order.order_number ?? order.id}</h3>
-                        <p className="text-[#B8C4DB] text-sm flex items-center">
+                        <h3 className="text-white font-bold">{order.order_number ?? order.id}</h3>
+                        <p className="text-gray-300 text-sm flex items-center">
                           <User className="w-3 h-3 mr-1" />
                           {displayName}
                           <Phone className="w-3 h-3 ml-3 mr-1" />
@@ -242,13 +242,13 @@ export default function OrderManagement() {
                     </div>
 
                     <div className="text-right">
-                      <Badge className={`${statusConfig?.color || 'bg-[#64748B] text-gray-900'} mb-2`}>
+                      <Badge className={`${statusConfig?.color || 'bg-[#64748B] text-white'} mb-2`}>
                         {statusConfig?.label || order.status}
                       </Badge>
                       <div className="text-[#00FF88] font-bold text-lg">
                         ฿{orderTotal.toLocaleString()}
                       </div>
-                      <div className="text-[#64748B] text-xs">
+                      <div className="text-gray-400 text-xs">
                         {new Date(order.created_at).toLocaleString()}
                       </div>
                     </div>
@@ -259,7 +259,7 @@ export default function OrderManagement() {
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <div className="flex items-center gap-2">
                         <Package className="w-4 h-4 text-[#64748B]" />
-                        <span className="text-[#B8C4DB] text-sm">
+                        <span className="text-gray-300 text-sm">
                           {order.order_items.length}개 상품: {order.order_items.map(item => item.products?.name).join(', ')}
                         </span>
                       </div>
@@ -316,12 +316,12 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl border border-gray-200 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-xl font-bold text-gray-900">
+      <div className="bg-[#11162A] rounded-2xl border border-gray-600 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-600 flex items-center justify-between">
+          <h3 className="text-xl font-bold text-white">
             주문 상세: {order.order_number ?? order.id}
           </h3>
-          <Button onClick={onClose} variant="ghost" size="sm" className="text-gray-900">
+          <Button onClick={onClose} variant="ghost" size="sm" className="text-white">
             ✕
           </Button>
         </div>
@@ -329,31 +329,31 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 고객 정보 */}
-            <Card className="bg-[#1E293B] border-gray-200">
+            <Card className="bg-[#1a1f2e] border-gray-600">
               <CardHeader>
-                <CardTitle className="text-gray-900 flex items-center">
+                <CardTitle className="text-white flex items-center">
                   <User className="w-5 h-5 mr-2" />
                   고객 정보
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <Label className="text-[#64748B] text-xs">이름</Label>
-                  <p className="text-gray-900 font-medium">{displayName}</p>
+                  <Label className="text-gray-400 text-xs">이름</Label>
+                  <p className="text-white font-medium">{displayName}</p>
                 </div>
                 <div>
-                  <Label className="text-[#64748B] text-xs">연락처</Label>
-                  <p className="text-gray-900 font-medium">{displayPhone}</p>
+                  <Label className="text-gray-400 text-xs">연락처</Label>
+                  <p className="text-white font-medium">{displayPhone}</p>
                 </div>
                 {displayEmail && (
                   <div>
-                    <Label className="text-[#64748B] text-xs">이메일</Label>
-                    <p className="text-gray-900 font-medium">{displayEmail}</p>
+                    <Label className="text-gray-400 text-xs">이메일</Label>
+                    <p className="text-white font-medium">{displayEmail}</p>
                   </div>
                 )}
                 <div>
-                  <Label className="text-[#64748B] text-xs">배송 주소</Label>
-                  <p className="text-gray-900 font-medium">
+                  <Label className="text-gray-400 text-xs">배송 주소</Label>
+                  <p className="text-white font-medium">
                     {order.shipping_address || '미기재'}
                     {addressLine ? (
                       <>
