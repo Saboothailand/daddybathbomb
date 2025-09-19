@@ -69,13 +69,13 @@ const ORDER_STATUSES: Record<OrderStatusKey, { label: string; color: string; ico
   pending: { label: '주문 접수', color: 'bg-[#FF9F1C] text-black', icon: Clock },
   payment_pending: { label: '입금 확인 대기', color: 'bg-[#FFB703] text-black', icon: Clock },
   payment_confirmed: { label: '결제 확인', color: 'bg-[#22D3EE] text-black', icon: CheckCircle },
-  confirmed: { label: '주문 확인', color: 'bg-[#007AFF] text-gray-900', icon: CheckCircle },
-  processing: { label: '주문 처리중', color: 'bg-[#5C6BC0] text-gray-900', icon: Package },
-  preparing: { label: '상품 준비', color: 'bg-[#AF52DE] text-gray-900', icon: Package },
+  confirmed: { label: '주문 확인', color: 'bg-[#007AFF] text-white', icon: CheckCircle },
+  processing: { label: '주문 처리중', color: 'bg-[#5C6BC0] text-white', icon: Package },
+  preparing: { label: '상품 준비', color: 'bg-[#AF52DE] text-white', icon: Package },
   ready_to_ship: { label: '배송 준비 완료', color: 'bg-[#00FF88] text-black', icon: Truck },
   shipped: { label: '배송 중', color: 'bg-[#FFD700] text-black', icon: Truck },
   delivered: { label: '배송 완료', color: 'bg-[#34D399] text-black', icon: CheckCircle },
-  cancelled: { label: '주문 취소', color: 'bg-[#FF2D55] text-gray-900', icon: AlertCircle },
+  cancelled: { label: '주문 취소', color: 'bg-[#FF2D55] text-white', icon: AlertCircle },
 };
 
 export default function OrderManagement() {
@@ -377,7 +377,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
             {/* 주문 상품 */}
             <Card className="bg-[#1E293B] border-gray-200">
               <CardHeader>
-                <CardTitle className="text-gray-900 flex items-center">
+                <CardTitle className="text-white flex items-center">
                   <Package className="w-5 h-5 mr-2" />
                   주문 상품
                 </CardTitle>
@@ -394,7 +394,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
                         />
                       )}
                       <div className="flex-1">
-                        <h4 className="text-gray-900 font-medium">{item.products?.name}</h4>
+                        <h4 className="text-white font-medium">{item.products?.name}</h4>
                         <p className="text-[#B8C4DB] text-sm">
                           ฿{item.unit_price.toLocaleString()} × {item.quantity}
                         </p>
@@ -415,7 +415,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
                       <span>배송비</span>
                       <span>{shippingCost === 0 ? '무료' : `฿${shippingCost.toLocaleString()}`}</span>
                     </div>
-                    <div className="flex justify-between text-gray-900 text-lg font-bold pt-2 border-t border-gray-200">
+                    <div className="flex justify-between text-white text-lg font-bold pt-2 border-t border-gray-600">
                       <span>총 금액</span>
                       <span className="text-[#00FF88]">
                         ฿{totalAmount.toLocaleString()}
@@ -430,7 +430,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
           {/* 주문 상태 관리 */}
           <Card className="bg-[#1E293B] border-gray-200">
             <CardHeader>
-              <CardTitle className="text-gray-900 flex items-center">
+              <CardTitle className="text-white flex items-center">
                 <Edit3 className="w-5 h-5 mr-2" />
                 주문 상태 관리
               </CardTitle>
@@ -438,14 +438,14 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-900 text-sm">주문 상태 변경</Label>
+                  <Label className="text-gray-400 text-sm">주문 상태 변경</Label>
                   <Select value={newStatus} onValueChange={(value) => setNewStatus(value as OrderStatusKey)}>
-                    <SelectTrigger className="bg-[#0F1424] border-gray-200 text-gray-900 mt-1">
+                    <SelectTrigger className="bg-[#0F1424] border-gray-600 text-white mt-1">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1E293B] border-gray-200">
+                    <SelectContent className="bg-[#1E293B] border-gray-600">
                       {Object.entries(ORDER_STATUSES).map(([statusKey, config]) => (
-                        <SelectItem key={statusKey} value={statusKey} className="text-gray-900">
+                        <SelectItem key={statusKey} value={statusKey} className="text-white">
                           {config.label}
                         </SelectItem>
                       ))}
@@ -464,11 +464,11 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }: OrderDetailModalPr
               </div>
 
               <div>
-                <Label className="text-gray-900 text-sm">관리자 메모</Label>
+                <Label className="text-gray-400 text-sm">관리자 메모</Label>
                 <Textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className="bg-[#0F1424] border-gray-200 text-gray-900 mt-1"
+                  className="bg-[#0F1424] border-gray-600 text-white mt-1"
                   rows={3}
                   placeholder="고객에게 전달할 메시지나 내부 메모를 입력하세요..."
                 />

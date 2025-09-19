@@ -220,7 +220,7 @@ export default function BannerManagement() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-gray-900 text-lg">Loading banners...</div>
+        <div className="text-white text-lg">Loading banners...</div>
       </div>
     );
   }
@@ -231,7 +231,7 @@ export default function BannerManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               🎯 Hero Banners
             </h2>
             <p className="text-[#B8C4DB] text-sm">메인 페이지 상단 슬라이더 (3개 권장)</p>
@@ -258,13 +258,13 @@ export default function BannerManagement() {
           
           {/* 빈 슬롯 표시 (3개 미만일 때) */}
           {groupedBanners.hero.length < 3 && (
-            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[300px]">
+            <div className="border-2 border-dashed border-gray-600 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[300px]">
               <ImageIcon className="w-12 h-12 text-[#64748B] mb-4" />
               <p className="text-[#64748B] text-sm mb-4">Hero Banner Slot {groupedBanners.hero.length + 1}</p>
               <Button
                 onClick={() => startCreate('hero')}
                 variant="outline"
-                className="border-gray-200 text-[#B8C4DB] hover:text-gray-900"
+                className="border-gray-600 text-gray-300 hover:text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 추가하기
@@ -278,7 +278,7 @@ export default function BannerManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               📍 Middle Banners
             </h2>
             <p className="text-[#B8C4DB] text-sm">페이지 중간 프로모션 배너</p>
@@ -309,14 +309,14 @@ export default function BannerManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               📍 Bottom Banners
             </h2>
             <p className="text-[#B8C4DB] text-sm">페이지 하단 CTA 배너</p>
           </div>
           <Button
             onClick={() => startCreate('bottom')}
-            className="bg-[#AF52DE] hover:bg-[#9333EA] text-gray-900 font-bold"
+            className="bg-[#AF52DE] hover:bg-[#9333EA] text-white font-bold"
           >
             <Plus className="w-4 h-4 mr-2" />
             Bottom Banner 추가
@@ -340,7 +340,7 @@ export default function BannerManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
               🧱 Sidebar Banners
             </h2>
             <p className="text-[#B8C4DB] text-sm">사이드바/추가 영역 배너</p>
@@ -366,13 +366,13 @@ export default function BannerManagement() {
           ))}
 
           {groupedBanners.sidebar.length === 0 && (
-            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[220px]">
+            <div className="border-2 border-dashed border-gray-600 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[220px]">
               <ImageIcon className="w-12 h-12 text-[#64748B] mb-4" />
               <p className="text-[#64748B] text-sm mb-4">Sidebar Banner Slot</p>
               <Button
                 onClick={() => startCreate('sidebar')}
                 variant="outline"
-                className="border-gray-200 text-[#B8C4DB] hover:text-gray-900"
+                className="border-gray-600 text-gray-300 hover:text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 추가하기
@@ -385,9 +385,9 @@ export default function BannerManagement() {
       {/* Banner Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-gray-200 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">
+          <div className="bg-[#11162A] rounded-2xl border border-gray-600 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-600 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">
                 {editingBanner ? '배너 수정' : `${formData.position.toUpperCase()} 배너 추가`}
               </h3>
               <Button onClick={resetForm} variant="ghost" size="sm">
@@ -398,7 +398,7 @@ export default function BannerManagement() {
             <div className="p-6 space-y-6">
               {/* 배너 타입 */}
               <div>
-                <Label className="text-gray-900 text-sm font-medium">배너 위치</Label>
+                <Label className="text-gray-400 text-sm font-medium">배너 위치</Label>
                 <div className="flex gap-2 mt-2 flex-wrap">
                   {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
                     <Button
@@ -407,8 +407,8 @@ export default function BannerManagement() {
                       onClick={() => setFormData({ ...formData, position: type })}
                       className={`px-4 py-2 rounded-lg text-sm ${
                         formData.position === type
-                          ? 'bg-[#007AFF] text-gray-900'
-                          : 'bg-[#1E293B] text-[#B8C4DB] hover:text-gray-900'
+                          ? 'bg-[#007AFF] text-white'
+                          : 'bg-[#1E293B] text-gray-300 hover:text-white'
                       }`}
                     >
                       {type === 'hero'
@@ -425,7 +425,7 @@ export default function BannerManagement() {
 
               {/* 이미지 업로드 */}
               <div>
-                <Label className="text-gray-900 text-sm font-medium">배너 이미지</Label>
+                <Label className="text-gray-400 text-sm font-medium">배너 이미지</Label>
                 <div className="mt-2 max-w-lg">
                   <ImageUpload
                     currentImage={formData.image_url}
@@ -438,36 +438,36 @@ export default function BannerManagement() {
               {/* 텍스트 내용 */}
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <Label className="text-gray-900 text-sm font-medium">대제목 (Main Title)</Label>
+                  <Label className="text-gray-400 text-sm font-medium">대제목 (Main Title)</Label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="bg-[#1E293B] border-gray-200 text-gray-900 mt-2"
+                    className="bg-[#0F1424] border-gray-600 text-white mt-2"
                     placeholder="예: Premium Bath Bombs"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label className="text-gray-900 text-sm font-medium">조제목 (Description)</Label>
+                  <Label className="text-gray-400 text-sm font-medium">조제목 (Description)</Label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="bg-[#1E293B] border-gray-200 text-gray-900 mt-2"
+                    className="bg-[#0F1424] border-gray-600 text-white mt-2"
                     rows={3}
                     placeholder="예: Experience the ultimate bathing adventure with our superhero-themed natural bath bombs"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-gray-900 text-sm font-medium flex items-center gap-2">
+                  <Label className="text-gray-400 text-sm font-medium flex items-center gap-2">
                     링크 URL (선택)
                     <span className="text-xs text-[#64748B]">버튼 클릭 시 이동할 주소</span>
                   </Label>
                   <Input
                     value={formData.link_url}
                     onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                    className="bg-[#1E293B] border-gray-200 text-gray-900 mt-2"
+                    className="bg-[#0F1424] border-gray-600 text-white mt-2"
                     placeholder="예: /products 또는 https://example.com"
                   />
                 </div>
@@ -481,16 +481,16 @@ export default function BannerManagement() {
                       checked={formData.is_active}
                       onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                     />
-                    <Label className="text-gray-900 text-sm">활성화</Label>
+                    <Label className="text-gray-400 text-sm">활성화</Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <Label className="text-gray-900 text-sm">순서:</Label>
+                    <Label className="text-gray-400 text-sm">순서:</Label>
                     <Input
                       type="number"
                       value={formData.display_order}
                       onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 1 })}
-                      className="bg-[#1E293B] border-gray-200 text-gray-900 w-20"
+                      className="bg-[#0F1424] border-gray-600 text-white w-20"
                       min="1"
                     />
                   </div>
@@ -498,11 +498,11 @@ export default function BannerManagement() {
               </div>
 
               {/* 액션 버튼 */}
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex gap-3 pt-4 border-t border-gray-600">
                 <Button
                   type="button"
                   onClick={resetForm}
-                  className="flex-1 bg-[#64748B] hover:bg-[#475569] text-gray-900"
+                  className="flex-1 bg-[#64748B] hover:bg-[#475569] text-white"
                 >
                   취소
                 </Button>
@@ -553,7 +553,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
   };
 
   return (
-    <Card className="bg-white border-gray-200 overflow-hidden hover:border-[#007AFF] transition-all duration-300">
+    <Card className="bg-[#11162A] border-gray-600 overflow-hidden hover:border-[#007AFF] transition-all duration-300">
       {/* 배너 이미지 */}
       <div className="relative aspect-video">
         <img
@@ -565,10 +565,10 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
         {/* 오버레이 정보 */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40">
           <div className="absolute top-3 left-3 flex gap-2">
-            <Badge className={`${getBannerTypeColor(banner.position)} text-gray-900`}>
+            <Badge className={`${getBannerTypeColor(banner.position)} text-white`}>
               {getBannerTypeIcon(banner.position)} {banner.position.toUpperCase()}
             </Badge>
-            <Badge className="bg-[#1E293B] text-gray-900">
+            <Badge className="bg-[#1E293B] text-white">
               Order #{banner.display_order}
             </Badge>
           </div>
@@ -577,7 +577,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
             <Button
               onClick={() => onToggleStatus(!banner.is_active)}
               size="sm"
-              className={banner.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-gray-900"}
+              className={banner.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}
             >
               {banner.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </Button>
@@ -585,7 +585,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
 
           {/* 텍스트 미리보기 */}
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-gray-900 font-bold text-lg mb-1 line-clamp-1">{banner.title}</h3>
+            <h3 className="text-white font-bold text-lg mb-1 line-clamp-1">{banner.title}</h3>
             {banner.description && (
               <p className="text-[#94A3B8] text-xs line-clamp-2">{banner.description}</p>
             )}
@@ -597,12 +597,12 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h4 className="font-bold text-gray-900 text-lg">{banner.title}</h4>
+            <h4 className="font-bold text-white text-lg">{banner.title}</h4>
             {banner.link_url && (
               <p className="text-[#007AFF] text-xs break-all">링크: {banner.link_url}</p>
             )}
           </div>
-          <Badge className={banner.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-gray-900"}>
+          <Badge className={banner.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
             {banner.is_active ? 'Active' : 'Inactive'}
           </Badge>
         </div>
