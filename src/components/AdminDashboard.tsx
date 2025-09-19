@@ -20,7 +20,7 @@ import OrderManagement from "./admin/OrderManagement";
 import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 
-const DASHBOARD_BACKGROUND = "bg-white";
+const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
 type DashboardTab = "overview" | "orders" | "products" | "banners" | "features" | "gallery" | "branding" | "settings";
@@ -95,106 +95,155 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
+  const toggleMenu = (menuId: string) => {
+    const newExpanded = new Set(expandedMenus);
+    if (newExpanded.has(menuId)) {
+      newExpanded.delete(menuId);
+    } else {
+      newExpanded.add(menuId);
+    }
+    setExpandedMenus(newExpanded);
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return <OverviewSection onSelectTab={setActiveTab} />;
+      case "orders":
+        return <OrderManagement />;
+      case "products":
+        return <ProductDetailManager />;
+      case "banners":
+        return <BannerManagement />;
+      case "features":
+        return <FeaturesManagement />;
+      case "gallery":
+        return <GalleryManagement />;
+      case "branding":
+        return <ImprovedLogoManagement />;
+      default:
+        return <OverviewSection onSelectTab={setActiveTab} />;
+    }
+  };
+
   return (
-    <div className={cn("min-h-screen text-gray-900", DASHBOARD_BACKGROUND)}>
-      {/* 상단 헤더 - Go to Site 버튼 포함 */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50 shadow-lg">
+    <div className={cn("min-h-screen text-white", DASHBOARD_BACKGROUND)}>
+      {/* 상단 헤더 */}
+      <header className="border-b border-gray-600 bg-[#11162A] sticky top-0 z-50 shadow-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          {/* 왼쪽: Go to Site + 로고 */}
-          <div className="flex items-center gap-6">
+          {/* 왼쪽: 메뉴 토글 + Go to Site + 로고 */}
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-white hover:bg-gray-700"
+            >
+              {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </Button>
+            
             <Button
               onClick={() => navigateTo?.("home")}
-              className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-6 py-3 rounded-2xl font-semibold shadow-lg flex items-center gap-2 transition-all hover:scale-105"
+              className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-4 py-2 rounded-lg font-semibold shadow-lg flex items-center gap-2 transition-all hover:scale-105"
             >
-              <Home className="w-5 h-5" />
+              <Home className="w-4 h-4" />
               Go to Site
             </Button>
             
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">DB</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">DB</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 font-fredoka">Admin Panel</h1>
-                <p className="text-sm text-gray-600">Daddy Bath Bomb</p>
+                <h1 className="text-lg font-bold text-white font-fredoka">Admin Panel</h1>
+                <p className="text-xs text-gray-300">Daddy Bath Bomb</p>
               </div>
             </div>
           </div>
           
-          {/* 오른쪽: 저장 버튼 */}
-          <Button
-            className={cn("rounded-2xl px-5 py-3 font-semibold shadow-lg", GRADIENT_BUTTON)}
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Save All Changes
-          </Button>
+          {/* 오른쪽: 현재 탭 표시 */}
+          <div className="text-sm text-gray-300">
+            {menuItems.find(item => item.id === activeTab)?.label || "Dashboard"}
+          </div>
         </div>
       </header>
 
-      {/* 메인 콘텐츠 */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as DashboardTab)}>
-          <TabsList className="flex flex-wrap gap-2 bg-gray-50 border border-gray-200 p-2 mb-8 rounded-xl shadow-sm">
-            <DashboardTabTrigger value="overview" label="📊 Dashboard" />
-            <DashboardTabTrigger value="orders" label="🛒 Orders" />
-            <DashboardTabTrigger value="products" label="📦 Products" />
-            <DashboardTabTrigger value="banners" label="🖼️ Banners" />
-            <DashboardTabTrigger value="features" label="⭐ Features" />
-            <DashboardTabTrigger value="gallery" label="📸 Gallery" />
-            <DashboardTabTrigger value="branding" label="🎨 Branding" />
-          </TabsList>
+      <div className="flex">
+        {/* 사이드바 */}
+        {sidebarOpen && (
+          <aside className="w-64 bg-[#11162A] border-r border-gray-600 min-h-screen">
+            <nav className="p-4 space-y-2">
+              {menuItems.map((item) => (
+                <div key={item.id}>
+                  <button
+                    onClick={() => setActiveTab(item.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all duration-200",
+                      activeTab === item.id
+                        ? "bg-[#007AFF] text-white shadow-lg"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-4 h-4" />
+                      <span className="font-medium">{item.label}</span>
+                      {item.badge && (
+                        <Badge className="bg-[#FF2D55] text-white text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </div>
+                    {item.children && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMenu(item.id);
+                        }}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        {expandedMenus.has(item.id) ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                  </button>
+                  
+                  {item.children && expandedMenus.has(item.id) && (
+                    <div className="ml-6 mt-1 space-y-1">
+                      {item.children.map((child) => (
+                        <button
+                          key={child.id}
+                          onClick={() => setActiveTab(child.id as DashboardTab)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm transition-all duration-200",
+                            activeTab === child.id
+                              ? "bg-[#007AFF] text-white"
+                              : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                          )}
+                        >
+                          <child.icon className="w-3 h-3" />
+                          {child.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
+          </aside>
+        )}
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="mt-8">
-            <OverviewSection onSelectTab={setActiveTab} />
-          </TabsContent>
-
-          {/* Orders Tab - 실제 주문 관리 컴포넌트 */}
-          <TabsContent value="orders" className="mt-8">
-            <OrderManagement />
-          </TabsContent>
-
-          {/* Products Tab - 실제 제품 관리 컴포넌트 */}
-          <TabsContent value="products" className="mt-8">
-            <ProductDetailManager />
-          </TabsContent>
-
-          {/* Banners Tab - 실제 배너 관리 컴포넌트 */}
-          <TabsContent value="banners" className="mt-8">
-            <BannerManagement />
-          </TabsContent>
-
-          {/* Features Tab - 특징 관리 */}
-          <TabsContent value="features" className="mt-8">
-            <FeaturesManagement />
-          </TabsContent>
-
-          {/* Gallery Tab - 갤러리 관리 */}
-          <TabsContent value="gallery" className="mt-8">
-            <GalleryManagement />
-          </TabsContent>
-
-          {/* Branding Tab - 개선된 로고 관리 컴포넌트 */}
-          <TabsContent value="branding" className="mt-8">
-            <ImprovedLogoManagement />
-          </TabsContent>
-        </Tabs>
-      </main>
+        {/* 메인 콘텐츠 */}
+        <main className="flex-1 p-6">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   );
 }
 
-// 탭 트리거 컴포넌트
-function DashboardTabTrigger({ value, label }: { value: DashboardTab; label: string }) {
-  return (
-    <TabsTrigger
-      value={value}
-      className="data-[state=active]:bg-[#007AFF] data-[state=active]:text-white rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
-    >
-      {label}
-    </TabsTrigger>
-  );
-}
 
 // Overview 섹션
 function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => void }) {
@@ -224,42 +273,42 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
   return (
     <div className="space-y-8">
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="border-gray-200 bg-white text-gray-900 shadow-lg">
+        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
-            <CardTitle className="text-sm uppercase tracking-wider text-gray-500">
+            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
               Total Products
             </CardTitle>
-            <CardDescription className="text-3xl font-bold text-gray-900">
+            <CardDescription className="text-3xl font-bold text-white">
               {loading ? "..." : stats.totalProducts}
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card className="border-gray-200 bg-white text-gray-900 shadow-lg">
+        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
-            <CardTitle className="text-sm uppercase tracking-wider text-gray-500">
+            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
               Active Orders
             </CardTitle>
-            <CardDescription className="text-3xl font-bold text-gray-900">
+            <CardDescription className="text-3xl font-bold text-white">
               12
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card className="border-gray-200 bg-white text-gray-900 shadow-lg">
+        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
-            <CardTitle className="text-sm uppercase tracking-wider text-gray-500">
+            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
               Active Banners
             </CardTitle>
-            <CardDescription className="text-3xl font-bold text-gray-900">
+            <CardDescription className="text-3xl font-bold text-white">
               6
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card className="border-gray-200 bg-white text-gray-900 shadow-lg">
+        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
-            <CardTitle className="text-sm uppercase tracking-wider text-gray-500">
+            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
               Gallery Images
             </CardTitle>
-            <CardDescription className="text-3xl font-bold text-gray-900">
+            <CardDescription className="text-3xl font-bold text-white">
               18
             </CardDescription>
           </CardHeader>
@@ -342,11 +391,11 @@ function FeaturesManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Features Management</h2>
+        <h2 className="text-2xl font-bold text-white">Features Management</h2>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="border-gray-300 text-gray-700"
+            className="border-gray-600 text-gray-300 hover:bg-gray-700"
             onClick={loadFeatures}
           >
             Reload
@@ -358,7 +407,7 @@ function FeaturesManagement() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-gray-600">
+        <div className="flex items-center justify-center py-12 text-gray-300">
           Loading features...
         </div>
       ) : errorMessage ? (
@@ -366,13 +415,13 @@ function FeaturesManagement() {
           {errorMessage}
         </div>
       ) : features.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-600">
+        <div className="rounded-xl border border-dashed border-gray-600 p-8 text-center text-gray-300">
           등록된 Feature가 없습니다.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature) => (
-            <Card key={feature.id} className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <Card key={feature.id} className="bg-[#11162A] border-gray-600 shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-video relative">
                 <img
                   src={feature.image_url || 'https://placehold.co/800x450?text=Feature'}
@@ -384,10 +433,10 @@ function FeaturesManagement() {
                 )}
               </div>
               <CardContent className="p-4 space-y-3">
-                <h3 className="text-gray-900 font-bold text-lg">
+                <h3 className="text-white font-bold text-lg">
                   {feature.title || '제목 없음'}
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-300 text-sm">
                   {feature.description || '설명이 없습니다.'}
                 </p>
                 <div className="flex gap-2">
@@ -447,11 +496,11 @@ function GalleryManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Instagram Gallery Management</h2>
+        <h2 className="text-2xl font-bold text-white">Instagram Gallery Management</h2>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="border-gray-300 text-gray-700"
+            className="border-gray-600 text-gray-300 hover:bg-gray-700"
             onClick={loadImages}
           >
             Reload
@@ -463,7 +512,7 @@ function GalleryManagement() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-gray-600">
+        <div className="flex items-center justify-center py-12 text-gray-300">
           Loading gallery images...
         </div>
       ) : errorMessage ? (
@@ -471,13 +520,13 @@ function GalleryManagement() {
           {errorMessage}
         </div>
       ) : images.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-600">
+        <div className="rounded-xl border border-dashed border-gray-600 p-8 text-center text-gray-300">
           등록된 갤러리 이미지가 없습니다.
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((image) => (
-            <Card key={image.id} className="bg-white border-gray-200 overflow-hidden">
+            <Card key={image.id} className="bg-[#11162A] border-gray-600 overflow-hidden">
               <div className="aspect-square relative">
                 <img
                   src={image.image_url || 'https://placehold.co/400x400?text=Gallery'}
@@ -491,7 +540,7 @@ function GalleryManagement() {
                 </div>
               </div>
               <CardContent className="p-3 space-y-2">
-                <p className="text-gray-900 text-sm font-medium line-clamp-2">
+                <p className="text-white text-sm font-medium line-clamp-2">
                   {image.caption || '캡션 없음'}
                 </p>
                 <div className="flex gap-1">
