@@ -469,6 +469,7 @@ type GalleryRecord = {
   image_url: string | null;
   caption: string | null;
   is_active: boolean | null;
+  display_order: number | null;
 };
 
 // Gallery 관리 컴포넌트
@@ -476,94 +477,292 @@ function GalleryManagement() {
   const [images, setImages] = useState<GalleryRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formState, setFormState] = useState({
+    id: null as string | null,
+    image_url: '',
+    caption: '',
+    is_active: true,
+    display_order: 1,
+  });
+  const [formError, setFormError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const computeNextOrder = useCallback(() => {
+    if (images.length === 0) return 1;
+    const maxOrder = Math.max(...images.map((img) => img.display_order ?? 0));
+    return maxOrder + 1;
+  }, [images]);
+
+  const loadImages = useCallback(async () => {
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      const data = await galleryAdminService.list(true);
+      setImages((data as GalleryRecord[] | null) ?? []);
+    } catch (error) {
+      console.error('Error loading gallery images:', error);
+      setErrorMessage('Failed to load gallery images.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadImages();
-  }, []);
+  }, [loadImages]);
 
-  const loadImages = async () => {
-                    try {
-                      setLoading(true);
-      setErrorMessage(null);
-
-      const { data, error } = await supabase
-        .from('gallery_images')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      setImages((data as GalleryRecord[] | null) ?? []);
-                    } catch (error) {
-      console.error('Error loading gallery images:', error);
-      setErrorMessage('Failed to load gallery images.');
-                    } finally {
-                      setLoading(false);
-                    }
+  const handleDialogToggle = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      setFormError(null);
+      setFormState({
+        id: null,
+        image_url: '',
+        caption: '',
+        is_active: true,
+        display_order: computeNextOrder(),
+      });
+    }
   };
+
+  const openCreateDialog = () => {
+    setFormState({
+      id: null,
+      image_url: '',
+      caption: '',
+      is_active: true,
+      display_order: computeNextOrder(),
+    });
+    setFormError(null);
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (image: GalleryRecord) => {
+    setFormState({
+      id: image.id,
+      image_url: image.image_url ?? '',
+      caption: image.caption ?? '',
+      is_active: image.is_active ?? true,
+      display_order: image.display_order ?? computeNextOrder(),
+    });
+    setFormError(null);
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!formState.image_url) {
+      setFormError('이미지를 업로드해주세요.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await galleryAdminService.save({
+        id: formState.id,
+        image_url: formState.image_url,
+        caption: formState.caption?.trim() || null,
+        is_active: formState.is_active,
+        display_order: Number.isFinite(formState.display_order)
+          ? Number(formState.display_order)
+          : computeNextOrder(),
+      });
+      setDialogOpen(false);
+      await loadImages();
+    } catch (error: any) {
+      console.error('Error saving gallery image:', error);
+      setFormError(error?.message ?? '갤러리 이미지를 저장하지 못했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (image: GalleryRecord) => {
+    if (!window.confirm('정말 이 갤러리 이미지를 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await galleryAdminService.delete(image.id);
+      await loadImages();
+    } catch (error) {
+      console.error('Error deleting gallery image:', error);
+      alert('갤러리 이미지를 삭제하지 못했습니다.');
+    }
+  };
+
+  const sortedImages = [...images].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-2xl font-bold text-white">Instagram Gallery Management</h2>
-                    <div className="flex gap-2">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             className="border-gray-600 text-gray-300 hover:bg-gray-700"
             onClick={loadImages}
+            disabled={loading}
           >
+            <RefreshCw className="w-4 h-4 mr-2" />
             Reload
           </Button>
-          <Button className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold">
+          <Button
+            className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold flex items-center gap-2"
+            onClick={openCreateDialog}
+          >
+            <Plus className="w-4 h-4" />
             Add New Image
           </Button>
-                    </div>
-                    </div>
+        </div>
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-12 text-gray-300">
           Loading gallery images...
-                </div>
+        </div>
       ) : errorMessage ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
+        <div className="rounded-xl border border-red-200 bg-red-50/20 p-6 text-center text-red-300">
           {errorMessage}
-              </div>
-      ) : images.length === 0 ? (
+        </div>
+      ) : sortedImages.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-600 p-8 text-center text-gray-300">
           No gallery images registered yet.
-                  </div>
+        </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((image) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {sortedImages.map((image) => (
             <Card key={image.id} className="bg-[#11162A] border-gray-600 overflow-hidden">
               <div className="aspect-square relative">
                 <img
                   src={image.image_url || 'https://placehold.co/400x400?text=Gallery'}
                   alt={image.caption || 'Gallery image'}
-                        className="w-full h-full object-cover"
-                      />
-                <div className="absolute top-2 right-2">
-                  <Badge className={image.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 left-2 flex gap-2">
+                  <Badge className="bg-black/70 text-white">
+                    #{image.display_order ?? 0}
+                  </Badge>
+                  <Badge className={image.is_active ? 'bg-[#00FF88] text-black' : 'bg-[#64748B] text-white'}>
                     {image.is_active ? 'Active' : 'Inactive'}
                   </Badge>
-                      </div>
-                    </div>
-              <CardContent className="p-3 space-y-2">
-                <p className="text-white text-sm font-medium line-clamp-2">
+                </div>
+              </div>
+              <CardContent className="p-3 space-y-3">
+                <p className="text-white text-sm font-medium line-clamp-2 min-h-[2.5rem]">
                   {image.caption || 'No Caption'}
                 </p>
-                <div className="flex gap-1">
-                  <Button size="sm" className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-xs">
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-xs flex items-center justify-center gap-1"
+                    onClick={() => openEditDialog(image)}
+                  >
+                    <Edit3 className="w-3 h-3" />
                     Edit
                   </Button>
-                  <Button size="sm" variant="destructive" className="text-xs">
-                    Del
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="flex-1 text-xs flex items-center justify-center gap-1"
+                    onClick={() => handleDelete(image)}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    Delete
                   </Button>
-                      </div>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={handleDialogToggle}>
+        <DialogContent className="bg-[#11162A] border-[#1f2a44] text-white space-y-4">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              {formState.id ? '갤러리 이미지 수정' : '새 갤러리 이미지 추가'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-300">이미지</Label>
+              <ImageUpload
+                currentImage={formState.image_url}
+                onImageUpload={(url) => {
+                  setFormState((prev) => ({ ...prev, image_url: url }));
+                  setFormError(null);
+                }}
+                label=""
+                storageFolder="gallery"
+              />
+              {formError && !formState.image_url && (
+                <p className="text-sm text-red-400 mt-2">{formError}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-gray-300">캡션</Label>
+              <Textarea
+                value={formState.caption ?? ''}
+                onChange={(event) => setFormState((prev) => ({ ...prev, caption: event.target.value }))}
+                rows={3}
+                className="bg-[#0F1424] border-gray-600 text-white"
+                placeholder="이미지 설명을 입력하세요"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formState.is_active}
+                  onCheckedChange={(checked) => setFormState((prev) => ({ ...prev, is_active: checked }))}
+                />
+                <span className="text-sm text-gray-300">활성화</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="gallery-order" className="text-gray-300 text-sm">
+                  표시 순서
+                </Label>
+                <Input
+                  id="gallery-order"
+                  type="number"
+                  min={0}
+                  value={formState.display_order ?? 0}
+                  onChange={(event) => {
+                    const value = Number.parseInt(event.target.value, 10);
+                    setFormState((prev) => ({ ...prev, display_order: Number.isNaN(value) ? 0 : value }));
+                  }}
+                  className="w-24 bg-[#0F1424] border-gray-600 text-white"
+                />
+              </div>
+            </div>
+
+            {formError && formState.image_url && (
+              <p className="text-sm text-red-400">{formError}</p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="border-gray-600 text-gray-300"
+              onClick={() => handleDialogToggle(false)}
+              disabled={saving}
+            >
+              취소
+            </Button>
+            <Button
+              className="bg-[#007AFF] hover:bg-[#0051D5]"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? '저장 중...' : '저장'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
