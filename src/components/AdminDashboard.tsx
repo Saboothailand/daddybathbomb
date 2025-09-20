@@ -390,7 +390,7 @@ function FeaturesManagement() {
       setFeatures((data as FeatureRecord[] | null) ?? []);
     } catch (error) {
       console.error('Error loading features:', error);
-      setErrorMessage('피처 데이터를 불러오지 못했습니다.');
+      setErrorMessage('Failed to load feature data.');
     } finally {
       setLoading(false);
     }
@@ -552,7 +552,7 @@ function GalleryManagement() {
 
   const handleSave = async () => {
     if (!formState.image_url) {
-      setFormError('이미지를 업로드해주세요.');
+      setFormError('Please upload an image.');
       return;
     }
 
@@ -571,14 +571,14 @@ function GalleryManagement() {
       await loadImages();
     } catch (error: any) {
       console.error('Error saving gallery image:', error);
-      setFormError(error?.message ?? '갤러리 이미지를 저장하지 못했습니다.');
+      setFormError(error?.message ?? 'Failed to save gallery image.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (image: GalleryRecord) => {
-    if (!window.confirm('정말 이 갤러리 이미지를 삭제하시겠습니까?')) {
+    if (!window.confirm('Are you sure you want to delete this gallery image?')) {
       return;
     }
 
@@ -587,7 +587,7 @@ function GalleryManagement() {
       await loadImages();
     } catch (error) {
       console.error('Error deleting gallery image:', error);
-      alert('갤러리 이미지를 삭제하지 못했습니다.');
+      alert('Failed to delete gallery image.');
     }
   };
 
@@ -681,7 +681,7 @@ function GalleryManagement() {
         <DialogContent className="bg-[#11162A] border-[#1f2a44] text-white space-y-4">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
-              {formState.id ? '갤러리 이미지 수정' : '새 갤러리 이미지 추가'}
+              {formState.id ? 'Edit Gallery Image' : 'Add Gallery Image'}
             </DialogTitle>
           </DialogHeader>
 
