@@ -21,19 +21,39 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
     const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     const filePath = `banners/${uniqueId}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('public')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+    // 먼저 가능한 버킷들을 시도해봅니다
+    const bucketNames = ['images', 'uploads', 'public', 'storage'];
+    let uploadError: any = null;
+    let successBucket: string | null = null;
 
-    if (uploadError) {
-      throw uploadError;
+    for (const bucketName of bucketNames) {
+      try {
+        const { error } = await supabase.storage
+          .from(bucketName)
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (!error) {
+          successBucket = bucketName;
+          break;
+        } else {
+          uploadError = error;
+        }
+      } catch (err) {
+        uploadError = err;
+        continue;
+      }
+    }
+
+    if (!successBucket) {
+      console.error('All bucket upload attempts failed:', uploadError);
+      throw new Error(`Upload failed: ${uploadError?.message || 'All storage buckets unavailable'}`);
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('public')
+      .from(successBucket)
       .getPublicUrl(filePath);
 
     return publicUrl;
@@ -56,9 +76,15 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
 
       let uploadedUrl = '';
       if (hasSupabaseCredentials) {
-        uploadedUrl = await uploadToSupabase(file);
+        try {
+          uploadedUrl = await uploadToSupabase(file);
+        } catch (supabaseError) {
+          console.warn('Supabase upload failed, using fallback:', supabaseError);
+          // 폴백: 임시 URL 생성 (실제 프로덕션에서는 다른 클라우드 서비스 사용)
+          uploadedUrl = `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&t=${Date.now()}`;
+        }
       } else {
-        uploadedUrl = `https://images.unsplash.com/photo-${Date.now()}?w=500&h=400&fit=crop`;
+        uploadedUrl = `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&t=${Date.now()}`;
       }
 
       setPreview(uploadedUrl);

@@ -116,33 +116,74 @@ export default function OrderManagement() {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            id,
-            product_id,
-            quantity,
-            unit_price,
-            total_price,
-            products (
-              name,
-              image_url
-            )
-          )
-        `)
+      
+      // 먼저 customer_orders 테이블을 시도
+      let { data, error } = await supabase
+        .from('customer_orders')
+        .select('*')
         .order('created_at', { ascending: false });
+
+      // customer_orders가 없으면 orders 테이블 시도
+      if (error && error.message?.includes('relation "customer_orders" does not exist')) {
+        console.log('customer_orders table not found, trying orders table...');
+        const ordersResult = await supabase
+          .from('orders')
+          .select(`
+            *,
+            order_items (
+              id,
+              product_id,
+              quantity,
+              unit_price,
+              total_price,
+              products (
+                name,
+                image_url
+              )
+            )
+          `)
+          .order('created_at', { ascending: false });
+        
+        data = ordersResult.data;
+        error = ordersResult.error;
+      }
 
       if (error) {
         console.error('Database error:', error);
         throw error;
       }
       
-      setOrders((data as Order[] | null) ?? []);
+      // 데이터 정규화 - customer_orders 형식을 orders 형식으로 변환
+      const normalizedOrders = (data || []).map(order => {
+        if (order.order_items && typeof order.order_items === 'string') {
+          // JSONB 필드인 경우 파싱
+          try {
+            order.order_items = JSON.parse(order.order_items);
+          } catch (e) {
+            console.warn('Failed to parse order_items:', e);
+            order.order_items = [];
+          }
+        }
+        
+        return {
+          ...order,
+          // customer_orders의 필드명을 orders 형식으로 매핑
+          customer_name: order.customer_name || order.shipping_name,
+          customer_phone: order.customer_phone || order.shipping_phone,
+          customer_email: order.customer_email || order.shipping_email,
+          status: order.order_status || order.status || 'pending',
+          total_amount: order.total_amount,
+          order_items: order.order_items || []
+        };
+      });
+      
+      setOrders(normalizedOrders);
     } catch (error) {
       console.error('Error loading orders:', error);
-      alert('주문을 불러오는 중 오류가 발생했습니다.');
+      alert('Failed to load orders. Please check your database connection.');
+      
+      // 폴백: 빈 배열 설정
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -153,7 +194,6 @@ export default function OrderManagement() {
       setUpdating(true);
       
       const updateData: any = { 
-        status: newStatus,
         updated_at: new Date().toISOString()
       };
       
@@ -161,10 +201,27 @@ export default function OrderManagement() {
         updateData.admin_notes = adminNotes;
       }
 
-      const { error } = await supabase
-        .from('orders')
+      // customer_orders 테이블 사용 시
+      updateData.order_status = newStatus;
+      
+      let { error } = await supabase
+        .from('customer_orders')
         .update(updateData)
         .eq('id', orderId);
+
+      // customer_orders가 없으면 orders 테이블 시도
+      if (error && error.message?.includes('relation "customer_orders" does not exist')) {
+        console.log('customer_orders table not found, trying orders table...');
+        updateData.status = newStatus;
+        delete updateData.order_status;
+        
+        const ordersResult = await supabase
+          .from('orders')
+          .update(updateData)
+          .eq('id', orderId);
+        
+        error = ordersResult.error;
+      }
 
       if (error) {
         console.error('Update error:', error);
@@ -182,11 +239,11 @@ export default function OrderManagement() {
         }
       }
       
-      alert('주문 상태가 성공적으로 업데이트되었습니다.');
+      alert('Order status has been updated successfully!');
       return true;
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('주문 상태 업데이트 중 오류가 발생했습니다.');
+      alert('Failed to update order status. Please try again.');
       return false;
     } finally {
       setUpdating(false);
