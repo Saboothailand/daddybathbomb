@@ -164,6 +164,7 @@ export default function EditableContent({
                 currentImage={editValue}
                 onImageUpload={setEditValue}
                 label=""
+                storageFolder="content"
               />
               <div className="flex gap-2">
                 <Button

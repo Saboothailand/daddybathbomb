@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { 
   Home, ExternalLink, Menu, X, 
   BarChart3, ShoppingCart, Package, Image, 
   Star, Camera, Palette, Settings, Users,
-  ChevronRight, ChevronDown
+  ChevronRight, ChevronDown, Plus, Edit3, Trash2, RefreshCw
 } from "lucide-react";
 import type { PageKey } from "../App";
 import { Badge } from "./ui/badge";
@@ -11,7 +11,13 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { cn } from "./ui/utils";
 import { AdminService } from "../lib/adminService";
-import { supabase } from "../lib/supabase";
+import { supabase, galleryAdminService } from "../lib/supabase";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
+import { Textarea } from "./ui/textarea";
+import ImageUpload from "./ImageUpload";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
 // 실제 관리 컴포넌트들 import
 import ProductDetailManager from "./admin/ProductDetailManager";

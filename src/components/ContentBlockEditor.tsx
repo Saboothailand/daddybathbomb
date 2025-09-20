@@ -135,6 +135,7 @@ export default function ContentBlockEditor({ isOpen, onClose, onSave, block = nu
                     currentImage={blockData.image_url}
                     onImageUpload={(url) => setBlockData({...blockData, image_url: url})}
                     label="Block Image"
+                    storageFolder="content-blocks"
                   />
                 </div>
               )}

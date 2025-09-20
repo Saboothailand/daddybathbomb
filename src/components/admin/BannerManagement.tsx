@@ -199,25 +199,30 @@ export default function BannerManagement() {
     <div className="flex gap-6 h-screen">
       {/* 좌측: 배너 목록 */}
       <div className="flex-1 overflow-y-auto space-y-6 pr-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white font-fredoka">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <h1 className="text-2xl lg:text-3xl font-bold text-white font-fredoka drop-shadow-lg">
             🎨 Banner Management
           </h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
               <Button
                 key={type}
                 onClick={() => startCreate(type)}
                 size="sm"
-                className={`${
-                  type === 'hero' ? 'bg-[#00FF88] hover:bg-[#00CC6A] text-black' :
-                  type === 'middle' ? 'bg-[#FF9F1C] hover:bg-[#E6890F] text-black' :
-                  type === 'bottom' ? 'bg-[#AF52DE] hover:bg-[#9333EA] text-white' :
-                  'bg-[#22D3EE] hover:bg-[#0EA5E9] text-black'
-                }`}
+                className={`font-semibold text-sm px-4 py-2 ${
+                  type === 'hero' ? 'bg-[#00FF88] hover:bg-[#00CC6A] text-black shadow-lg border border-green-300' :
+                  type === 'middle' ? 'bg-[#FF9F1C] hover:bg-[#E6890F] text-black shadow-lg border border-orange-300' :
+                  type === 'bottom' ? 'bg-[#AF52DE] hover:bg-[#9333EA] text-white shadow-lg border border-purple-300' :
+                  'bg-[#22D3EE] hover:bg-[#0EA5E9] text-black shadow-lg border border-cyan-300'
+                } transition-all duration-200 hover:scale-105`}
               >
-                <Plus className="w-3 h-3 mr-1" />
-                {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
+                <Plus className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">
+                  {type === 'hero' ? '🎯 Hero' : type === 'middle' ? '📍 Middle' : type === 'bottom' ? '📍 Bottom' : '🧱 Sidebar'}
+                </span>
+                <span className="sm:hidden">
+                  {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
+                </span>
               </Button>
             ))}
           </div>
@@ -225,9 +230,9 @@ export default function BannerManagement() {
 
         {/* Hero Banners */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center drop-shadow-md">
             🎯 Hero Banners 
-            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+            <span className="text-sm font-medium text-gray-300 ml-3 bg-gray-700/80 px-3 py-1 rounded-full border border-gray-600">
               {groupedBanners.hero.length}
             </span>
           </h3>
@@ -252,9 +257,9 @@ export default function BannerManagement() {
 
         {/* Middle Banners */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center drop-shadow-md">
             📍 Middle Banners 
-            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+            <span className="text-sm font-medium text-gray-300 ml-3 bg-gray-700/80 px-3 py-1 rounded-full border border-gray-600">
               {groupedBanners.middle.length}
             </span>
           </h3>
@@ -279,9 +284,9 @@ export default function BannerManagement() {
 
         {/* Bottom Banners */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center drop-shadow-md">
             📍 Bottom Banners 
-            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+            <span className="text-sm font-medium text-gray-300 ml-3 bg-gray-700/80 px-3 py-1 rounded-full border border-gray-600">
               {groupedBanners.bottom.length}
             </span>
           </h3>
@@ -306,9 +311,9 @@ export default function BannerManagement() {
 
         {/* Sidebar Banners */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center drop-shadow-md">
             🧱 Sidebar Banners 
-            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+            <span className="text-sm font-medium text-gray-300 ml-3 bg-gray-700/80 px-3 py-1 rounded-full border border-gray-600">
               {groupedBanners.sidebar.length}
             </span>
           </h3>
@@ -336,13 +341,18 @@ export default function BannerManagement() {
       <div className="w-96 flex-shrink-0">
         {showForm ? (
           <Card className="bg-[#11162A] border-gray-600 h-full">
-            <CardHeader className="border-b border-gray-600">
+            <CardHeader className="border-b border-gray-600 bg-gray-800/50">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">
-                  {editingBanner ? 'Edit Banner' : `Add ${formData.position.toUpperCase()} Banner`}
+                <CardTitle className="text-white text-lg font-bold drop-shadow-sm">
+                  {editingBanner ? '✏️ Edit Banner' : `➕ Add ${formData.position.toUpperCase()} Banner`}
                 </CardTitle>
-                <Button onClick={resetForm} variant="ghost" size="sm">
-                  <X className="w-4 h-4" />
+                <Button 
+                  onClick={resetForm} 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-gray-400 hover:text-white hover:bg-gray-700 transition-all"
+                >
+                  <X className="w-5 h-5" />
                 </Button>
               </div>
             </CardHeader>
@@ -350,22 +360,22 @@ export default function BannerManagement() {
             <CardContent className="p-6 space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
               {/* 배너 타입 */}
               <div>
-                <Label className="text-gray-400 text-sm font-medium">Banner Position</Label>
-                <div className="flex gap-2 mt-2 flex-wrap">
+                <Label className="text-white text-sm font-semibold mb-3 block">📍 Banner Position</Label>
+                <div className="flex gap-2 mt-3 flex-wrap">
                   {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
                     <Button
                       key={type}
                       type="button"
                       onClick={() => setFormData({ ...formData, position: type })}
                       size="sm"
-                      className={`${
+                      className={`font-medium px-3 py-2 border transition-all ${
                         formData.position === type
-                          ? 'bg-[#007AFF] text-white'
-                          : 'bg-[#1E293B] text-gray-300 hover:text-white'
+                          ? 'bg-[#007AFF] text-white border-blue-400 shadow-lg'
+                          : 'bg-[#1E293B] text-gray-300 hover:text-white border-gray-600 hover:border-gray-500 hover:bg-gray-700'
                       }`}
                     >
                       {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                      <span className="ml-1">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
                     </Button>
                   ))}
                 </div>
@@ -373,89 +383,97 @@ export default function BannerManagement() {
 
               {/* 이미지 업로드 */}
               <div>
-                <Label className="text-gray-400 text-sm font-medium">Banner Image</Label>
-                <div className="mt-2">
+                <Label className="text-white text-sm font-semibold mb-3 block">🖼️ Banner Image</Label>
+                <div className="mt-3">
                   <ImageUpload
                     currentImage={formData.image_url}
                     onImageUpload={(url) => setFormData({ ...formData, image_url: url })}
                     label=""
+                    storageFolder="banners"
                   />
                 </div>
               </div>
 
               {/* 텍스트 내용 */}
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
-                  <Label className="text-gray-400 text-sm font-medium">Title</Label>
+                  <Label className="text-white text-sm font-semibold mb-2 block">✏️ Title</Label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="bg-[#0F1424] border-gray-600 text-white mt-2"
-                    placeholder="Banner title"
+                    className="bg-[#0F1424] border-gray-600 text-white mt-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                    placeholder="Enter banner title..."
                     required
                   />
                 </div>
 
                 <div>
-                  <Label className="text-gray-400 text-sm font-medium">Description</Label>
+                  <Label className="text-white text-sm font-semibold mb-2 block">📝 Description</Label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="bg-[#0F1424] border-gray-600 text-white mt-2"
-                    rows={2}
-                    placeholder="Banner description"
+                    className="bg-[#0F1424] border-gray-600 text-white mt-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                    rows={3}
+                    placeholder="Enter banner description..."
                   />
                 </div>
 
                 <div>
-                  <Label className="text-gray-400 text-sm font-medium">Link URL</Label>
+                  <Label className="text-white text-sm font-semibold mb-2 block">🔗 Link URL</Label>
                   <Input
                     value={formData.link_url}
                     onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                    className="bg-[#0F1424] border-gray-600 text-white mt-2"
-                    placeholder="/products"
+                    className="bg-[#0F1424] border-gray-600 text-white mt-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                    placeholder="/products or https://example.com"
                   />
                 </div>
               </div>
 
               {/* 설정 */}
-              <div className="space-y-3">
+              <div className="space-y-4 bg-gray-800/30 p-4 rounded-lg border border-gray-600">
+                <Label className="text-white text-sm font-semibold block">⚙️ Settings</Label>
+                
                 <div className="flex items-center justify-between">
-                  <Label className="text-gray-400 text-sm">Active</Label>
-                  <Switch
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                  />
+                  <Label className="text-gray-300 text-sm font-medium">Active Status</Label>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs ${formData.is_active ? 'text-green-400' : 'text-gray-500'}`}>
+                      {formData.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                    <Switch
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <Label className="text-gray-400 text-sm">Order</Label>
+                  <Label className="text-gray-300 text-sm font-medium">Display Order</Label>
                   <Input
                     type="number"
                     value={formData.display_order}
                     onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 1 })}
-                    className="bg-[#0F1424] border-gray-600 text-white w-20"
+                    className="bg-[#0F1424] border-gray-600 text-white w-20 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                     min="1"
                   />
                 </div>
               </div>
 
               {/* 액션 버튼 */}
-              <div className="flex gap-3 pt-4 border-t border-gray-600">
+              <div className="flex gap-3 pt-6 border-t border-gray-600">
                 <Button
                   type="button"
                   onClick={resetForm}
-                  className="flex-1 bg-[#64748B] hover:bg-[#475569] text-white"
+                  className="flex-1 bg-[#64748B] hover:bg-[#475569] text-white font-semibold transition-all hover:scale-[1.02]"
                 >
-                  Cancel
+                  ❌ Cancel
                 </Button>
                 <Button
                   onClick={saveBanner}
-                  className="flex-1 bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold"
+                  className="flex-1 bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold shadow-lg transition-all hover:scale-[1.02]"
                   disabled={!formData.title || !formData.image_url}
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save
+                  💾 Save
                 </Button>
               </div>
             </CardContent>
@@ -463,23 +481,29 @@ export default function BannerManagement() {
         ) : (
           <Card className="bg-[#11162A] border-gray-600 h-full">
             <CardContent className="p-8 flex flex-col items-center justify-center h-full text-center">
-              <ImageIcon className="w-16 h-16 text-gray-500 mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">Banner Editor</h3>
-              <p className="text-gray-400 text-sm mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <ImageIcon className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3 drop-shadow-sm">🎨 Banner Editor</h3>
+              <p className="text-gray-300 text-base mb-8 leading-relaxed">
                 Select a banner from the left<br />
-                or create a new one
+                or create a new one to get started
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3 justify-center">
                 {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
                   <Button
                     key={type}
                     onClick={() => startCreate(type)}
                     size="sm"
-                    variant="outline"
-                    className="border-gray-600 text-gray-300 hover:text-white"
+                    className={`font-semibold px-4 py-2 transition-all hover:scale-105 ${
+                      type === 'hero' ? 'bg-[#00FF88] hover:bg-[#00CC6A] text-black shadow-lg' :
+                      type === 'middle' ? 'bg-[#FF9F1C] hover:bg-[#E6890F] text-black shadow-lg' :
+                      type === 'bottom' ? 'bg-[#AF52DE] hover:bg-[#9333EA] text-white shadow-lg' :
+                      'bg-[#22D3EE] hover:bg-[#0EA5E9] text-black shadow-lg'
+                    }`}
                   >
-                    <Plus className="w-3 h-3 mr-1" />
-                    {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
+                    <Plus className="w-4 h-4 mr-2" />
+                    {type === 'hero' ? '🎯 Hero' : type === 'middle' ? '📍 Middle' : type === 'bottom' ? '📍 Bottom' : '🧱 Sidebar'}
                   </Button>
                 ))}
               </div>
@@ -521,10 +545,10 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
   };
 
   return (
-    <div className="bg-[#1E293B] border border-gray-600 rounded-lg p-3 hover:border-[#007AFF] transition-all group">
-      <div className="flex items-center gap-3">
+    <div className="bg-[#1E293B] border border-gray-600 rounded-lg p-4 hover:border-[#007AFF] hover:shadow-lg transition-all group">
+      <div className="flex items-center gap-4">
         {/* 배너 이미지 (작은 크기) */}
-        <div className="w-16 h-10 flex-shrink-0 rounded overflow-hidden bg-gray-700">
+        <div className="w-20 h-12 flex-shrink-0 rounded-md overflow-hidden bg-gray-700 border border-gray-500">
           <img
             src={banner.image_url}
             alt={banner.title}
@@ -534,30 +558,31 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
         
         {/* 배너 정보 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <Badge className={`${getBannerTypeColor(banner.position)} text-xs px-2 py-0.5`}>
+          <div className="flex items-center gap-2 mb-2">
+            <Badge className={`${getBannerTypeColor(banner.position)} text-xs px-3 py-1 font-semibold border`}>
               {getBannerTypeIcon(banner.position)} {banner.position.toUpperCase()}
             </Badge>
-            <Badge className="bg-gray-700 text-white text-xs px-2 py-0.5">
+            <Badge className="bg-gray-700 text-white text-xs px-2 py-1 border border-gray-500">
               #{banner.display_order}
             </Badge>
-            <Badge className={banner.is_active ? "bg-green-600 text-white" : "bg-gray-600 text-white"}>
+            <Badge className={banner.is_active ? "bg-green-600 text-white border-green-400" : "bg-gray-600 text-white border-gray-400"}>
               {banner.is_active ? 'Active' : 'Inactive'}
             </Badge>
           </div>
-          <h4 className="text-white font-medium text-sm truncate mb-1">{banner.title}</h4>
+          <h4 className="text-white font-semibold text-base truncate mb-1 drop-shadow-sm">{banner.title}</h4>
           {banner.description && (
-            <p className="text-gray-400 text-xs line-clamp-1">{banner.description}</p>
+            <p className="text-gray-300 text-sm line-clamp-1 leading-relaxed">{banner.description}</p>
           )}
         </div>
 
         {/* 액션 버튼들 */}
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
           <Button
             onClick={() => onToggleStatus(!banner.is_active)}
             size="sm"
             variant="ghost"
-            className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+            className="h-9 w-9 p-0 text-gray-300 hover:text-white hover:bg-gray-700/50 border border-transparent hover:border-gray-500 transition-all"
+            title={banner.is_active ? 'Hide Banner' : 'Show Banner'}
           >
             {banner.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           </Button>
@@ -565,7 +590,8 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
             onClick={onEdit}
             size="sm"
             variant="ghost"
-            className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+            className="h-9 w-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 border border-transparent hover:border-blue-500 transition-all"
+            title="Edit Banner"
           >
             <Edit3 className="w-4 h-4" />
           </Button>
@@ -573,7 +599,8 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
             onClick={onDelete}
             size="sm"
             variant="ghost"
-            className="h-8 w-8 p-0 text-red-400 hover:text-red-300"
+            className="h-9 w-9 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/30 border border-transparent hover:border-red-500 transition-all"
+            title="Delete Banner"
           >
             <Trash2 className="w-4 h-4" />
           </Button>

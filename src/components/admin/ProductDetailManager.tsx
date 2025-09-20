@@ -511,6 +511,7 @@ function ProductDetailModal({
                   currentImage={formData.image_url || ''}
                   onImageUpload={(url) => setFormData({ ...formData, image_url: url })}
                   label="메인 제품 이미지"
+                  storageFolder="products"
                 />
               </div>
 

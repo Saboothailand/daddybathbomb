@@ -5,7 +5,19 @@ import { supabase, hasSupabaseCredentials } from '../lib/supabase';
 
 const DEFAULT_LABEL = 'Upload Image';
 
-export default function ImageUpload({ onImageUpload, currentImage = '', label = DEFAULT_LABEL }) {
+type ImageUploadProps = {
+  onImageUpload?: (url: string) => void;
+  currentImage?: string;
+  label?: string;
+  storageFolder?: string;
+};
+
+export default function ImageUpload({
+  onImageUpload,
+  currentImage = '',
+  label = DEFAULT_LABEL,
+  storageFolder = 'uploads'
+}: ImageUploadProps) {
   const [preview, setPreview] = useState(currentImage);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -19,7 +31,8 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
   const uploadToSupabase = async (file: File): Promise<string> => {
     const fileExt = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-    const filePath = `banners/${uniqueId}.${fileExt}`;
+    const folder = storageFolder.replace(/[^a-z0-9/_-]/gi, '') || 'uploads';
+    const filePath = `${folder}/${uniqueId}.${fileExt}`;
 
     // 먼저 가능한 버킷들을 시도해봅니다
     const bucketNames = ['images', 'uploads', 'public', 'storage'];
