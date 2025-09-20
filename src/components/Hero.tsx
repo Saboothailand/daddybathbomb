@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { LanguageKey, PageKey } from "../App";
 import { Button } from "./ui/button";
 import AnimatedBackground from "./AnimatedBackground";
@@ -50,11 +50,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
     hero_character_image: ''
   });
 
-  useEffect(() => {
-    loadHeroContent();
-  }, []);
-
-  const loadHeroContent = async () => {
+  const loadHeroContent = useCallback(async () => {
     try {
       const settings = await AdminService.getSiteSettings();
       
@@ -69,7 +65,22 @@ export default function Hero({ language, navigateTo }: HeroProps) {
     } catch (error) {
       console.error('Error loading hero content:', error);
     }
-  };
+  }, [copy.headlineMid, copy.headlineTop, copy.tagline]);
+
+  useEffect(() => {
+    loadHeroContent();
+  }, [loadHeroContent]);
+
+  useEffect(() => {
+    const handleBrandingUpdated = () => {
+      loadHeroContent();
+    };
+
+    window.addEventListener('brandingUpdated', handleBrandingUpdated);
+    return () => {
+      window.removeEventListener('brandingUpdated', handleBrandingUpdated);
+    };
+  }, [loadHeroContent]);
 
   const updateContent = async (key: string, value: string) => {
     try {

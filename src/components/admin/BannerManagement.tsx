@@ -105,23 +105,23 @@ export default function BannerManagement() {
       
       await loadBanners();
       resetForm();
-      alert('배너가 성공적으로 저장되었습니다!');
+      alert('Banner has been saved successfully!');
     } catch (error) {
       console.error('Error saving banner:', error);
-      alert('배너 저장 중 오류가 발생했습니다.');
+      alert('An error occurred while saving the banner. Please try again.');
     }
   };
 
   const deleteBanner = async (bannerId: string) => {
-    if (!confirm('정말 이 배너를 삭제하시겠습니까?')) return;
+    if (!confirm('Are you sure you want to delete this banner? This action cannot be undone.')) return;
     
     try {
       await cmsService.deleteBanner(bannerId);
       await loadBanners();
-      alert('배너가 삭제되었습니다.');
+      alert('Banner has been deleted successfully.');
     } catch (error) {
       console.error('Error deleting banner:', error);
-      alert('배너 삭제 중 오류가 발생했습니다.');
+      alert('An error occurred while deleting the banner. Please try again.');
     }
   };
 
@@ -196,198 +196,176 @@ export default function BannerManagement() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Hero Banners Section */}
-      <div className="space-y-6">
+    <div className="flex gap-6 h-screen">
+      {/* 좌측: 배너 목록 */}
+      <div className="flex-1 overflow-y-auto space-y-6 pr-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center">
-              🎯 Hero Banners
-            </h2>
-            <p className="text-[#B8C4DB] text-sm">메인 페이지 상단 슬라이더 (3개 권장)</p>
-          </div>
-          <Button
-            onClick={() => startCreate('hero')}
-            className="bg-[#00FF88] hover:bg-[#00CC6A] text-black font-bold"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Hero Banner 추가
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {groupedBanners.hero.map((banner) => (
-            <BannerCard
-              key={banner.id}
-              banner={banner}
-              onEdit={() => startEdit(banner)}
-              onDelete={() => deleteBanner(banner.id)}
-              onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
-            />
-          ))}
-          
-          {/* 빈 슬롯 표시 (3개 미만일 때) */}
-          {groupedBanners.hero.length < 3 && (
-            <div className="border-2 border-dashed border-gray-600 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[300px]">
-              <ImageIcon className="w-12 h-12 text-[#64748B] mb-4" />
-              <p className="text-[#64748B] text-sm mb-4">Hero Banner Slot {groupedBanners.hero.length + 1}</p>
+          <h1 className="text-3xl font-bold text-white font-fredoka">
+            🎨 Banner Management
+          </h1>
+          <div className="flex gap-2">
+            {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
               <Button
-                onClick={() => startCreate('hero')}
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:text-white"
+                key={type}
+                onClick={() => startCreate(type)}
+                size="sm"
+                className={`${
+                  type === 'hero' ? 'bg-[#00FF88] hover:bg-[#00CC6A] text-black' :
+                  type === 'middle' ? 'bg-[#FF9F1C] hover:bg-[#E6890F] text-black' :
+                  type === 'bottom' ? 'bg-[#AF52DE] hover:bg-[#9333EA] text-white' :
+                  'bg-[#22D3EE] hover:bg-[#0EA5E9] text-black'
+                }`}
               >
-                <Plus className="w-4 h-4 mr-2" />
-                추가하기
+                <Plus className="w-3 h-3 mr-1" />
+                {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
               </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Middle Banners Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center">
-              📍 Middle Banners
-            </h2>
-            <p className="text-[#B8C4DB] text-sm">페이지 중간 프로모션 배너</p>
+            ))}
           </div>
-          <Button
-            onClick={() => startCreate('middle')}
-            className="bg-[#FF9F1C] hover:bg-[#E6890F] text-black font-bold"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Middle Banner 추가
-          </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {groupedBanners.middle.map((banner) => (
-            <BannerCard
-              key={banner.id}
-              banner={banner}
-              onEdit={() => startEdit(banner)}
-              onDelete={() => deleteBanner(banner.id)}
-              onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom Banners Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center">
-              📍 Bottom Banners
-            </h2>
-            <p className="text-[#B8C4DB] text-sm">페이지 하단 CTA 배너</p>
+        {/* Hero Banners */}
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+            🎯 Hero Banners 
+            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+              {groupedBanners.hero.length}
+            </span>
+          </h3>
+          <div className="space-y-3">
+            {groupedBanners.hero.map((banner) => (
+              <BannerListItem
+                key={banner.id}
+                banner={banner}
+                onEdit={() => startEdit(banner)}
+                onDelete={() => deleteBanner(banner.id)}
+                onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
+              />
+            ))}
+            {groupedBanners.hero.length === 0 && (
+              <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg bg-gray-800/20">
+                <p className="text-sm">No Hero banners available</p>
+                <p className="text-xs text-gray-600 mt-1">Click the + button above to add one</p>
+              </div>
+            )}
           </div>
-          <Button
-            onClick={() => startCreate('bottom')}
-            className="bg-[#AF52DE] hover:bg-[#9333EA] text-white font-bold"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Bottom Banner 추가
-          </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {groupedBanners.bottom.map((banner) => (
-            <BannerCard
-              key={banner.id}
-              banner={banner}
-              onEdit={() => startEdit(banner)}
-              onDelete={() => deleteBanner(banner.id)}
-              onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Sidebar Banners Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center">
-              🧱 Sidebar Banners
-            </h2>
-            <p className="text-[#B8C4DB] text-sm">사이드바/추가 영역 배너</p>
+        {/* Middle Banners */}
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+            📍 Middle Banners 
+            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+              {groupedBanners.middle.length}
+            </span>
+          </h3>
+          <div className="space-y-3">
+            {groupedBanners.middle.map((banner) => (
+              <BannerListItem
+                key={banner.id}
+                banner={banner}
+                onEdit={() => startEdit(banner)}
+                onDelete={() => deleteBanner(banner.id)}
+                onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
+              />
+            ))}
+            {groupedBanners.middle.length === 0 && (
+              <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg bg-gray-800/20">
+                <p className="text-sm">No Middle banners available</p>
+                <p className="text-xs text-gray-600 mt-1">Click the + button above to add one</p>
+              </div>
+            )}
           </div>
-          <Button
-            onClick={() => startCreate('sidebar')}
-            className="bg-[#22D3EE] hover:bg-[#0EA5E9] text-black font-bold"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Sidebar Banner 추가
-          </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {groupedBanners.sidebar.map((banner) => (
-            <BannerCard
-              key={banner.id}
-              banner={banner}
-              onEdit={() => startEdit(banner)}
-              onDelete={() => deleteBanner(banner.id)}
-              onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
-            />
-          ))}
+        {/* Bottom Banners */}
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+            📍 Bottom Banners 
+            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+              {groupedBanners.bottom.length}
+            </span>
+          </h3>
+          <div className="space-y-3">
+            {groupedBanners.bottom.map((banner) => (
+              <BannerListItem
+                key={banner.id}
+                banner={banner}
+                onEdit={() => startEdit(banner)}
+                onDelete={() => deleteBanner(banner.id)}
+                onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
+              />
+            ))}
+            {groupedBanners.bottom.length === 0 && (
+              <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg bg-gray-800/20">
+                <p className="text-sm">No Bottom banners available</p>
+                <p className="text-xs text-gray-600 mt-1">Click the + button above to add one</p>
+              </div>
+            )}
+          </div>
+        </div>
 
-          {groupedBanners.sidebar.length === 0 && (
-            <div className="border-2 border-dashed border-gray-600 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[220px]">
-              <ImageIcon className="w-12 h-12 text-[#64748B] mb-4" />
-              <p className="text-[#64748B] text-sm mb-4">Sidebar Banner Slot</p>
-              <Button
-                onClick={() => startCreate('sidebar')}
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                추가하기
-              </Button>
-            </div>
-          )}
+        {/* Sidebar Banners */}
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+            🧱 Sidebar Banners 
+            <span className="text-sm text-gray-400 ml-2 bg-gray-800 px-2 py-1 rounded">
+              {groupedBanners.sidebar.length}
+            </span>
+          </h3>
+          <div className="space-y-3">
+            {groupedBanners.sidebar.map((banner) => (
+              <BannerListItem
+                key={banner.id}
+                banner={banner}
+                onEdit={() => startEdit(banner)}
+                onDelete={() => deleteBanner(banner.id)}
+                onToggleStatus={(isActive) => toggleBannerStatus(banner.id, isActive)}
+              />
+            ))}
+            {groupedBanners.sidebar.length === 0 && (
+              <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg bg-gray-800/20">
+                <p className="text-sm">No Sidebar banners available</p>
+                <p className="text-xs text-gray-600 mt-1">Click the + button above to add one</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Banner Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#11162A] rounded-2xl border border-gray-600 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-600 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-white">
-                {editingBanner ? '배너 수정' : `${formData.position.toUpperCase()} 배너 추가`}
-              </h3>
-              <Button onClick={resetForm} variant="ghost" size="sm">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+      {/* 우측: 배너 편집 폼 */}
+      <div className="w-96 flex-shrink-0">
+        {showForm ? (
+          <Card className="bg-[#11162A] border-gray-600 h-full">
+            <CardHeader className="border-b border-gray-600">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white">
+                  {editingBanner ? 'Edit Banner' : `Add ${formData.position.toUpperCase()} Banner`}
+                </CardTitle>
+                <Button onClick={resetForm} variant="ghost" size="sm">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
             
-            <div className="p-6 space-y-6">
+            <CardContent className="p-6 space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
               {/* 배너 타입 */}
               <div>
-                <Label className="text-gray-400 text-sm font-medium">배너 위치</Label>
+                <Label className="text-gray-400 text-sm font-medium">Banner Position</Label>
                 <div className="flex gap-2 mt-2 flex-wrap">
                   {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
                     <Button
                       key={type}
                       type="button"
                       onClick={() => setFormData({ ...formData, position: type })}
-                      className={`px-4 py-2 rounded-lg text-sm ${
+                      size="sm"
+                      className={`${
                         formData.position === type
                           ? 'bg-[#007AFF] text-white'
                           : 'bg-[#1E293B] text-gray-300 hover:text-white'
                       }`}
                     >
-                      {type === 'hero'
-                        ? '🎯 Hero'
-                        : type === 'middle'
-                          ? '📍 Middle'
-                          : type === 'bottom'
-                            ? '📍 Bottom'
-                            : '🧱 Sidebar'}
+                      {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
                     </Button>
                   ))}
                 </div>
@@ -395,8 +373,8 @@ export default function BannerManagement() {
 
               {/* 이미지 업로드 */}
               <div>
-                <Label className="text-gray-400 text-sm font-medium">배너 이미지</Label>
-                <div className="mt-2 max-w-lg">
+                <Label className="text-gray-400 text-sm font-medium">Banner Image</Label>
+                <div className="mt-2">
                   <ImageUpload
                     currentImage={formData.image_url}
                     onImageUpload={(url) => setFormData({ ...formData, image_url: url })}
@@ -406,64 +384,59 @@ export default function BannerManagement() {
               </div>
 
               {/* 텍스트 내용 */}
-              <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-gray-400 text-sm font-medium">대제목 (Main Title)</Label>
+                  <Label className="text-gray-400 text-sm font-medium">Title</Label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="bg-[#0F1424] border-gray-600 text-white mt-2"
-                    placeholder="예: Premium Bath Bombs"
+                    placeholder="Banner title"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label className="text-gray-400 text-sm font-medium">조제목 (Description)</Label>
+                  <Label className="text-gray-400 text-sm font-medium">Description</Label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="bg-[#0F1424] border-gray-600 text-white mt-2"
-                    rows={3}
-                    placeholder="예: Experience the ultimate bathing adventure with our superhero-themed natural bath bombs"
+                    rows={2}
+                    placeholder="Banner description"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-gray-400 text-sm font-medium flex items-center gap-2">
-                    링크 URL (선택)
-                    <span className="text-xs text-[#64748B]">버튼 클릭 시 이동할 주소</span>
-                  </Label>
+                  <Label className="text-gray-400 text-sm font-medium">Link URL</Label>
                   <Input
                     value={formData.link_url}
                     onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
                     className="bg-[#0F1424] border-gray-600 text-white mt-2"
-                    placeholder="예: /products 또는 https://example.com"
+                    placeholder="/products"
                   />
                 </div>
               </div>
 
               {/* 설정 */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                    />
-                    <Label className="text-gray-400 text-sm">활성화</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Label className="text-gray-400 text-sm">순서:</Label>
-                    <Input
-                      type="number"
-                      value={formData.display_order}
-                      onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 1 })}
-                      className="bg-[#0F1424] border-gray-600 text-white w-20"
-                      min="1"
-                    />
-                  </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-gray-400 text-sm">Active</Label>
+                  <Switch
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <Label className="text-gray-400 text-sm">Order</Label>
+                  <Input
+                    type="number"
+                    value={formData.display_order}
+                    onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 1 })}
+                    className="bg-[#0F1424] border-gray-600 text-white w-20"
+                    min="1"
+                  />
                 </div>
               </div>
 
@@ -474,7 +447,7 @@ export default function BannerManagement() {
                   onClick={resetForm}
                   className="flex-1 bg-[#64748B] hover:bg-[#475569] text-white"
                 >
-                  취소
+                  Cancel
                 </Button>
                 <Button
                   onClick={saveBanner}
@@ -482,18 +455,135 @@ export default function BannerManagement() {
                   disabled={!formData.title || !formData.image_url}
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {editingBanner ? '수정 완료' : '배너 생성'}
+                  Save
                 </Button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-[#11162A] border-gray-600 h-full">
+            <CardContent className="p-8 flex flex-col items-center justify-center h-full text-center">
+              <ImageIcon className="w-16 h-16 text-gray-500 mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">Banner Editor</h3>
+              <p className="text-gray-400 text-sm mb-6">
+                Select a banner from the left<br />
+                or create a new one
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(['hero', 'middle', 'bottom', 'sidebar'] as BannerPosition[]).map((type) => (
+                  <Button
+                    key={type}
+                    onClick={() => startCreate(type)}
+                    size="sm"
+                    variant="outline"
+                    className="border-gray-600 text-gray-300 hover:text-white"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    {type === 'hero' ? '🎯' : type === 'middle' ? '📍' : type === 'bottom' ? '📍' : '🧱'}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
 
-// 개별 배너 카드 컴포넌트
+// 배너 목록 아이템 컴포넌트
+interface BannerListItemProps {
+  banner: Banner;
+  onEdit: () => void;
+  onDelete: () => void;
+  onToggleStatus: (isActive: boolean) => void;
+}
+
+function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerListItemProps) {
+  const getBannerTypeColor = (type: string) => {
+    switch (type) {
+      case 'hero': return 'bg-[#00FF88] text-black';
+      case 'middle': return 'bg-[#FF9F1C] text-black';
+      case 'bottom': return 'bg-[#AF52DE] text-white';
+      case 'sidebar': return 'bg-[#22D3EE] text-black';
+      default: return 'bg-[#64748B] text-white';
+    }
+  };
+
+  const getBannerTypeIcon = (type: string) => {
+    switch (type) {
+      case 'hero': return '🎯';
+      case 'middle': return '📍';
+      case 'bottom': return '📍';
+      case 'sidebar': return '🧱';
+      default: return '🖼️';
+    }
+  };
+
+  return (
+    <div className="bg-[#1E293B] border border-gray-600 rounded-lg p-3 hover:border-[#007AFF] transition-all group">
+      <div className="flex items-center gap-3">
+        {/* 배너 이미지 (작은 크기) */}
+        <div className="w-16 h-10 flex-shrink-0 rounded overflow-hidden bg-gray-700">
+          <img
+            src={banner.image_url}
+            alt={banner.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* 배너 정보 */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge className={`${getBannerTypeColor(banner.position)} text-xs px-2 py-0.5`}>
+              {getBannerTypeIcon(banner.position)} {banner.position.toUpperCase()}
+            </Badge>
+            <Badge className="bg-gray-700 text-white text-xs px-2 py-0.5">
+              #{banner.display_order}
+            </Badge>
+            <Badge className={banner.is_active ? "bg-green-600 text-white" : "bg-gray-600 text-white"}>
+              {banner.is_active ? 'Active' : 'Inactive'}
+            </Badge>
+          </div>
+          <h4 className="text-white font-medium text-sm truncate mb-1">{banner.title}</h4>
+          {banner.description && (
+            <p className="text-gray-400 text-xs line-clamp-1">{banner.description}</p>
+          )}
+        </div>
+
+        {/* 액션 버튼들 */}
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            onClick={() => onToggleStatus(!banner.is_active)}
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+          >
+            {banner.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          </Button>
+          <Button
+            onClick={onEdit}
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+          >
+            <Edit3 className="w-4 h-4" />
+          </Button>
+          <Button
+            onClick={onDelete}
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-red-400 hover:text-red-300"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 개별 배너 카드 컴포넌트 (사용하지 않음 - 참고용)
 interface BannerCardProps {
   banner: Banner;
   onEdit: () => void;
@@ -555,10 +645,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
 
           {/* 텍스트 미리보기 */}
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-white font-bold text-lg mb-1 line-clamp-1">{banner.title}</h3>
-            {banner.description && (
-              <p className="text-[#94A3B8] text-xs line-clamp-2">{banner.description}</p>
-            )}
+            <h3 className="text-white font-bold text-lg line-clamp-1">{banner.title}</h3>
           </div>
         </div>
       </div>

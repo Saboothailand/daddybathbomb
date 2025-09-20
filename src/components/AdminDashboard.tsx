@@ -130,43 +130,45 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
     <div className={cn("min-h-screen text-white", DASHBOARD_BACKGROUND)}>
       {/* 상단 헤더 */}
       <header className="border-b border-gray-600 bg-[#11162A] sticky top-0 z-50 shadow-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-full items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           {/* 왼쪽: 메뉴 토글 + Go to Site + 로고 */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <Button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               variant="outline"
               size="sm"
-              className="border-gray-600 text-white hover:bg-gray-700"
+              className="border-gray-600 text-white hover:bg-gray-700 flex-shrink-0"
             >
               {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
             
             <Button
               onClick={() => navigateTo?.("home")}
-              className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-4 py-2 rounded-lg font-semibold shadow-lg flex items-center gap-2 transition-all hover:scale-105"
+              className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-3 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2 transition-all hover:brightness-110 flex-shrink-0"
             >
               <Home className="w-4 h-4" />
-              Go to Site
+              <span className="hidden sm:inline">Go to Site</span>
             </Button>
             
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">DB</span>
-            </div>
-              <div>
-                <h1 className="text-lg font-bold text-white font-fredoka">Admin Panel</h1>
-                <p className="text-xs text-gray-300">Daddy Bath Bomb</p>
               </div>
-        </div>
-      </div>
-
-          {/* 오른쪽: 현재 탭 표시 */}
-          <div className="text-sm text-gray-300">
-            {menuItems.find(item => item.id === activeTab)?.label || "Dashboard"}
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-white font-fredoka truncate">Admin Panel</h1>
+                <p className="text-xs text-gray-300 truncate">Daddy Bath Bomb</p>
+              </div>
             </div>
           </div>
-        </header>
+
+          {/* 오른쪽: 현재 탭 표시 */}
+          <div className="text-sm text-gray-300 flex-shrink-0 ml-4 hidden md:block">
+            <div className="bg-gray-800 px-3 py-1 rounded-full">
+              {menuItems.find(item => item.id === activeTab)?.label || "Dashboard"}
+            </div>
+          </div>
+        </div>
+      </header>
 
       <div className="flex">
         {/* 사이드바 */}

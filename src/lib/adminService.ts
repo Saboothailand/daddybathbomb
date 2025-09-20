@@ -153,17 +153,65 @@ export class AdminService {
   static async getSiteSettings(): Promise<SiteSettings> {
     if (hasSupabaseCredentials) {
       try {
-        const { data, error } = await supabase
-          .from('site_settings')
-          .select('setting_key, setting_value')
-          .eq('is_public', true);
-
-        if (error) throw error;
-
         const settings: SiteSettings = {};
-        data?.forEach((item) => {
-          settings[item.setting_key] = item.setting_value;
-        });
+
+        // 1) 기존 site_settings 테이블 데이터 로드 (히어로 문구 등 다른 콘텐츠 포함)
+        try {
+          const { data, error } = await supabase
+            .from('site_settings')
+            .select('setting_key, setting_value')
+            .eq('is_public', true);
+
+          if (error) throw error;
+
+          data?.forEach((item) => {
+            settings[item.setting_key] = item.setting_value;
+          });
+        } catch (error) {
+          console.warn('site_settings 로드 실패:', error);
+        }
+
+        // 2) 개선된 branding_settings 뷰에서 로고/문구 데이터 가져오기 (우선 적용)
+        try {
+          const { data: brandingData, error: brandingError } = await supabase.rpc('get_current_branding');
+
+          if (brandingError) throw brandingError;
+
+          if (brandingData && brandingData.length > 0) {
+            const branding = brandingData[0];
+            const brandingMap: SiteSettings = {
+              logo_url: branding.logo_url ?? '',
+              logo_mobile_url: branding.logo_mobile_url ?? '',
+              logo_favicon_url: branding.logo_favicon_url ?? '',
+              site_title: branding.site_title ?? 'Daddy Bath Bomb',
+              site_title_en: branding.site_title_en ?? '',
+              site_description: branding.site_description ?? '',
+              site_tagline: branding.site_tagline ?? '',
+              logo_alt_text: branding.logo_alt_text ?? '',
+              logo_alt_text_en: branding.logo_alt_text_en ?? '',
+              logo_width: branding.logo_width != null ? String(branding.logo_width) : '',
+              logo_height: branding.logo_height != null ? String(branding.logo_height) : '',
+              logo_style: branding.logo_style ?? '',
+              logo_enabled: branding.logo_enabled != null ? String(branding.logo_enabled) : '',
+              brand_primary_color: branding.brand_primary_color ?? '',
+              brand_secondary_color: branding.brand_secondary_color ?? '',
+              brand_accent_color: branding.brand_accent_color ?? '',
+              primary_color: branding.brand_primary_color ?? '',
+              secondary_color: branding.brand_secondary_color ?? '',
+              accent_color: branding.brand_accent_color ?? '',
+              logo_cache_version: branding.logo_cache_version != null ? String(branding.logo_cache_version) : '',
+              branding_updated_at: branding.updated_at ?? ''
+            };
+
+            Object.entries(brandingMap).forEach(([key, val]) => {
+              if (val !== undefined && val !== null && val !== '') {
+                settings[key] = val;
+              }
+            });
+          }
+        } catch (error) {
+          console.warn('branding_settings 로드 실패:', error);
+        }
 
         // 캐시 저장
         writeLocalStorage(SITE_SETTINGS_STORAGE_KEY, settings);
@@ -179,6 +227,72 @@ export class AdminService {
   static async updateSiteSetting(key: string, value: string, type: string = 'text'): Promise<boolean> {
     if (hasSupabaseCredentials) {
       try {
+        // 개선된 브랜딩 스키마와 동기화
+        const brandingParams: Record<string, any> = {
+          p_site_title: null,
+          p_site_title_en: null,
+          p_site_description: null,
+          p_site_tagline: null,
+          p_logo_url: null,
+          p_logo_mobile_url: null,
+          p_logo_favicon_url: null,
+          p_logo_alt_text: null,
+          p_logo_alt_text_en: null,
+          p_logo_width: null,
+          p_logo_height: null,
+          p_logo_style: null,
+          p_logo_enabled: null,
+          p_brand_primary_color: null,
+          p_brand_secondary_color: null,
+          p_brand_accent_color: null,
+        };
+
+        const brandingKeyMap: Record<string, keyof typeof brandingParams> = {
+          site_title: 'p_site_title',
+          site_title_en: 'p_site_title_en',
+          site_description: 'p_site_description',
+          site_tagline: 'p_site_tagline',
+          logo_url: 'p_logo_url',
+          logo_mobile_url: 'p_logo_mobile_url',
+          logo_favicon_url: 'p_logo_favicon_url',
+          logo_alt_text: 'p_logo_alt_text',
+          logo_alt_text_en: 'p_logo_alt_text_en',
+          logo_width: 'p_logo_width',
+          logo_height: 'p_logo_height',
+          logo_style: 'p_logo_style',
+          logo_enabled: 'p_logo_enabled',
+          brand_primary_color: 'p_brand_primary_color',
+          brand_secondary_color: 'p_brand_secondary_color',
+          brand_accent_color: 'p_brand_accent_color',
+          primary_color: 'p_brand_primary_color',
+          secondary_color: 'p_brand_secondary_color',
+          accent_color: 'p_brand_accent_color',
+        };
+
+        const numericKeys = new Set(['logo_width', 'logo_height']);
+        const booleanKeys = new Set(['logo_enabled']);
+
+        const brandingParamKey = brandingKeyMap[key];
+        if (brandingParamKey) {
+          let parsedValue: any = value;
+
+          if (numericKeys.has(key)) {
+            const numericValue = Number.parseInt(value, 10);
+            parsedValue = Number.isNaN(numericValue) ? null : numericValue;
+          } else if (booleanKeys.has(key)) {
+            parsedValue = value === 'true' || value === '1' || value === 'on';
+          }
+
+          brandingParams[brandingParamKey] = parsedValue;
+
+          try {
+            const { error: brandingError } = await supabase.rpc('update_branding_settings', brandingParams);
+            if (brandingError) throw brandingError;
+          } catch (brandingError) {
+            console.error('Branding settings 업데이트 실패:', brandingError);
+          }
+        }
+
         const { error } = await supabase
           .from('site_settings')
           .upsert({

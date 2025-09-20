@@ -1,16 +1,47 @@
 // @ts-nocheck
-import React, { useState, useRef } from 'react';
-import { validateImageFile, createImagePreview, uploadImageToCloudinary } from '../utils/imageUpload';
+import React, { useState, useRef, useEffect } from 'react';
+import { validateImageFile, createImagePreview } from '../utils/imageUpload';
+import { supabase, hasSupabaseCredentials } from '../lib/supabase';
 
-export default function ImageUpload({ onImageUpload, currentImage = '', label = "Upload Image" }) {
+const DEFAULT_LABEL = 'Upload Image';
+
+export default function ImageUpload({ onImageUpload, currentImage = '', label = DEFAULT_LABEL }) {
   const [preview, setPreview] = useState(currentImage);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef();
+  const [errorMessage, setErrorMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileSelect = async (file) => {
+  useEffect(() => {
+    setPreview(currentImage);
+  }, [currentImage]);
+
+  const uploadToSupabase = async (file: File): Promise<string> => {
+    const fileExt = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const filePath = `banners/${uniqueId}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('public')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('public')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const handleFileSelect = async (file: File) => {
     const validation = validateImageFile(file);
-    
+
     if (!validation.valid) {
       alert(`Upload Error: ${validation.error}`);
       return;
@@ -18,40 +49,43 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
 
     try {
       setUploading(true);
-      
-      // Create preview
-      const previewUrl = await createImagePreview(file);
-      setPreview(previewUrl);
-      
-      // For demo purposes, we'll use a placeholder URL
-      // In production, you would upload to Cloudinary or your preferred service
-      const mockUploadUrl = `https://images.unsplash.com/photo-${Date.now()}?w=500&h=400&fit=crop`;
-      
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      onImageUpload && onImageUpload(mockUploadUrl);
-      
+      setErrorMessage('');
+
+      const localPreview = await createImagePreview(file);
+      setPreview(localPreview);
+
+      let uploadedUrl = '';
+      if (hasSupabaseCredentials) {
+        uploadedUrl = await uploadToSupabase(file);
+      } else {
+        uploadedUrl = `https://images.unsplash.com/photo-${Date.now()}?w=500&h=400&fit=crop`;
+      }
+
+      setPreview(uploadedUrl);
+      onImageUpload?.(uploadedUrl);
     } catch (error) {
-      alert(`Upload failed: ${error.message}`);
+      console.error('Image upload failed:', error);
+      const message = error?.message || '이미지 업로드에 실패했습니다.';
+      setErrorMessage(message);
+      alert(`Upload failed: ${message}`);
       setPreview(currentImage);
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setDragOver(false);
-    
-    const files = Array.from(e.dataTransfer.files);
+
+    const files = Array.from(event.dataTransfer.files);
     if (files.length > 0) {
       handleFileSelect(files[0]);
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setDragOver(true);
   };
 
@@ -59,8 +93,8 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
     setDragOver(false);
   };
 
-  const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       handleFileSelect(file);
     }
@@ -70,20 +104,30 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
     fileInputRef.current?.click();
   };
 
+  const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setPreview('');
+    setErrorMessage('');
+    onImageUpload?.('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700">
         {label}
       </label>
-      
+
       <div
         onClick={handleClick}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         className={`relative border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all duration-300 ${
-          dragOver 
-            ? 'border-pink-400 bg-pink-50' 
+          dragOver
+            ? 'border-pink-400 bg-pink-50'
             : 'border-gray-300 hover:border-pink-400 hover:bg-gray-50'
         } ${uploading ? 'pointer-events-none opacity-50' : ''}`}
       >
@@ -94,7 +138,7 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
           onChange={handleFileInputChange}
           className="hidden"
         />
-        
+
         {preview ? (
           <div className="relative">
             <img
@@ -123,28 +167,28 @@ export default function ImageUpload({ onImageUpload, currentImage = '', label = 
             </div>
           </div>
         )}
-        
+
         {uploading && (
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-xl">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto mb-2"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto mb-2" />
               <div className="text-sm text-gray-600">Uploading...</div>
             </div>
           </div>
         )}
       </div>
-      
+
       {preview && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setPreview('');
-            onImageUpload && onImageUpload('');
-          }}
+          onClick={handleRemoveImage}
           className="text-sm text-red-600 hover:text-red-800 transition-colors"
         >
           Remove image
         </button>
+      )}
+
+      {errorMessage && (
+        <p className="text-sm text-red-600">{errorMessage}</p>
       )}
     </div>
   );
