@@ -19,7 +19,7 @@ import { Textarea } from "./ui/textarea";
 import ImageUpload from "./ImageUpload";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
-// 실제 관리 컴포넌트들 import
+// Import actual admin modules
 import ProductDetailManager from "./admin/ProductDetailManager";
 import BannerManagement from "./admin/BannerManagement";
 import OrderManagement from "./admin/OrderManagement";
@@ -134,10 +134,10 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
 
   return (
     <div className={cn("min-h-screen text-white", DASHBOARD_BACKGROUND)}>
-      {/* 상단 헤더 */}
+      {/* Top header */}
       <header className="border-b border-gray-600 bg-[#11162A] sticky top-0 z-50 shadow-lg">
         <div className="mx-auto flex max-w-full items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          {/* 왼쪽: 메뉴 토글 + Go to Site + 로고 */}
+          {/* Left side: sidebar toggle + Go to Site button + brand */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <Button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -167,7 +167,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
             </div>
           </div>
 
-          {/* 오른쪽: 현재 탭 표시 */}
+          {/* Right side: current tab indicator */}
           <div className="text-sm text-gray-300 flex-shrink-0 ml-4 hidden md:block">
             <div className="bg-gray-800 px-3 py-1 rounded-full">
               {menuItems.find(item => item.id === activeTab)?.label || "Dashboard"}
@@ -177,7 +177,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
       </header>
 
       <div className="flex">
-        {/* 사이드바 */}
+        {/* Sidebar */}
         {sidebarOpen && (
           <aside className="w-64 bg-[#11162A] border-r border-gray-600 min-h-screen">
             <nav className="p-4 space-y-2">
@@ -243,7 +243,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
           </aside>
         )}
 
-        {/* 메인 콘텐츠 */}
+        {/* Main content */}
         <main className="flex-1 p-6">
           {renderContent()}
         </main>
@@ -253,7 +253,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
 }
 
 
-// Overview 섹션
+// Overview section
 function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => void }) {
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -327,7 +327,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Quick Actions</CardTitle>
           <CardDescription className="text-[#94A3C4]">
-            자주 사용하는 기능들에 빠르게 접근하세요
+            Quick shortcuts to the most common tasks
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
@@ -358,7 +358,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
   );
 }
 
-// Features 관리 컴포넌트
+// Features management component
 type FeatureRecord = {
   id: string;
   title: string | null;
@@ -472,7 +472,7 @@ type GalleryRecord = {
   display_order: number | null;
 };
 
-// Gallery 관리 컴포넌트
+// Gallery management component
 function GalleryManagement() {
   const [images, setImages] = useState<GalleryRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -687,7 +687,7 @@ function GalleryManagement() {
 
           <div className="space-y-4">
             <div>
-              <Label className="text-gray-300">이미지</Label>
+              <Label className="text-gray-300">Image</Label>
               <ImageUpload
                 currentImage={formState.image_url}
                 onImageUpload={(url) => {
@@ -703,13 +703,13 @@ function GalleryManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">캡션</Label>
+              <Label className="text-gray-300">Caption</Label>
               <Textarea
                 value={formState.caption ?? ''}
                 onChange={(event) => setFormState((prev) => ({ ...prev, caption: event.target.value }))}
                 rows={3}
                 className="bg-[#0F1424] border-gray-600 text-white"
-                placeholder="이미지 설명을 입력하세요"
+                placeholder="Enter an optional caption"
               />
             </div>
 
@@ -719,11 +719,11 @@ function GalleryManagement() {
                   checked={formState.is_active}
                   onCheckedChange={(checked) => setFormState((prev) => ({ ...prev, is_active: checked }))}
                 />
-                <span className="text-sm text-gray-300">활성화</span>
+                <span className="text-sm text-gray-300">Active</span>
               </div>
               <div className="flex items-center gap-2">
                 <Label htmlFor="gallery-order" className="text-gray-300 text-sm">
-                  표시 순서
+                  Display Order
                 </Label>
                 <Input
                   id="gallery-order"
@@ -751,14 +751,14 @@ function GalleryManagement() {
               onClick={() => handleDialogToggle(false)}
               disabled={saving}
             >
-              취소
+              Cancel
             </Button>
             <Button
               className="bg-[#007AFF] hover:bg-[#0051D5]"
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? '저장 중...' : '저장'}
+              {saving ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>

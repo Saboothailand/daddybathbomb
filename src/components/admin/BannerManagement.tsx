@@ -197,7 +197,7 @@ export default function BannerManagement() {
 
   return (
     <div className="flex gap-6 h-screen">
-      {/* 좌측: 배너 목록 */}
+      {/* Left column: banner list */}
       <div className="flex-1 overflow-y-auto space-y-6 pr-4">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <h1 className="text-2xl lg:text-3xl font-bold text-white font-fredoka drop-shadow-lg">
@@ -337,7 +337,7 @@ export default function BannerManagement() {
         </div>
       </div>
 
-      {/* 우측: 배너 편집 폼 */}
+      {/* Right column: banner edit form */}
       <div className="w-96 flex-shrink-0">
         {showForm ? (
           <Card className="bg-[#11162A] border-gray-600 h-full">
@@ -358,7 +358,7 @@ export default function BannerManagement() {
             </CardHeader>
             
             <CardContent className="p-6 space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
-              {/* 배너 타입 */}
+              {/* Banner position selector */}
               <div>
                 <Label className="text-white text-sm font-semibold mb-3 block">📍 Banner Position</Label>
                 <div className="flex gap-2 mt-3 flex-wrap">
@@ -381,7 +381,7 @@ export default function BannerManagement() {
                 </div>
               </div>
 
-              {/* 이미지 업로드 */}
+              {/* Image upload */}
               <div>
                 <Label className="text-white text-sm font-semibold mb-3 block">🖼️ Banner Image</Label>
                 <div className="mt-3">
@@ -394,7 +394,7 @@ export default function BannerManagement() {
                 </div>
               </div>
 
-              {/* 텍스트 내용 */}
+              {/* Text fields */}
               <div className="space-y-5">
                 <div>
                   <Label className="text-white text-sm font-semibold mb-2 block">✏️ Title</Label>
@@ -429,7 +429,7 @@ export default function BannerManagement() {
                 </div>
               </div>
 
-              {/* 설정 */}
+              {/* Settings */}
               <div className="space-y-4 bg-gray-800/30 p-4 rounded-lg border border-gray-600">
                 <Label className="text-white text-sm font-semibold block">⚙️ Settings</Label>
                 
@@ -458,7 +458,7 @@ export default function BannerManagement() {
                 </div>
               </div>
 
-              {/* 액션 버튼 */}
+              {/* Actions */}
               <div className="flex gap-3 pt-6 border-t border-gray-600">
                 <Button
                   type="button"
@@ -515,7 +515,7 @@ export default function BannerManagement() {
   );
 }
 
-// 배너 목록 아이템 컴포넌트
+// Banner list item component
 interface BannerListItemProps {
   banner: Banner;
   onEdit: () => void;
@@ -547,7 +547,7 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
   return (
     <div className="bg-[#1E293B] border border-gray-600 rounded-lg p-4 hover:border-[#007AFF] hover:shadow-lg transition-all group">
       <div className="flex items-center gap-4">
-        {/* 배너 이미지 (작은 크기) */}
+        {/* Banner thumbnail */}
         <div className="w-20 h-12 flex-shrink-0 rounded-md overflow-hidden bg-gray-700 border border-gray-500">
           <img
             src={banner.image_url}
@@ -556,7 +556,7 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
           />
         </div>
         
-        {/* 배너 정보 */}
+        {/* Banner information */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <Badge className={`${getBannerTypeColor(banner.position)} text-xs px-3 py-1 font-semibold border`}>
@@ -575,7 +575,7 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
           )}
         </div>
 
-        {/* 액션 버튼들 */}
+        {/* Action buttons */}
         <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
           <Button
             onClick={() => onToggleStatus(!banner.is_active)}
@@ -610,7 +610,7 @@ function BannerListItem({ banner, onEdit, onDelete, onToggleStatus }: BannerList
   );
 }
 
-// 개별 배너 카드 컴포넌트 (사용하지 않음 - 참고용)
+// Individual banner card component (unused sample)
 interface BannerCardProps {
   banner: Banner;
   onEdit: () => void;
@@ -641,7 +641,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
 
   return (
     <Card className="bg-[#11162A] border-gray-600 overflow-hidden hover:border-[#007AFF] transition-all duration-300">
-      {/* 배너 이미지 */}
+      {/* Banner image */}
       <div className="relative aspect-video">
         <img
           src={banner.image_url}
@@ -649,7 +649,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
           className="w-full h-full object-cover"
         />
         
-        {/* 오버레이 정보 */}
+        {/* Overlay information */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40">
           <div className="absolute top-3 left-3 flex gap-2">
             <Badge className={`${getBannerTypeColor(banner.position)} text-white`}>
@@ -670,20 +670,20 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
             </Button>
           </div>
 
-          {/* 텍스트 미리보기 */}
+          {/* Text preview */}
           <div className="absolute bottom-3 left-3 right-3">
             <h3 className="text-white font-bold text-lg line-clamp-1">{banner.title}</h3>
           </div>
         </div>
       </div>
       
-      {/* 배너 정보 */}
+      {/* Banner details */}
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h4 className="font-bold text-white text-lg">{banner.title}</h4>
             {banner.link_url && (
-              <p className="text-[#007AFF] text-xs break-all">링크: {banner.link_url}</p>
+              <p className="text-[#007AFF] text-xs break-all">Link: {banner.link_url}</p>
             )}
           </div>
           <Badge className={banner.is_active ? "bg-[#00FF88] text-black" : "bg-[#64748B] text-white"}>
@@ -698,7 +698,7 @@ function BannerCard({ banner, onEdit, onDelete, onToggleStatus }: BannerCardProp
             className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-gray-900"
           >
             <Edit3 className="w-4 h-4 mr-1" />
-            수정
+            Edit
           </Button>
           <Button
             onClick={onDelete}

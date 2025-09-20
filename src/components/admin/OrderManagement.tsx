@@ -387,7 +387,7 @@ export default function OrderManagement() {
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center gap-3 text-white text-lg">
           <RefreshCw className="w-5 h-5 animate-spin" />
-          주문을 불러오는 중...
+          Loading orders...
         </div>
       </div>
     );
@@ -399,20 +399,20 @@ export default function OrderManagement() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold text-white font-fredoka">
-            🛒 주문 관리
+            🛒 Order Management
           </h2>
           <p className="text-gray-300 mt-2">
-            고객 주문을 확인하고 상태를 관리하세요
+            View and manage customer orders and their status
           </p>
         </div>
         
         <div className="flex gap-3">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="bg-[#1E293B] border-gray-600 text-white w-48">
-              <SelectValue placeholder="상태별 필터" />
+              <SelectValue placeholder="Filter by Status" />
             </SelectTrigger>
             <SelectContent className="bg-[#1E293B] border-gray-600">
-              <SelectItem value="all" className="text-white">모든 주문</SelectItem>
+              <SelectItem value="all" className="text-white">All Orders</SelectItem>
               {Object.entries(ORDER_STATUSES).map(([statusKey, config]) => (
                 <SelectItem key={statusKey} value={statusKey} className="text-white">
                   {config.label}
@@ -427,7 +427,7 @@ export default function OrderManagement() {
             className="bg-[#007AFF] hover:bg-[#0051D5] text-white"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            새로고침
+            Refresh
           </Button>
         </div>
       </div>
@@ -469,11 +469,11 @@ export default function OrderManagement() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white">주문 목록</CardTitle>
+              <CardTitle className="text-white">Order List</CardTitle>
               <CardDescription className="text-gray-300">
                 {statusFilter === 'all' 
-                  ? `총 ${orders.length}개의 주문` 
-                  : `${ORDER_STATUSES[statusFilter as OrderStatusKey]?.label || statusFilter} 주문 ${filteredOrders.length}개`
+                  ? `Total ${orders.length} orders` 
+                  : `${ORDER_STATUSES[statusFilter as OrderStatusKey]?.label || statusFilter} orders: ${filteredOrders.length}`
                 }
               </CardDescription>
             </div>
@@ -483,7 +483,7 @@ export default function OrderManagement() {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>표시할 주문이 없습니다.</p>
+              <p>No orders to display.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -521,7 +521,7 @@ interface OrderCardProps {
 const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetail }) => {
   const statusConfig = ORDER_STATUSES[order.status as OrderStatusKey];
   const IconComponent = statusConfig?.icon || Package;
-  const displayName = order.shipping_name || order.customer_name || '이름 없음';
+  const displayName = order.shipping_name || order.customer_name || 'No Name';
   const displayPhone = order.shipping_phone || order.customer_phone || '-';
   const orderTotal = Number(order.total_amount ?? 0);
   
@@ -576,21 +576,21 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetail }) => {
         </div>
       </div>
 
-      {/* 주문 상품 미리보기 */}
+      {/* Order Items Preview */}
       {order.order_items && order.order_items.length > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-600">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-gray-300">
               <Package className="w-4 h-4" />
-              <span>{order.order_items.length}개 상품</span>
+              <span>{order.order_items.length} items</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="text-[#007AFF] hover:text-white hover:bg-[#007AFF] text-xs"
+              className="text-[#007AFF] hover:text-black hover:bg-[#007AFF] text-xs font-semibold"
             >
               <Eye className="w-3 h-3 mr-1" />
-              상세보기
+              View Details
             </Button>
           </div>
           <div className="mt-2 text-xs text-gray-400 line-clamp-1">
@@ -617,7 +617,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
   const [adminNotes, setAdminNotes] = useState(order.admin_notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const displayName = order.shipping_name || order.customer_name || '이름 없음';
+  const displayName = order.shipping_name || order.customer_name || 'No Name';
   const displayPhone = order.shipping_phone || order.customer_phone || '-';
   const displayEmail = order.shipping_email || order.customer_email || null;
   const customerNotes = order.customer_notes || order.notes;
@@ -650,7 +650,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
             </div>
             <div>
               <h3 className="text-xl font-bold text-white">
-                주문 #{order.order_number || order.id.slice(-8)}
+                Order #{order.order_number || order.id.slice(-8)}
               </h3>
               <p className="text-gray-400 text-sm">
                 {new Date(order.created_at).toLocaleString('ko-KR')}
@@ -675,17 +675,17 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
               <CardHeader className="pb-3">
                 <CardTitle className="text-white flex items-center text-lg">
                   <User className="w-5 h-5 mr-2" />
-                  고객 정보
+                  Customer Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-gray-400 text-xs uppercase tracking-wide">이름</Label>
+                    <Label className="text-gray-400 text-xs uppercase tracking-wide">Name</Label>
                     <p className="text-white font-medium mt-1">{displayName}</p>
                   </div>
                   <div>
-                    <Label className="text-gray-400 text-xs uppercase tracking-wide">전화번호</Label>
+                    <Label className="text-gray-400 text-xs uppercase tracking-wide">Phone</Label>
                     <p className="text-white font-medium mt-1 flex items-center">
                       <Phone className="w-4 h-4 mr-2 text-gray-400" />
                       {displayPhone}
@@ -693,7 +693,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                   </div>
                   {displayEmail && (
                     <div>
-                      <Label className="text-gray-400 text-xs uppercase tracking-wide">이메일</Label>
+                      <Label className="text-gray-400 text-xs uppercase tracking-wide">Email</Label>
                       <p className="text-white font-medium mt-1 flex items-center">
                         <Mail className="w-4 h-4 mr-2 text-gray-400" />
                         {displayEmail}
@@ -701,11 +701,11 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                     </div>
                   )}
                   <div>
-                    <Label className="text-gray-400 text-xs uppercase tracking-wide">배송주소</Label>
+                    <Label className="text-gray-400 text-xs uppercase tracking-wide">Shipping Address</Label>
                     <div className="text-white font-medium mt-1 flex items-start">
                       <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div>
-                        <div>{order.shipping_address || '주소 없음'}</div>
+                        <div>{order.shipping_address || 'No Address'}</div>
                         {addressLine && (
                           <div className="text-gray-300 text-sm mt-1">{addressLine}</div>
                         )}
@@ -714,7 +714,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                   </div>
                   {customerNotes && (
                     <div>
-                      <Label className="text-gray-400 text-xs uppercase tracking-wide">고객 메모</Label>
+                      <Label className="text-gray-400 text-xs uppercase tracking-wide">Customer Notes</Label>
                       <div className="text-gray-300 text-sm bg-[#0F1424] p-3 rounded-lg mt-1 border-l-4 border-[#007AFF]">
                         {customerNotes}
                       </div>
@@ -724,12 +724,12 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
               </CardContent>
             </Card>
 
-            {/* 주문 상품 */}
+            {/* Order Items */}
             <Card className="bg-[#1E293B] border-gray-600">
               <CardHeader className="pb-3">
                 <CardTitle className="text-white flex items-center text-lg">
                   <Package className="w-5 h-5 mr-2" />
-                  주문 상품
+                  Order Items
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -761,15 +761,15 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                 {/* 금액 요약 */}
                 <div className="border-t border-gray-600 pt-4 mt-4 space-y-2">
                   <div className="flex justify-between text-gray-300 text-sm">
-                    <span>소계</span>
+                    <span>Subtotal</span>
                     <span>฿{subtotalAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-gray-300 text-sm">
-                    <span>배송비</span>
+                    <span>Shipping</span>
                     <span>{shippingCost === 0 ? '무료' : `฿${shippingCost.toLocaleString()}`}</span>
                   </div>
                   <div className="flex justify-between text-white text-lg font-bold pt-2 border-t border-gray-600">
-                    <span>총 금액</span>
+                    <span>Total Amount</span>
                     <span className="text-[#00FF88]">
                       ฿{totalAmount.toLocaleString()}
                     </span>
@@ -778,17 +778,17 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
               </CardContent>
             </Card>
 
-            {/* 주문 상태 관리 */}
+            {/* Order Status Management */}
             <Card className="bg-[#1E293B] border-gray-600">
               <CardHeader className="pb-3">
                 <CardTitle className="text-white flex items-center text-lg">
                   <Edit3 className="w-5 h-5 mr-2" />
-                  상태 관리
+                  Status Management
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-gray-400 text-sm">현재 상태</Label>
+                  <Label className="text-gray-400 text-sm">Current Status</Label>
                   <div className="mt-2">
                     <Badge className={`${ORDER_STATUSES[order.status as OrderStatusKey]?.color || 'bg-gray-500'} text-sm px-3 py-1`}>
                       {ORDER_STATUSES[order.status as OrderStatusKey]?.label || order.status}
@@ -797,7 +797,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                 </div>
 
                 <div>
-                  <Label className="text-gray-400 text-sm">상태 변경</Label>
+                  <Label className="text-gray-400 text-sm">Change Status</Label>
                   <Select value={newStatus} onValueChange={(value) => setNewStatus(value as OrderStatusKey)}>
                     <SelectTrigger className="bg-[#0F1424] border-gray-600 text-white mt-2">
                       <SelectValue />
@@ -816,13 +816,13 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                 </div>
 
                 <div>
-                  <Label className="text-gray-400 text-sm">관리자 메모</Label>
+                  <Label className="text-gray-400 text-sm">Admin Notes</Label>
                   <Textarea
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
                     className="bg-[#0F1424] border-gray-600 text-white mt-2"
                     rows={4}
-                    placeholder="고객에게 전달할 메시지나 내부 메모를 입력하세요..."
+                    placeholder="Enter messages to customers or internal notes..."
                   />
                 </div>
 
@@ -835,12 +835,12 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, isUpdating }: OrderD
                     {(isSubmitting || isUpdating) ? (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        업데이트 중...
+                        Updating...
                       </>
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        상태 업데이트
+                        Update Status
                       </>
                     )}
                   </Button>

@@ -64,14 +64,78 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
   const loadBranding = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_current_branding');
-      if (error) throw error;
-      if (data && data.length > 0) {
-        setBranding(data[0]);
+      
+      // 먼저 site_settings 테이블에서 로드 시도
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('site_settings')
+        .select('*')
+        .eq('category', 'branding');
+
+      if (settingsError) {
+        console.log('site_settings table not found, using fallback...');
+        // 폴백: 기본 브랜딩 설정 사용
+        const defaultBranding: BrandingSettings = {
+          id: 'default',
+          site_title: 'Daddy Bath Bomb',
+          site_title_en: 'Daddy Bath Bomb',
+          site_description: 'Premium natural bath bombs for ultimate relaxation',
+          site_tagline: 'Transform your bath time',
+          logo_url: '',
+          logo_mobile_url: '',
+          logo_favicon_url: '',
+          logo_alt_text: 'Daddy Bath Bomb Logo',
+          logo_alt_text_en: 'Daddy Bath Bomb Logo',
+          logo_width: 200,
+          logo_height: 60,
+          logo_style: 'rounded',
+          logo_enabled: true,
+          brand_primary_color: '#007AFF',
+          brand_secondary_color: '#00FF88',
+          brand_accent_color: '#FFD700',
+          logo_cache_version: 1,
+          updated_at: new Date().toISOString()
+        };
+        setBranding(defaultBranding);
+      } else {
+        // 설정 데이터를 브랜딩 객체로 변환
+        const brandingObj: any = {
+          id: 'current',
+          updated_at: new Date().toISOString()
+        };
+        
+        settingsData?.forEach(setting => {
+          brandingObj[setting.setting_key] = setting.setting_value;
+        });
+        
+        setBranding(brandingObj as BrandingSettings);
       }
     } catch (error) {
-      console.error('브랜딩 설정 로드 실패:', error);
-      setErrors({ general: '브랜딩 설정을 불러오는데 실패했습니다.' });
+      console.error('Failed to load branding settings:', error);
+      setErrors({ general: 'Failed to load branding settings. Using defaults.' });
+      
+      // 완전 폴백
+      const defaultBranding: BrandingSettings = {
+        id: 'default',
+        site_title: 'Daddy Bath Bomb',
+        site_title_en: 'Daddy Bath Bomb',
+        site_description: 'Premium natural bath bombs',
+        site_tagline: 'Transform your bath time',
+        logo_url: '',
+        logo_mobile_url: '',
+        logo_favicon_url: '',
+        logo_alt_text: 'Logo',
+        logo_alt_text_en: 'Logo',
+        logo_width: 200,
+        logo_height: 60,
+        logo_style: 'rounded',
+        logo_enabled: true,
+        brand_primary_color: '#007AFF',
+        brand_secondary_color: '#00FF88',
+        brand_accent_color: '#FFD700',
+        logo_cache_version: 1,
+        updated_at: new Date().toISOString()
+      };
+      setBranding(defaultBranding);
     } finally {
       setLoading(false);
     }
