@@ -15,6 +15,29 @@ import type { HeroBanner } from "../lib/adminService";
 // 상수 정의
 const BANNER_TRANSITION_INTERVAL = 5000;
 const DEFAULT_ICON_COLOR = "#FF2D55";
+
+// 로딩 스켈레톤 컴포넌트
+const LoadingSkeleton = () => (
+  <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
+    <div className="max-w-7xl mx-auto text-center w-full">
+      <div className="animate-pulse">
+        <div className="w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[16/7] bg-white/10 rounded-2xl mb-8"></div>
+        <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
+        <div className="h-4 bg-white/10 rounded w-1/2 mx-auto"></div>
+      </div>
+    </div>
+  </section>
+);
+
+// 빈 상태 컴포넌트
+const EmptyState = () => (
+  <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
+    <div className="max-w-7xl mx-auto text-center">
+      <div className="text-white text-xl">No banners available</div>
+      <p className="text-[#B8C4DB] mt-4">Please check back later or contact support.</p>
+    </div>
+  </section>
+);
 const HERO_SECTION_HEIGHTS = {
   mobile: "85vh",
   tablet: "90vh", 
@@ -84,6 +107,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [banners, setBanners] = useState<HeroBanner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // 개선된 아이콘 렌더링 함수
   const renderIcon = useCallback((iconName?: string, color?: string, className: string = "w-8 h-8"): JSX.Element => {
@@ -97,6 +121,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const loadBanners = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       // AdminService에서 Hero 배너 데이터 가져오기
       const bannerData = await AdminService.getHeroBanners();
       if (bannerData && bannerData.length > 0) {
@@ -106,6 +131,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       }
     } catch (error) {
       console.error('Error loading banners:', error);
+      setError('Failed to load banners. Using default banners.');
       setBanners(defaultBanners);
     } finally {
       setLoading(false);
@@ -155,34 +181,32 @@ export default function Hero({ language, navigateTo }: HeroProps) {
     setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
   }, [banners.length]);
 
+  // 로딩 상태와 에러 상태를 분리하여 처리
   if (loading) {
-    return (
-      <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="animate-pulse">
-            <div className="w-full h-96 bg-white/10 rounded-2xl mb-8"></div>
-            <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
-            <div className="h-4 bg-white/10 rounded w-1/2 mx-auto"></div>
-          </div>
-        </div>
-      </section>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (!currentBanner) {
-    return (
-      <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="text-white text-xl">No banners available</div>
-          <p className="text-[#B8C4DB] mt-4">Please check back later or contact support.</p>
-        </div>
-      </section>
-    );
+    return <EmptyState />;
   }
 
   return (
     <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden">
       <AnimatedBackground />
+      
+      {/* 에러 알림 */}
+      {error && (
+        <div className="fixed top-4 right-4 z-50 bg-red-500/90 backdrop-blur-sm text-white px-4 py-2 rounded-lg shadow-lg animate-in slide-in-from-right">
+          <p className="text-sm">{error}</p>
+          <button 
+            onClick={() => setError(null)}
+            className="ml-2 text-white/80 hover:text-white"
+            aria-label="Dismiss error"
+          >
+            ×
+          </button>
+        </div>
+      )}
       
       {/* 관리자 토글 버튼 */}
       <AdminToggle />
