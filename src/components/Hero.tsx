@@ -218,171 +218,181 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         </div>
       </div>
 
-      {/* 메인 배너 영역 - 100% 너비, 매우 큰 반응형 높이 */}
-      <div className={`w-full h-[${HERO_SECTION_HEIGHTS.mobile}] sm:h-[${HERO_SECTION_HEIGHTS.tablet}] lg:h-[${HERO_SECTION_HEIGHTS.desktop}] xl:h-[${HERO_SECTION_HEIGHTS.large}] relative z-10 mb-12`}>
-        <div className={BANNER_CLASSES.container}>
-          {currentBanner.imageUrl ? (
-            <div className="w-full h-full relative">
-              <img
-                src={currentBanner.imageUrl}
-                alt={`${currentBanner.title} - ${currentBanner.subtitle}`}
-                className="w-full h-full object-cover"
-              />
-              <div className={BANNER_CLASSES.overlay}>
-                <div className="text-center text-white">
-                  <h1 className={BANNER_CLASSES.title}>
-                    {currentBanner.title}
-                  </h1>
-                  <h2 className={BANNER_CLASSES.subtitle}>
-                    {currentBanner.subtitle}
-                  </h2>
-                </div>
+      {/* 메인 배너 영역 - 원형 디자인 */}
+      <div className="w-full min-h-[80vh] flex items-center justify-center relative z-10 py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+            {/* 왼쪽: 텍스트 콘텐츠 */}
+            <div className="flex-1 text-center lg:text-left">
+              {/* 상단 태그라인 */}
+              <div className="flex items-center justify-center lg:justify-start mb-6">
+                <Star className="w-6 h-6 text-[#FFD700] mr-2 animate-pulse" />
+                <span className="font-nunito text-[#FFD700] text-lg font-bold">
+                  {currentBanner.tagline}
+                </span>
+                <Star className="w-6 h-6 text-[#FFD700] ml-2 animate-pulse" />
               </div>
-              <HeroImageEditor
-                currentImageUrl={currentBanner.imageUrl}
-                currentEmoji="🦸‍♂️"
-                onSave={updateBannerImage}
-                className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity"
-              />
+
+              {/* 메인 타이틀 */}
+              <h1 className="font-fredoka text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 comic-shadow animate-bounce">
+                {currentBanner.title}
+              </h1>
+              
+              <h2 className="font-fredoka text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#FF2D55] mb-6 comic-shadow animate-pulse">
+                {currentBanner.subtitle}
+              </h2>
+
+              {/* 설명 */}
+              <p className="font-nunito text-lg sm:text-xl text-[#B8C4DB] mb-8 leading-relaxed font-medium max-w-lg mx-auto lg:mx-0">
+                {currentBanner.description}
+              </p>
+
+              {/* 버튼들 */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Button
+                  size="lg"
+                  className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
+                  onClick={() => navigateTo("gallery")}
+                  aria-label={`${currentBanner.primaryButtonText} - Navigate to gallery`}
+                >
+                  <Heart className="w-5 h-5 mr-2" />
+                  {currentBanner.primaryButtonText}
+                </Button>
+                <Button
+                  size="lg"
+                  className={`bg-[#007AFF] hover:bg-[#0051D5] text-white ${BUTTON_BASE_CLASSES}`}
+                  onClick={() => navigateTo("board")}
+                  aria-label={`${currentBanner.secondaryButtonText} - Navigate to board`}
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  {currentBanner.secondaryButtonText}
+                </Button>
+              </div>
             </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-center">
-              <div>
-                <h1 className="font-fredoka text-4xl sm:text-6xl lg:text-8xl font-bold text-white mb-4 comic-shadow animate-bounce">
-                  {currentBanner.title}
-                </h1>
-                <h2 className="font-fredoka text-2xl sm:text-4xl lg:text-6xl font-bold text-[#FF2D55] mb-4 comic-shadow animate-pulse relative">
-                  {currentBanner.subtitle}
-                  <Zap className="absolute -top-2 -right-8 w-12 h-12 text-[#FFD700] rotate-12 animate-spin" style={{ animationDuration: "3s" }} />
-                </h2>
-                <p className="font-nunito text-xl text-[#B8C4DB] font-medium">
-                  {currentBanner.description}
-                </p>
+
+            {/* 오른쪽: 원형 배너와 히어로 캐릭터 */}
+            <div className="flex-1 flex justify-center lg:justify-end">
+              <div className="relative">
+                {/* 원형 배경 */}
+                <div className="w-80 h-80 sm:w-96 sm:h-96 lg:w-[28rem] lg:h-[28rem] xl:w-[32rem] xl:h-[32rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FF2D55]/90 via-[#007AFF]/90 to-[#FFD700]/90 flex items-center justify-center relative overflow-hidden">
+                    
+                    {/* 배너 이미지 또는 기본 배경 */}
+                    {currentBanner.imageUrl ? (
+                      <img
+                        src={currentBanner.imageUrl}
+                        alt={`${currentBanner.title} - ${currentBanner.subtitle}`}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 rounded-full">
+                        {/* 기본 패턴이나 그라디언트 */}
+                      </div>
+                    )}
+
+                    {/* 히어로 캐릭터 */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl animate-bounce">
+                        🦸‍♂️
+                      </div>
+                    </div>
+
+                    {/* 장식 요소들 */}
+                    <div className="absolute top-8 right-8 animate-spin" style={{ animationDuration: "3s" }}>
+                      <Zap className="w-8 h-8 text-[#FFD700]" />
+                    </div>
+                    <div className="absolute bottom-12 left-8 animate-pulse">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="absolute top-16 left-12 animate-bounce" style={{ animationDelay: "0.5s" }}>
+                      <Star className="w-5 h-5 text-[#FFD700]" />
+                    </div>
+
+                    {/* 이미지 에디터 */}
+                    <HeroImageEditor
+                      currentImageUrl={currentBanner.imageUrl || ""}
+                      currentEmoji="🦸‍♂️"
+                      onSave={updateBannerImage}
+                      className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity rounded-full"
+                    />
+                  </div>
+                </div>
+
+                {/* 추가 장식 요소들 (원 주변) */}
+                <div className="absolute -top-4 -left-4 w-8 h-8 bg-[#FFD700] rounded-full animate-pulse"></div>
+                <div className="absolute -bottom-6 -right-6 w-6 h-6 bg-[#FF2D55] rounded-full animate-bounce"></div>
+                <div className="absolute top-1/2 -left-8 w-4 h-4 bg-[#007AFF] rounded-full animate-ping"></div>
+                <div className="absolute top-1/4 -right-4 w-3 h-3 bg-white rounded-full animate-pulse"></div>
               </div>
-              <HeroImageEditor
-                currentImageUrl=""
-                currentEmoji="🦸‍♂️"
-                onSave={async (newImageUrl) => {
-                  try {
-                    await AdminService.updateHeroBanner(currentBanner.id, {
-                      ...currentBanner,
-                      imageUrl: newImageUrl
-                    });
-                    await loadBanners();
-                  } catch (error) {
-                    console.error('Error updating banner image:', error);
-                  }
-                }}
-                className="absolute top-4 right-4 w-16 h-16 opacity-50 hover:opacity-100 transition-opacity"
-              />
+            </div>
+          </div>
+
+          {/* 배너 네비게이션 */}
+          {banners.length > 1 && (
+            <div className="flex items-center justify-center mt-12 space-x-4 bg-black/30 backdrop-blur-lg rounded-full px-6 py-3 w-fit mx-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPrevBanner}
+                className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
+                aria-label="Previous banner"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              
+              <div className="flex space-x-2" role="tablist" aria-label="Banner navigation">
+                {banners.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentBannerIndex(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentBannerIndex
+                        ? "bg-[#FF2D55] scale-125"
+                        : "bg-white/70 hover:bg-white/90"
+                    }`}
+                    aria-label={`Go to banner ${index + 1}`}
+                    aria-current={index === currentBannerIndex ? "true" : "false"}
+                    role="tab"
+                  />
+                ))}
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextBanner}
+                className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
+                aria-label="Next banner"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
           )}
         </div>
-        
-        {/* 배너 네비게이션 - 배너 하단에 위치 */}
-        {banners.length > 1 && (
-          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 bg-black/50 backdrop-blur-lg rounded-full px-6 py-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToPrevBanner}
-              className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
-              aria-label="Previous banner"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            
-            <div className="flex space-x-2" role="tablist" aria-label="Banner navigation">
-              {banners.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentBannerIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentBannerIndex
-                      ? "bg-[#FF2D55] scale-125"
-                      : "bg-white/70 hover:bg-white/90"
-                  }`}
-                  aria-label={`Go to banner ${index + 1}`}
-                  aria-current={index === currentBannerIndex ? "true" : "false"}
-                  role="tab"
-                />
-              ))}
-            </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToNextBanner}
-              className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
-              aria-label="Next banner"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
       </div>
 
-      {/* 하단 콘텐츠 영역 - 간단한 버튼과 설명 */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative z-10 text-center">
-        {/* 태그라인 */}
-        <div className="flex items-center justify-center mb-6">
-          {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-6 h-6 mr-2 animate-pulse")}
-          <span className="font-nunito text-[#B8C4DB] text-lg font-bold animate-bounce">
-            {currentBanner.tagline}
-          </span>
-          {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-6 h-6 ml-2 animate-pulse")}
-        </div>
-
-        {/* 설명 */}
-        <p className="font-nunito text-xl text-[#B8C4DB] mb-8 leading-relaxed font-medium max-w-2xl mx-auto">
-          {currentBanner.description}
-        </p>
-
-        {/* 버튼들 */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <Button
-            size="lg"
-            className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
-            onClick={() => navigateTo("gallery")}
-            aria-label={`${currentBanner.primaryButtonText} - Navigate to gallery`}
-          >
-            <Heart className="w-5 h-5 mr-2" />
-            {currentBanner.primaryButtonText}
-          </Button>
-          <Button
-            size="lg"
-            className={`bg-[#007AFF] hover:bg-[#0051D5] text-white ${BUTTON_BASE_CLASSES}`}
-            onClick={() => navigateTo("board")}
-            aria-label={`${currentBanner.secondaryButtonText} - Navigate to board`}
-          >
-            <Zap className="w-5 h-5 mr-2" />
-            {currentBanner.secondaryButtonText}
-          </Button>
-        </div>
-        
-        {/* 하단 아이콘 섹션 */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md">
-          <div className="flex items-center justify-center space-x-8 text-white">
-            <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
-              <Heart className="w-6 h-6 animate-pulse text-[#FFD700]" />
-              <span className="font-nunito text-lg font-bold">
-                {language === "th" ? "แกลเลอรี่" : "Gallery"}
-              </span>
-            </div>
-            <div className="w-1 h-1 bg-white rounded-full" />
-            <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("board")}>
-              <Star className="w-6 h-6 animate-spin text-[#FFD700]" />
-              <span className="font-nunito text-lg font-bold">
-                {language === "th" ? "กระทู้" : "Board"}
-              </span>
-            </div>
-            <div className="w-1 h-1 bg-white rounded-full" />
-            <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("contact")}>
-              <Zap className="w-6 h-6 animate-bounce text-[#FFD700]" />
-              <span className="font-nunito text-lg font-bold">
-                {language === "th" ? "ชุมชน" : "Community"}
-              </span>
-            </div>
+      {/* 하단 아이콘 섹션 */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative z-10">
+        <div className="flex items-center justify-center space-x-8 text-white">
+          <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
+            <Heart className="w-6 h-6 animate-pulse text-[#FFD700]" />
+            <span className="font-nunito text-lg font-bold">
+              {language === "th" ? "แกลเลอรี่" : "Gallery"}
+            </span>
+          </div>
+          <div className="w-1 h-1 bg-white rounded-full" />
+          <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("board")}>
+            <Star className="w-6 h-6 animate-spin text-[#FFD700]" />
+            <span className="font-nunito text-lg font-bold">
+              {language === "th" ? "กระทู้" : "Board"}
+            </span>
+          </div>
+          <div className="w-1 h-1 bg-white rounded-full" />
+          <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("contact")}>
+            <Zap className="w-6 h-6 animate-bounce text-[#FFD700]" />
+            <span className="font-nunito text-lg font-bold">
+              {language === "th" ? "ชุมชน" : "Community"}
+            </span>
           </div>
         </div>
       </div>
