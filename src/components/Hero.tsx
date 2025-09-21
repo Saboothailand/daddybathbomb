@@ -8,19 +8,8 @@ import AdminToggle from "./AdminToggle";
 import HeroImageEditor from "./HeroImageEditor";
 import { AdminService } from "../lib/adminService";
 
-// 6개 배너 타입 정의
-type BannerData = {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  tagline: string;
-  primaryButtonText: string;
-  secondaryButtonText: string;
-  imageUrl: string;
-  isActive: boolean;
-  displayOrder: number;
-};
+// AdminService에서 HeroBanner 타입 import
+import type { HeroBanner } from "../lib/adminService";
 
 const copyMap: Record<LanguageKey, {
   headlineTop: string;
@@ -56,11 +45,11 @@ type HeroProps = {
 export default function Hero({ language, navigateTo }: HeroProps) {
   const copy = copyMap[language];
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
-  const [banners, setBanners] = useState<BannerData[]>([]);
+  const [banners, setBanners] = useState<HeroBanner[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 기본 배너 데이터
-  const defaultBanners: BannerData[] = [
+  const defaultBanners: HeroBanner[] = [
     {
       id: "banner-1",
       title: copy.headlineTop,
@@ -72,6 +61,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       imageUrl: "",
       isActive: true,
       displayOrder: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     {
       id: "banner-2",
@@ -84,6 +75,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       imageUrl: "",
       isActive: true,
       displayOrder: 2,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     {
       id: "banner-3",
@@ -96,6 +89,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       imageUrl: "",
       isActive: true,
       displayOrder: 3,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     {
       id: "banner-4",
@@ -108,6 +103,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       imageUrl: "",
       isActive: true,
       displayOrder: 4,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     {
       id: "banner-5",
@@ -120,6 +117,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       imageUrl: "",
       isActive: true,
       displayOrder: 5,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     {
       id: "banner-6",
@@ -132,15 +131,21 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       imageUrl: "",
       isActive: true,
       displayOrder: 6,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
   ];
 
   const loadBanners = useCallback(async () => {
     try {
       setLoading(true);
-      // 실제로는 AdminService에서 배너 데이터를 가져와야 함
-      // 지금은 기본 데이터 사용
-      setBanners(defaultBanners);
+      // AdminService에서 Hero 배너 데이터 가져오기
+      const bannerData = await AdminService.getHeroBanners();
+      if (bannerData && bannerData.length > 0) {
+        setBanners(bannerData);
+      } else {
+        setBanners(defaultBanners);
+      }
     } catch (error) {
       console.error('Error loading banners:', error);
       setBanners(defaultBanners);
@@ -254,15 +259,50 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               className="w-96 h-96 mx-auto bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] rounded-full comic-border border-8 border-white flex items-center justify-center relative overflow-hidden animate-bounce"
               style={{ animationDuration: "3s" }}
             >
-              <HeroImageEditor
-                currentImageUrl={currentBanner.imageUrl}
-                currentEmoji="🦸‍♂️"
-                onSave={(newImageUrl) => {
-                  // 배너 이미지 업데이트 로직
-                  console.log('Updating banner image:', newImageUrl);
-                }}
-                className="w-64 h-64 flex items-center justify-center"
-              />
+              {currentBanner.imageUrl ? (
+                <div className="w-full h-full relative">
+                  <img
+                    src={currentBanner.imageUrl}
+                    alt={currentBanner.title}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                  <HeroImageEditor
+                    currentImageUrl={currentBanner.imageUrl}
+                    currentEmoji="🦸‍♂️"
+                    onSave={async (newImageUrl) => {
+                      // 배너 이미지 업데이트 로직
+                      try {
+                        await AdminService.updateHeroBanner(currentBanner.id, {
+                          ...currentBanner,
+                          imageUrl: newImageUrl
+                        });
+                        await loadBanners();
+                      } catch (error) {
+                        console.error('Error updating banner image:', error);
+                      }
+                    }}
+                    className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              ) : (
+                <HeroImageEditor
+                  currentImageUrl=""
+                  currentEmoji="🦸‍♂️"
+                  onSave={async (newImageUrl) => {
+                    // 배너 이미지 업데이트 로직
+                    try {
+                      await AdminService.updateHeroBanner(currentBanner.id, {
+                        ...currentBanner,
+                        imageUrl: newImageUrl
+                      });
+                      await loadBanners();
+                    } catch (error) {
+                      console.error('Error updating banner image:', error);
+                    }
+                  }}
+                  className="w-64 h-64 flex items-center justify-center"
+                />
+              )}
 
               {/* 장식 요소들 */}
               <div className="absolute bottom-8 right-8 comic-button">

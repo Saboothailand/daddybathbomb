@@ -22,6 +22,7 @@ import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
 import ImageUpload from '../ImageUpload';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { AdminService } from '../../lib/adminService';
 
 interface HeroBanner {
   id: string;
@@ -162,12 +163,12 @@ export default function HeroBannerManagement() {
   const loadBanners = async () => {
     try {
       setLoading(true);
-      // 실제로는 API에서 배너 데이터를 가져와야 함
-      // 지금은 기본 데이터 사용
-      setBanners(defaultBanners);
+      const bannerData = await AdminService.getHeroBanners();
+      setBanners(bannerData);
     } catch (error) {
       console.error('Error loading banners:', error);
       setErrorMessage('Failed to load banners');
+      setBanners(defaultBanners);
     } finally {
       setLoading(false);
     }
@@ -233,27 +234,19 @@ export default function HeroBannerManagement() {
       
       if (editingBanner) {
         // Update existing banner
-        const updatedBanner: HeroBanner = {
-          ...editingBanner,
-          ...formData,
-          updatedAt: new Date().toISOString(),
-        };
-        
-        setBanners(prev => prev.map(banner => 
-          banner.id === editingBanner.id ? updatedBanner : banner
-        ));
+        const success = await AdminService.updateHeroBanner(editingBanner.id, formData);
+        if (!success) {
+          throw new Error('Failed to update banner');
+        }
       } else {
         // Create new banner
-        const newBanner: HeroBanner = {
-          id: `banner-${Date.now()}`,
-          ...formData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        
-        setBanners(prev => [...prev, newBanner]);
+        const newBanner = await AdminService.createHeroBanner(formData);
+        if (!newBanner) {
+          throw new Error('Failed to create banner');
+        }
       }
       
+      await loadBanners(); // Reload banners from server
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving banner:', error);
@@ -270,7 +263,11 @@ export default function HeroBannerManagement() {
 
     try {
       setLoading(true);
-      setBanners(prev => prev.filter(b => b.id !== banner.id));
+      const success = await AdminService.deleteHeroBanner(banner.id);
+      if (!success) {
+        throw new Error('Failed to delete banner');
+      }
+      await loadBanners(); // Reload banners from server
     } catch (error) {
       console.error('Error deleting banner:', error);
       setErrorMessage('Failed to delete banner');
@@ -281,37 +278,42 @@ export default function HeroBannerManagement() {
 
   const handleToggleActive = async (banner: HeroBanner) => {
     try {
-      const updatedBanner = {
-        ...banner,
-        isActive: !banner.isActive,
-        updatedAt: new Date().toISOString(),
-      };
+      const success = await AdminService.updateHeroBanner(banner.id, {
+        isActive: !banner.isActive
+      });
       
-      setBanners(prev => prev.map(b => 
-        b.id === banner.id ? updatedBanner : b
-      ));
+      if (!success) {
+        throw new Error('Failed to update banner status');
+      }
+      
+      await loadBanners(); // Reload banners from server
     } catch (error) {
       console.error('Error toggling banner status:', error);
       setErrorMessage('Failed to update banner status');
     }
   };
 
-  const moveBanner = (banner: HeroBanner, direction: 'up' | 'down') => {
+  const moveBanner = async (banner: HeroBanner, direction: 'up' | 'down') => {
     const currentIndex = banners.findIndex(b => b.id === banner.id);
     if (currentIndex === -1) return;
 
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     if (newIndex < 0 || newIndex >= banners.length) return;
 
-    const newBanners = [...banners];
-    [newBanners[currentIndex], newBanners[newIndex]] = [newBanners[newIndex], newBanners[currentIndex]];
-    
-    // Update display orders
-    newBanners.forEach((banner, index) => {
-      banner.displayOrder = index + 1;
-    });
-    
-    setBanners(newBanners);
+    try {
+      const targetBanner = banners[newIndex];
+      
+      // Swap display orders
+      await Promise.all([
+        AdminService.updateHeroBanner(banner.id, { displayOrder: targetBanner.displayOrder }),
+        AdminService.updateHeroBanner(targetBanner.id, { displayOrder: banner.displayOrder })
+      ]);
+      
+      await loadBanners(); // Reload banners from server
+    } catch (error) {
+      console.error('Error moving banner:', error);
+      setErrorMessage('Failed to reorder banners');
+    }
   };
 
   const sortedBanners = [...banners].sort((a, b) => a.displayOrder - b.displayOrder);

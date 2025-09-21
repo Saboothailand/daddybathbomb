@@ -17,6 +17,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import MiddleBanner from "./components/MiddleBanner";
 import CheckoutForm from "./components/CheckoutForm";
 import EditableContent from "./components/EditableContent";
+import GalleryPage from "./components/GalleryPage";
 
 const NAVIGATION_EVENT_NAME = "navigate";
 

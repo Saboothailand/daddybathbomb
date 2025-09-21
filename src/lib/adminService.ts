@@ -52,6 +52,21 @@ export interface Product {
   updated_at?: string;
 }
 
+export interface HeroBanner {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  tagline: string;
+  primaryButtonText: string;
+  secondaryButtonText: string;
+  imageUrl: string;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Banner {
   id: string;
   title: string;
@@ -626,6 +641,238 @@ export class AdminService {
         activeOrders: 0,
         totalRevenue: 0
       };
+    }
+  }
+
+  // Hero 배너 관련 메서드들
+  static async getHeroBanners(): Promise<HeroBanner[]> {
+    try {
+      if (!hasSupabaseCredentials()) {
+        // Supabase 설정이 없는 경우 기본 데이터 반환
+        return this.getDefaultHeroBanners();
+      }
+
+      const { data, error } = await supabase
+        .from('hero_banners')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      
+      if (!data || data.length === 0) {
+        return this.getDefaultHeroBanners();
+      }
+
+      return data.map(banner => ({
+        id: banner.id,
+        title: banner.title || '',
+        subtitle: banner.subtitle || '',
+        description: banner.description || '',
+        tagline: banner.tagline || '',
+        primaryButtonText: banner.primary_button_text || '',
+        secondaryButtonText: banner.secondary_button_text || '',
+        imageUrl: banner.image_url || '',
+        isActive: banner.is_active || false,
+        displayOrder: banner.display_order || 1,
+        createdAt: banner.created_at || '',
+        updatedAt: banner.updated_at || ''
+      }));
+    } catch (error) {
+      console.error('Error fetching hero banners:', error);
+      return this.getDefaultHeroBanners();
+    }
+  }
+
+  static getDefaultHeroBanners(): HeroBanner[] {
+    return [
+      {
+        id: "banner-1",
+        title: "DADDY",
+        subtitle: "BATH BOMB",
+        description: "ฮีโร่อ่างอาบน้ำ",
+        tagline: "สนุกสุดฟอง สดชื่นทุกสี เพื่อคุณ",
+        primaryButtonText: "ช้อปบาธบอม",
+        secondaryButtonText: "ดูเรื่องราวสีสัน",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-2",
+        title: "FUN",
+        subtitle: "BATH TIME",
+        description: "Make every bath an adventure!",
+        tagline: "Fun & Fizzy Adventures",
+        primaryButtonText: "Shop Now",
+        secondaryButtonText: "Learn More",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: 2,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-3",
+        title: "COLORS",
+        subtitle: "GALORE",
+        description: "Rainbow of fun awaits you!",
+        tagline: "Colorful Bath Experience",
+        primaryButtonText: "Explore",
+        secondaryButtonText: "Gallery",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: 3,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-4",
+        title: "SPARKLE",
+        subtitle: "MAGIC",
+        description: "Add sparkle to your day!",
+        tagline: "Magical Bath Moments",
+        primaryButtonText: "Discover",
+        secondaryButtonText: "Stories",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: 4,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-5",
+        title: "RELAX",
+        subtitle: "REVIVE",
+        description: "Perfect relaxation time!",
+        tagline: "Relaxing Bath Therapy",
+        primaryButtonText: "Shop",
+        secondaryButtonText: "About",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-6",
+        title: "FAMILY",
+        subtitle: "FUN",
+        description: "Fun for the whole family!",
+        tagline: "Family Bath Time",
+        primaryButtonText: "Products",
+        secondaryButtonText: "Contact",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: 6,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+  }
+
+  static async createHeroBanner(bannerData: Omit<HeroBanner, 'id' | 'createdAt' | 'updatedAt'>): Promise<HeroBanner | null> {
+    try {
+      if (!hasSupabaseCredentials()) {
+        console.warn('Supabase not configured - using local storage');
+        const newBanner: HeroBanner = {
+          ...bannerData,
+          id: `banner-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        return newBanner;
+      }
+
+      const { data, error } = await supabase
+        .from('hero_banners')
+        .insert({
+          title: bannerData.title,
+          subtitle: bannerData.subtitle,
+          description: bannerData.description,
+          tagline: bannerData.tagline,
+          primary_button_text: bannerData.primaryButtonText,
+          secondary_button_text: bannerData.secondaryButtonText,
+          image_url: bannerData.imageUrl,
+          is_active: bannerData.isActive,
+          display_order: bannerData.displayOrder,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      return {
+        id: data.id,
+        title: data.title,
+        subtitle: data.subtitle,
+        description: data.description,
+        tagline: data.tagline,
+        primaryButtonText: data.primary_button_text,
+        secondaryButtonText: data.secondary_button_text,
+        imageUrl: data.image_url,
+        isActive: data.is_active,
+        displayOrder: data.display_order,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+    } catch (error) {
+      console.error('Error creating hero banner:', error);
+      return null;
+    }
+  }
+
+  static async updateHeroBanner(id: string, bannerData: Partial<HeroBanner>): Promise<boolean> {
+    try {
+      if (!hasSupabaseCredentials()) {
+        console.warn('Supabase not configured - using local storage');
+        return true;
+      }
+
+      const updateData: any = {};
+      if (bannerData.title !== undefined) updateData.title = bannerData.title;
+      if (bannerData.subtitle !== undefined) updateData.subtitle = bannerData.subtitle;
+      if (bannerData.description !== undefined) updateData.description = bannerData.description;
+      if (bannerData.tagline !== undefined) updateData.tagline = bannerData.tagline;
+      if (bannerData.primaryButtonText !== undefined) updateData.primary_button_text = bannerData.primaryButtonText;
+      if (bannerData.secondaryButtonText !== undefined) updateData.secondary_button_text = bannerData.secondaryButtonText;
+      if (bannerData.imageUrl !== undefined) updateData.image_url = bannerData.imageUrl;
+      if (bannerData.isActive !== undefined) updateData.is_active = bannerData.isActive;
+      if (bannerData.displayOrder !== undefined) updateData.display_order = bannerData.displayOrder;
+      
+      updateData.updated_at = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('hero_banners')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating hero banner:', error);
+      return false;
+    }
+  }
+
+  static async deleteHeroBanner(id: string): Promise<boolean> {
+    try {
+      if (!hasSupabaseCredentials()) {
+        console.warn('Supabase not configured - using local storage');
+        return true;
+      }
+
+      const { error } = await supabase
+        .from('hero_banners')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deleting hero banner:', error);
+      return false;
     }
   }
 }

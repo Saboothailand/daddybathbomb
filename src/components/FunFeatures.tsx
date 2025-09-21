@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Palette, Wind, Heart, Star, Zap } from "lucide-react";
+import { Palette, Wind, Heart, Star, Zap, Sparkles } from "lucide-react";
 
 import type { LanguageKey } from "../App";
 import { featuresService } from "../lib/supabase";
@@ -19,49 +19,110 @@ type FunFeaturesProps = {
 const defaultFeatures: Feature[] = [
   {
     id: 1,
-    title: "Color Burst",
-    description: "Watch your bath transform into a rainbow explosion of super fun colors!",
+    title: "Natural Ingredients",
+    description: "Made from 100% natural ingredients, safe for the whole family",
   },
   {
     id: 2,
-    title: "Fragrance Lift",
-    description: "Superhero scents that transport you to amazing adventure lands!",
+    title: "Beautiful Fizzy Colors",
+    description: "Beautiful colorful fizz with relaxing aromatherapy scents",
   },
   {
     id: 3,
-    title: "Skin-Kind Clean",
-    description: "Gentle hero formula that loves your skin while having mega fun!",
+    title: "Skin Nourishing",
+    description: "Moisturizes and nourishes skin for smooth, soft feeling after bath",
+  },
+  {
+    id: 4,
+    title: "Perfect Gift",
+    description: "Perfect gift for special people on any occasion",
+  },
+  {
+    id: 5,
+    title: "Relaxing Experience",
+    description: "Transform your bath time into a luxurious spa experience",
+  },
+  {
+    id: 6,
+    title: "Long Lasting Scent",
+    description: "Enjoy beautiful fragrances that last long after your bath",
   },
 ];
+
+const defaultFeaturesTranslations = {
+  th: [
+    {
+      id: 1,
+      title: "ส่วนผสมธรรมชาติ",
+      description: "ผลิตจากส่วนผสมธรรมชาติ 100% ปลอดภัยสำหรับทุกคนในครอบครัว",
+    },
+    {
+      id: 2,
+      title: "สีสันสวยงาม",
+      description: "สีสันสวยงามพร้อมกลิ่นหอมอโรมาเธราปีที่ผ่อนคลาย",
+    },
+    {
+      id: 3,
+      title: "บำรุงผิว",
+      description: "เพิ่มความชุ่มชื้นและบำรุงผิวให้เนียนนุ่มหลังการอาบน้ำ",
+    },
+    {
+      id: 4,
+      title: "ของขวัญที่สมบูรณ์แบบ",
+      description: "ของขวัญที่สมบูรณ์แบบสำหรับคนพิเศษในทุกโอกาส",
+    },
+    {
+      id: 5,
+      title: "ประสบการณ์ผ่อนคลาย",
+      description: "เปลี่ยนเวลาอาบน้ำให้กลายเป็นประสบการณ์สปาหรูหรา",
+    },
+    {
+      id: 6,
+      title: "กลิ่นหอมยาวนาน",
+      description: "เพลิดเพลินกับกลิ่นหอมสวยงามที่คงอยู่นานหลังการอาบน้ำ",
+    },
+  ]
+};
 
 const iconPalette = [
   <Palette className="w-16 h-16" key="palette" />,
   <Wind className="w-16 h-16" key="wind" />,
   <Heart className="w-16 h-16" key="heart" />,
+  <Star className="w-16 h-16" key="star" />,
+  <Zap className="w-16 h-16" key="zap" />,
+  <Sparkles className="w-16 h-16" key="sparkles" />,
 ];
 
 export default function FunFeatures({ language }: FunFeaturesProps) {
-  const [features, setFeatures] = useState<Feature[]>(defaultFeatures);
+  const [features, setFeatures] = useState<Feature[]>(
+    language === "th" ? defaultFeaturesTranslations.th : defaultFeatures
+  );
 
   useEffect(() => {
     const loadFeatures = async () => {
       try {
         const data = await featuresService.getActiveFeatures();
         if (Array.isArray(data) && data.length > 0) {
+          const baseFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
           setFeatures(
             data.map((feature, index) => ({
               id: feature.id ?? index,
-              title: feature.title ?? defaultFeatures[index % defaultFeatures.length].title,
+              title: feature.title ?? baseFeatures[index % baseFeatures.length].title,
               description:
                 (language === "th" && feature.description_th) || feature.description ||
-                defaultFeatures[index % defaultFeatures.length].description,
+                baseFeatures[index % baseFeatures.length].description,
               image_url: feature.image_url,
               color: feature.highlight_color,
             })),
           );
+        } else {
+          // 데이터가 없으면 기본값 사용
+          setFeatures(language === "th" ? defaultFeaturesTranslations.th : defaultFeatures);
         }
       } catch (error) {
         console.error("Unable to load features", error);
+        // 에러 발생 시 기본값 사용
+        setFeatures(language === "th" ? defaultFeaturesTranslations.th : defaultFeatures);
       }
     };
 
@@ -96,7 +157,7 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div key={feature.id} className="text-center group">
               <div className="bg-gradient-to-br from-[#FF2D55]/20 to-[#FFD700]/20 rounded-3xl p-8 comic-border border-4 border-black hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative">
@@ -107,7 +168,7 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
                 <div className="flex justify-center mb-6">
                   <div
                     className="w-24 h-24 rounded-full comic-border border-4 border-black flex items-center justify-center relative"
-                    style={{ backgroundColor: feature.color || ["#FF2D55", "#007AFF", "#00FF88"][index % 3] }}
+                    style={{ backgroundColor: feature.color || ["#FF2D55", "#007AFF", "#00FF88", "#FFD700", "#AF52DE", "#FF9F1C"][index % 6] }}
                   >
                     <div className="text-white">
                       {iconPalette[index % iconPalette.length]}
