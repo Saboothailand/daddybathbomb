@@ -1,21 +1,14 @@
 import { useEffect, useState } from "react";
-import { Instagram, Heart, Star, Zap, Eye, MessageCircle, Calendar, User, ThumbsUp } from "lucide-react";
+import { Instagram, Heart, Star, Zap } from "lucide-react";
 
 import type { LanguageKey } from "../App";
 import { galleryService } from "../lib/supabase";
-import { supabase } from "../lib/supabase";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 type GalleryItem = {
   id: number | string;
   image_url: string;
   caption?: string;
-  title?: string;
-  author_name?: string;
-  view_count?: number;
-  like_count?: number;
-  comment_count?: number;
-  created_at?: string;
 };
 
 type InstagramGalleryProps = {
@@ -35,51 +28,19 @@ const fallbackPosts: GalleryItem[] = [
 
 export default function InstagramGallery({ language }: InstagramGalleryProps) {
   const [posts, setPosts] = useState<GalleryItem[]>(fallbackPosts);
-  const [hoveredPost, setHoveredPost] = useState<string | null>(null);
 
   useEffect(() => {
     const loadGallery = async () => {
       try {
-        // 먼저 새로운 갤러리 데이터를 시도
-        const { data: galleryData } = await supabase
-          .from('gallery')
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(8);
-
-        if (galleryData && galleryData.length > 0) {
+        const data = await galleryService.getActiveGalleryImages();
+        if (Array.isArray(data) && data.length > 0) {
           setPosts(
-            galleryData.map((item) => ({
-              id: item.id,
-              image_url: item.image_url,
-              caption: item.content,
-              title: item.title,
-              author_name: item.author_name,
-              view_count: item.view_count,
-              like_count: item.like_count,
-              comment_count: item.comment_count,
-              created_at: item.created_at,
-            }))
+            data.map((item, index) => ({
+              id: item.id ?? index,
+              image_url: item.image_url ?? fallbackPosts[index % fallbackPosts.length].image_url,
+              caption: item.caption,
+            })),
           );
-        } else {
-          // 폴백 데이터 사용
-          const data = await galleryService.getActiveGalleryImages();
-          if (Array.isArray(data) && data.length > 0) {
-            setPosts(
-              data.map((item, index) => ({
-                id: item.id ?? index,
-                image_url: item.image_url ?? fallbackPosts[index % fallbackPosts.length].image_url,
-                caption: item.caption,
-                title: `Gallery ${index + 1}`,
-                author_name: 'User',
-                view_count: Math.floor(Math.random() * 1000),
-                like_count: Math.floor(Math.random() * 100),
-                comment_count: Math.floor(Math.random() * 50),
-                created_at: new Date().toISOString(),
-              })),
-            );
-          }
         }
       } catch (error) {
         console.error("Unable to load gallery", error);
@@ -88,38 +49,6 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
 
     loadGallery();
   }, []);
-
-  const handleLike = async (postId: string | number) => {
-    try {
-      const userIp = 'anonymous'; // 실제로는 사용자 IP를 가져와야 함
-      
-      const { error } = await supabase
-        .from('likes')
-        .insert({
-          gallery_id: postId,
-          user_ip: userIp
-        });
-
-      if (!error) {
-        // 좋아요 수 업데이트
-        setPosts(prev => prev.map(post => 
-          post.id === postId 
-            ? { ...post, like_count: (post.like_count || 0) + 1 }
-            : post
-        ));
-      }
-    } catch (error) {
-      console.error('Error liking post:', error);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      month: '2-digit',
-      day: '2-digit'
-    });
-  };
 
   return (
     <section id="gallery" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] relative overflow-hidden">
@@ -141,14 +70,14 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
           </div>
 
           <h2 className="font-fredoka text-5xl font-bold text-white mb-6 comic-shadow">
-            {language === "th" ? "แกลเลอรี่" : "Gallery"}
+            {language === "th" ? "ช่วงเวลามหัศจรรย์" : "BATH TIME ADVENTURES"}
           </h2>
 
           <div className="bg-white/20 rounded-2xl px-8 py-4 comic-border border-4 border-white inline-block backdrop-blur-lg">
             <p className="font-nunito text-white text-xl font-bold">
               {language === "th"
-                ? "📸 แชร์ภาพสวย ๆ ของคุณ!"
-                : "📸 Share your beautiful photos! 📱"}
+                ? "📸 เก็บช่วงเวลาสนุกไว้ในฟีดของคุณ!"
+                : "📸 Super fun moments captured! 📱"}
             </p>
           </div>
         </div>
@@ -157,74 +86,24 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="aspect-square bg-white/10 rounded-3xl comic-border border-4 border-white hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative overflow-hidden backdrop-blur-lg group cursor-pointer"
-              onMouseEnter={() => setHoveredPost(post.id.toString())}
-              onMouseLeave={() => setHoveredPost(null)}
+              className="aspect-square bg-white/10 rounded-3xl comic-border border-4 border-white hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative overflow-hidden backdrop-blur-lg group"
             >
               <ImageWithFallback
                 src={post.image_url}
-                alt={post.caption || "Gallery post"}
+                alt={post.caption || "Instagram post"}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
-              
-              {/* 그누보드 스타일 오버레이 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* 호버 시 나타나는 상세 정보 */}
-              <div className={`absolute bottom-0 left-0 right-0 bg-black/80 text-white p-3 transition-all duration-300 ${
-                hoveredPost === post.id.toString() ? 'translate-y-0' : 'translate-y-full'
-              }`}>
-                <h3 className="font-bold text-sm mb-2 line-clamp-2">
-                  {post.title || post.caption || `Gallery ${post.id}`}
-                </h3>
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center">
-                    <User className="w-3 h-3 mr-1" />
-                    {post.author_name || '익명'}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center">
-                      <Eye className="w-3 h-3 mr-1" />
-                      {post.view_count || 0}
-                    </div>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLike(post.id);
-                      }}
-                      className="flex items-center hover:text-[#FFD700] transition-colors"
-                    >
-                      <ThumbsUp className="w-3 h-3 mr-1" />
-                      {post.like_count || 0}
-                    </button>
-                    <div className="flex items-center">
-                      <MessageCircle className="w-3 h-3 mr-1" />
-                      {post.comment_count || 0}
-                    </div>
-                  </div>
-                </div>
-                {post.created_at && (
-                  <div className="flex items-center text-xs text-gray-300 mt-1">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {formatDate(post.created_at)}
-                  </div>
-                )}
-              </div>
-
-              {/* 기존 스타일 요소들 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <Heart className="w-6 h-6 text-[#FFD700] animate-pulse" />
               </div>
-              
+              {post.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs font-semibold py-2 px-3">
+                  {post.caption}
+                </div>
+              )}
               <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#FFD700] rounded-full comic-border border-2 border-white flex items-center justify-center">
                 <Star className="w-4 h-4 text-black" />
-              </div>
-
-              {/* 클릭 효과를 위한 인디케이터 */}
-              <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <div className="w-6 h-6 bg-[#FF2D55] rounded-full flex items-center justify-center">
-                  <Zap className="w-3 h-3 text-white" />
-                </div>
               </div>
             </div>
           ))}
@@ -234,8 +113,8 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
           <div className="bg-white/20 rounded-3xl p-8 comic-border border-4 border-white inline-block backdrop-blur-lg">
             <p className="font-nunito text-white text-xl font-bold mb-4">
               {language === "th"
-                ? "ติดตามเราเพื่อดูภาพสวย ๆ เพิ่มเติม!"
-                : "Follow us for more beautiful photos!"}
+                ? "ติดตาม @DaddyBathBomb เพื่อแรงบันดาลใจสีสันสดใส!"
+                : "Follow us @DaddyBathBomb for more super fun moments!"}
             </p>
             <div className="flex items-center justify-center gap-4">
               <Instagram className="w-8 h-8 text-white animate-bounce" />
