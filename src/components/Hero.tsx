@@ -219,7 +219,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 원형 디자인 */}
-      <div className="w-full min-h-[360vh] flex items-center justify-center relative z-10 py-54">
+      <div className="w-full h-[960px] flex items-center justify-center relative z-10 py-54">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
@@ -292,7 +292,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
                     {/* 히어로 캐릭터 */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-[15rem] sm:text-[18rem] lg:text-[24rem] xl:text-[30rem] animate-bounce">
+                      <div className="text-[20rem] sm:text-[24rem] lg:text-[32rem] xl:text-[40rem] animate-bounce">
                         🦸‍♂️
                       </div>
                     </div>
