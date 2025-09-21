@@ -110,7 +110,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const [error, setError] = useState<string | null>(null);
 
   // 개선된 아이콘 렌더링 함수
-  const renderIcon = useCallback((iconName?: string, color?: string, className: string = "w-8 h-8"): React.JSX.Element => {
+  const renderIcon = useCallback((iconName?: string, color?: string, className: string = "w-10 h-10"): React.JSX.Element => {
     if (!iconName || !(iconName in iconMap)) {
       return <Heart className={className} style={{ color: color || DEFAULT_ICON_COLOR }} />;
     }
@@ -191,7 +191,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[980px]">
       <AnimatedBackground />
       
       {/* 에러 알림 */}
@@ -219,18 +219,18 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 원형 디자인 */}
-      <div className="w-full h-[1400px] flex items-center justify-center relative z-10 py-54">
+      <div className="w-full min-h-[980px] flex items-center justify-center relative z-10 py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
             <div className="flex-1 text-center lg:text-left">
               {/* 상단 태그라인 */}
               <div className="flex items-center justify-center lg:justify-start mb-6">
-                <Star className="w-6 h-6 text-[#FFD700] mr-2 animate-pulse" />
+                <Star className="w-9 h-9 text-[#FFD700] mr-2 animate-pulse" />
                 <span className="font-nunito text-[#FFD700] text-lg font-bold">
                   {currentBanner.tagline}
                 </span>
-                <Star className="w-6 h-6 text-[#FFD700] ml-2 animate-pulse" />
+                <Star className="w-9 h-9 text-[#FFD700] ml-2 animate-pulse" />
               </div>
 
               {/* 메인 타이틀 */}
@@ -255,7 +255,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   onClick={() => navigateTo("gallery")}
                   aria-label={`${currentBanner.primaryButtonText} - Navigate to gallery`}
                 >
-                  <Heart className="w-5 h-5 mr-2" />
+                  <Heart className="w-6 h-6 mr-2" />
                   {currentBanner.primaryButtonText}
                 </Button>
                 <Button
@@ -264,7 +264,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   onClick={() => navigateTo("board")}
                   aria-label={`${currentBanner.secondaryButtonText} - Navigate to board`}
                 >
-                  <Zap className="w-5 h-5 mr-2" />
+                  <Zap className="w-6 h-6 mr-2" />
                   {currentBanner.secondaryButtonText}
                 </Button>
               </div>
@@ -373,23 +373,23 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
       {/* 하단 아이콘 섹션 */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative z-10">
-        <div className="flex items-center justify-center space-x-8 text-white">
-          <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
-            <Heart className="w-6 h-6 animate-pulse text-[#FFD700]" />
+        <div className="flex items-center justify-center space-x-10 text-white">
+          <div className="flex items-center space-x-3 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
+            <Heart className="w-8 h-8 animate-pulse text-[#FFD700]" />
             <span className="font-nunito text-lg font-bold">
               {language === "th" ? "แกลเลอรี่" : "Gallery"}
             </span>
           </div>
           <div className="w-1 h-1 bg-white rounded-full" />
-          <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("board")}>
-            <Star className="w-6 h-6 animate-spin text-[#FFD700]" />
+          <div className="flex items-center space-x-3 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("board")}>
+            <Star className="w-8 h-8 animate-spin text-[#FFD700]" />
             <span className="font-nunito text-lg font-bold">
               {language === "th" ? "กระทู้" : "Board"}
             </span>
           </div>
           <div className="w-1 h-1 bg-white rounded-full" />
-          <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("contact")}>
-            <Zap className="w-6 h-6 animate-bounce text-[#FFD700]" />
+          <div className="flex items-center space-x-3 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("contact")}>
+            <Zap className="w-8 h-8 animate-bounce text-[#FFD700]" />
             <span className="font-nunito text-lg font-bold">
               {language === "th" ? "ชุมชน" : "Community"}
             </span>
