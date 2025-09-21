@@ -241,10 +241,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 <button
                   key={index}
                   onClick={() => setCurrentBannerIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all border-2 ${
+                  className={`w-3 h-3 rounded-full transition-all ${
                     index === currentBannerIndex
-                      ? "bg-[#FF2D55] border-[#FF2D55] scale-125"
-                      : "bg-transparent border-white/80 hover:border-[#FFD700] hover:bg-[#FFD700]/30"
+                      ? "bg-[#FF2D55] scale-125"
+                      : "bg-gray-400 hover:bg-gray-300"
                   }`}
                 />
               ))}
@@ -300,7 +300,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         
         {/* 하단 아이콘 섹션 */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md">
-          <div className="flex items-center justify-center space-x-8 text-white bg-black/30 backdrop-blur-sm rounded-full px-6 py-3">
+          <div className="flex items-center justify-center space-x-8 text-white">
             <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
               <Heart className="w-6 h-6 animate-pulse text-[#FFD700]" />
               <span className="font-nunito text-lg font-bold">
