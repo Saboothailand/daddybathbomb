@@ -219,7 +219,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 원형 디자인 */}
-      <div className="w-full min-h-[80vh] flex items-center justify-center relative z-10 py-12">
+<div className="w-full min-h-[160vh] flex items-center justify-center relative z-10 py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
@@ -274,7 +274,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             <div className="flex-1 flex justify-center lg:justify-end">
               <div className="relative">
                 {/* 원형 배경 */}
-                <div className="w-80 h-80 sm:w-96 sm:h-96 lg:w-[28rem] lg:h-[28rem] xl:w-[32rem] xl:h-[32rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
+                <div className="w-96 h-96 sm:w-[28rem] sm:h-[28rem] lg:w-[36rem] lg:h-[36rem] xl:w-[42rem] xl:h-[42rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FF2D55]/90 via-[#007AFF]/90 to-[#FFD700]/90 flex items-center justify-center relative overflow-hidden">
                     
                     {/* 배너 이미지 또는 기본 배경 */}
@@ -292,20 +292,20 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
                     {/* 히어로 캐릭터 */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl animate-bounce">
+                      <div className="text-8xl sm:text-9xl lg:text-[10rem] xl:text-[12rem] animate-bounce">
                         🦸‍♂️
                       </div>
                     </div>
 
                     {/* 장식 요소들 */}
-                    <div className="absolute top-8 right-8 animate-spin" style={{ animationDuration: "3s" }}>
-                      <Zap className="w-8 h-8 text-[#FFD700]" />
+                    <div className="absolute top-12 right-12 animate-spin" style={{ animationDuration: "3s" }}>
+                      <Zap className="w-12 h-12 lg:w-16 lg:h-16 text-[#FFD700]" />
                     </div>
-                    <div className="absolute bottom-12 left-8 animate-pulse">
-                      <Heart className="w-6 h-6 text-white" />
+                    <div className="absolute bottom-16 left-12 animate-pulse">
+                      <Heart className="w-8 h-8 lg:w-12 lg:h-12 text-white" />
                     </div>
-                    <div className="absolute top-16 left-12 animate-bounce" style={{ animationDelay: "0.5s" }}>
-                      <Star className="w-5 h-5 text-[#FFD700]" />
+                    <div className="absolute top-20 left-16 animate-bounce" style={{ animationDelay: "0.5s" }}>
+                      <Star className="w-8 h-8 lg:w-10 lg:h-10 text-[#FFD700]" />
                     </div>
 
                     {/* 이미지 에디터 */}
@@ -319,10 +319,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 </div>
 
                 {/* 추가 장식 요소들 (원 주변) */}
-                <div className="absolute -top-4 -left-4 w-8 h-8 bg-[#FFD700] rounded-full animate-pulse"></div>
-                <div className="absolute -bottom-6 -right-6 w-6 h-6 bg-[#FF2D55] rounded-full animate-bounce"></div>
-                <div className="absolute top-1/2 -left-8 w-4 h-4 bg-[#007AFF] rounded-full animate-ping"></div>
-                <div className="absolute top-1/4 -right-4 w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                <div className="absolute -top-6 -left-6 w-12 h-12 lg:w-16 lg:h-16 bg-[#FFD700] rounded-full animate-pulse"></div>
+                <div className="absolute -bottom-8 -right-8 w-10 h-10 lg:w-12 lg:h-12 bg-[#FF2D55] rounded-full animate-bounce"></div>
+                <div className="absolute top-1/2 -left-12 w-6 h-6 lg:w-8 lg:h-8 bg-[#007AFF] rounded-full animate-ping"></div>
+                <div className="absolute top-1/4 -right-6 w-5 h-5 lg:w-6 lg:h-6 bg-white rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>
