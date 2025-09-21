@@ -11,7 +11,14 @@ import {
   ChevronUp,
   ChevronDown,
   Play,
-  Pause
+  Pause,
+  Heart,
+  Zap,
+  Star,
+  Palette,
+  Wind,
+  Users,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -33,11 +40,43 @@ interface HeroBanner {
   primaryButtonText: string;
   secondaryButtonText: string;
   imageUrl: string;
+  iconName?: string;
+  iconColor?: string;
   isActive: boolean;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
 }
+
+// 아이콘 매핑
+const iconMap = {
+  Heart,
+  Zap,
+  Star,
+  Palette,
+  Wind,
+  Users,
+  Sparkles,
+} as const;
+
+const iconOptions = [
+  { name: 'Heart', label: '하트', icon: Heart },
+  { name: 'Zap', label: '번개', icon: Zap },
+  { name: 'Star', label: '별', icon: Star },
+  { name: 'Palette', label: '팔레트', icon: Palette },
+  { name: 'Wind', label: '바람', icon: Wind },
+  { name: 'Users', label: '사용자', icon: Users },
+  { name: 'Sparkles', label: '반짝임', icon: Sparkles },
+];
+
+const colorOptions = [
+  { name: 'Red', value: '#FF2D55', label: '빨강' },
+  { name: 'Blue', value: '#007AFF', label: '파랑' },
+  { name: 'Green', value: '#00FF88', label: '초록' },
+  { name: 'Yellow', value: '#FFD700', label: '노랑' },
+  { name: 'Purple', value: '#AF52DE', label: '보라' },
+  { name: 'Orange', value: '#FF9F1C', label: '주황' },
+];
 
 interface HeroBannerFormData {
   title: string;
@@ -47,6 +86,8 @@ interface HeroBannerFormData {
   primaryButtonText: string;
   secondaryButtonText: string;
   imageUrl: string;
+  iconName: string;
+  iconColor: string;
   isActive: boolean;
   displayOrder: number;
 }
@@ -61,6 +102,8 @@ const defaultBanners: HeroBanner[] = [
     primaryButtonText: "ช้อปบาธบอม",
     secondaryButtonText: "ดูเรื่องราวสีสัน",
     imageUrl: "",
+    iconName: "Heart",
+    iconColor: "#FF2D55",
     isActive: true,
     displayOrder: 1,
     createdAt: new Date().toISOString(),
@@ -75,6 +118,8 @@ const defaultBanners: HeroBanner[] = [
     primaryButtonText: "Shop Now",
     secondaryButtonText: "Learn More",
     imageUrl: "",
+    iconName: "Zap",
+    iconColor: "#007AFF",
     isActive: true,
     displayOrder: 2,
     createdAt: new Date().toISOString(),
@@ -89,6 +134,8 @@ const defaultBanners: HeroBanner[] = [
     primaryButtonText: "Explore",
     secondaryButtonText: "Gallery",
     imageUrl: "",
+    iconName: "Palette",
+    iconColor: "#00FF88",
     isActive: true,
     displayOrder: 3,
     createdAt: new Date().toISOString(),
@@ -103,6 +150,8 @@ const defaultBanners: HeroBanner[] = [
     primaryButtonText: "Discover",
     secondaryButtonText: "Stories",
     imageUrl: "",
+    iconName: "Sparkles",
+    iconColor: "#FFD700",
     isActive: true,
     displayOrder: 4,
     createdAt: new Date().toISOString(),
@@ -117,6 +166,8 @@ const defaultBanners: HeroBanner[] = [
     primaryButtonText: "Shop",
     secondaryButtonText: "About",
     imageUrl: "",
+    iconName: "Wind",
+    iconColor: "#AF52DE",
     isActive: true,
     displayOrder: 5,
     createdAt: new Date().toISOString(),
@@ -131,6 +182,8 @@ const defaultBanners: HeroBanner[] = [
     primaryButtonText: "Products",
     secondaryButtonText: "Contact",
     imageUrl: "",
+    iconName: "Users",
+    iconColor: "#FF9F1C",
     isActive: true,
     displayOrder: 6,
     createdAt: new Date().toISOString(),
@@ -151,6 +204,8 @@ export default function HeroBannerManagement() {
     primaryButtonText: '',
     secondaryButtonText: '',
     imageUrl: '',
+    iconName: 'Heart',
+    iconColor: '#FF2D55',
     isActive: true,
     displayOrder: 1,
   });
@@ -185,6 +240,8 @@ export default function HeroBannerManagement() {
         primaryButtonText: banner.primaryButtonText,
         secondaryButtonText: banner.secondaryButtonText,
         imageUrl: banner.imageUrl,
+        iconName: banner.iconName || 'Heart',
+        iconColor: banner.iconColor || '#FF2D55',
         isActive: banner.isActive,
         displayOrder: banner.displayOrder,
       });
@@ -198,6 +255,8 @@ export default function HeroBannerManagement() {
         primaryButtonText: '',
         secondaryButtonText: '',
         imageUrl: '',
+        iconName: 'Heart',
+        iconColor: '#FF2D55',
         isActive: true,
         displayOrder: banners.length + 1,
       });
@@ -217,6 +276,8 @@ export default function HeroBannerManagement() {
       primaryButtonText: '',
       secondaryButtonText: '',
       imageUrl: '',
+      iconName: 'Heart',
+      iconColor: '#FF2D55',
       isActive: true,
       displayOrder: 1,
     });
@@ -410,6 +471,24 @@ export default function HeroBannerManagement() {
                   <p className="text-gray-300 text-sm truncate">{banner.subtitle}</p>
                 </div>
                 <div>
+                  <h4 className="font-semibold text-white text-sm">Icon & Color</h4>
+                  <div className="flex items-center gap-2">
+                    {banner.iconName && iconMap[banner.iconName as keyof typeof iconMap] ? (
+                      React.createElement(iconMap[banner.iconName as keyof typeof iconMap], {
+                        className: "w-4 h-4",
+                        style: { color: banner.iconColor || '#FF2D55' }
+                      })
+                    ) : (
+                      <Heart className="w-4 h-4" style={{ color: banner.iconColor || '#FF2D55' }} />
+                    )}
+                    <span className="text-gray-300 text-sm">{banner.iconName || 'Heart'}</span>
+                    <div 
+                      className="w-3 h-3 rounded-full border border-gray-500" 
+                      style={{ backgroundColor: banner.iconColor || '#FF2D55' }}
+                    />
+                  </div>
+                </div>
+                <div>
                   <h4 className="font-semibold text-white text-sm">Tagline</h4>
                   <p className="text-gray-300 text-sm truncate">{banner.tagline}</p>
                 </div>
@@ -539,6 +618,60 @@ export default function HeroBannerManagement() {
                 label="Upload banner image"
                 storageFolder="hero-banners"
               />
+            </div>
+
+            {/* Icon Selection */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-gray-300">Icon</Label>
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  {iconOptions.map((option) => {
+                    const IconComponent = option.icon;
+                    return (
+                      <button
+                        key={option.name}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, iconName: option.name }))}
+                        className={`p-3 rounded-lg border-2 transition-all hover:scale-105 ${
+                          formData.iconName === option.name
+                            ? 'border-[#FF2D55] bg-[#FF2D55]/20'
+                            : 'border-gray-600 bg-[#0F1424] hover:border-gray-500'
+                        }`}
+                        title={option.label}
+                      >
+                        <IconComponent 
+                          className="w-5 h-5 mx-auto" 
+                          style={{ color: formData.iconName === option.name ? formData.iconColor : '#94A3B8' }}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300">Icon Color</Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {colorOptions.map((color) => (
+                    <button
+                      key={color.value}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, iconColor: color.value }))}
+                      className={`p-3 rounded-lg border-2 transition-all hover:scale-105 ${
+                        formData.iconColor === color.value
+                          ? 'border-white bg-white/10'
+                          : 'border-gray-600 bg-[#0F1424] hover:border-gray-500'
+                      }`}
+                      title={color.label}
+                    >
+                      <div 
+                        className="w-5 h-5 rounded-full mx-auto border border-gray-400"
+                        style={{ backgroundColor: color.value }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
+import { authService } from '../utils/auth';
 
 export default function AuthModal({ isOpen, onClose, language = 'th' }) {
   const [mode, setMode] = useState('login'); // 'login' or 'signup'
@@ -28,18 +29,24 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
 
     try {
       if (mode === 'login') {
-        // 임시 로그인 로직 (추후 Supabase 연결)
-        if (formData.email === 'admin@daddybathbomb.com') {
-          setSuccess('관리자로 로그인되었습니다!');
-          setTimeout(() => {
-            onClose();
-            window.navigateTo('admin');
-          }, 1000);
+        // authService를 통한 로그인
+        const result = await authService.login(formData.email, formData.password);
+        if (result.success) {
+          if (authService.isAdmin(result.user)) {
+            setSuccess('관리자로 로그인되었습니다!');
+            setTimeout(() => {
+              onClose();
+              // 관리자 페이지로 이동하는 이벤트 발생
+              window.dispatchEvent(new CustomEvent('navigate', { detail: 'admin' }));
+            }, 1000);
+          } else {
+            setSuccess('로그인되었습니다!');
+            setTimeout(() => {
+              onClose();
+            }, 1000);
+          }
         } else {
-          setSuccess('로그인되었습니다!');
-          setTimeout(() => {
-            onClose();
-          }, 1000);
+          setError(result.error || '로그인에 실패했습니다.');
         }
       } else {
         // 임시 회원가입 로직

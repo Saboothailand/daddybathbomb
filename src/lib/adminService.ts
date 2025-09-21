@@ -61,6 +61,8 @@ export interface HeroBanner {
   primaryButtonText: string;
   secondaryButtonText: string;
   imageUrl: string;
+  iconName?: string; // 아이콘 이름 (lucide-react 아이콘명)
+  iconColor?: string; // 아이콘 색상
   isActive: boolean;
   displayOrder: number;
   createdAt: string;
@@ -672,6 +674,8 @@ export class AdminService {
         primaryButtonText: banner.primary_button_text || '',
         secondaryButtonText: banner.secondary_button_text || '',
         imageUrl: banner.image_url || '',
+        iconName: banner.icon_name || '',
+        iconColor: banner.icon_color || '#FF2D55',
         isActive: banner.is_active || false,
         displayOrder: banner.display_order || 1,
         createdAt: banner.created_at || '',
@@ -694,6 +698,8 @@ export class AdminService {
         primaryButtonText: "ช้อปบาธบอม",
         secondaryButtonText: "ดูเรื่องราวสีสัน",
         imageUrl: "",
+        iconName: "Heart",
+        iconColor: "#FF2D55",
         isActive: true,
         displayOrder: 1,
         createdAt: new Date().toISOString(),
@@ -708,6 +714,8 @@ export class AdminService {
         primaryButtonText: "Shop Now",
         secondaryButtonText: "Learn More",
         imageUrl: "",
+        iconName: "Zap",
+        iconColor: "#007AFF",
         isActive: true,
         displayOrder: 2,
         createdAt: new Date().toISOString(),
@@ -722,6 +730,8 @@ export class AdminService {
         primaryButtonText: "Explore",
         secondaryButtonText: "Gallery",
         imageUrl: "",
+        iconName: "Palette",
+        iconColor: "#00FF88",
         isActive: true,
         displayOrder: 3,
         createdAt: new Date().toISOString(),
@@ -736,6 +746,8 @@ export class AdminService {
         primaryButtonText: "Discover",
         secondaryButtonText: "Stories",
         imageUrl: "",
+        iconName: "Sparkles",
+        iconColor: "#FFD700",
         isActive: true,
         displayOrder: 4,
         createdAt: new Date().toISOString(),
@@ -750,6 +762,8 @@ export class AdminService {
         primaryButtonText: "Shop",
         secondaryButtonText: "About",
         imageUrl: "",
+        iconName: "Wind",
+        iconColor: "#AF52DE",
         isActive: true,
         displayOrder: 5,
         createdAt: new Date().toISOString(),
@@ -764,6 +778,8 @@ export class AdminService {
         primaryButtonText: "Products",
         secondaryButtonText: "Contact",
         imageUrl: "",
+        iconName: "Users",
+        iconColor: "#FF9F1C",
         isActive: true,
         displayOrder: 6,
         createdAt: new Date().toISOString(),
@@ -795,6 +811,8 @@ export class AdminService {
           primary_button_text: bannerData.primaryButtonText,
           secondary_button_text: bannerData.secondaryButtonText,
           image_url: bannerData.imageUrl,
+          icon_name: bannerData.iconName,
+          icon_color: bannerData.iconColor,
           is_active: bannerData.isActive,
           display_order: bannerData.displayOrder,
         })
@@ -812,6 +830,8 @@ export class AdminService {
         primaryButtonText: data.primary_button_text,
         secondaryButtonText: data.secondary_button_text,
         imageUrl: data.image_url,
+        iconName: data.icon_name,
+        iconColor: data.icon_color,
         isActive: data.is_active,
         displayOrder: data.display_order,
         createdAt: data.created_at,
@@ -838,6 +858,8 @@ export class AdminService {
       if (bannerData.primaryButtonText !== undefined) updateData.primary_button_text = bannerData.primaryButtonText;
       if (bannerData.secondaryButtonText !== undefined) updateData.secondary_button_text = bannerData.secondaryButtonText;
       if (bannerData.imageUrl !== undefined) updateData.image_url = bannerData.imageUrl;
+      if (bannerData.iconName !== undefined) updateData.icon_name = bannerData.iconName;
+      if (bannerData.iconColor !== undefined) updateData.icon_color = bannerData.iconColor;
       if (bannerData.isActive !== undefined) updateData.is_active = bannerData.isActive;
       if (bannerData.displayOrder !== undefined) updateData.display_order = bannerData.displayOrder;
       

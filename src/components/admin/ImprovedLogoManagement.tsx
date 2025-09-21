@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { supabase } from '../../lib/supabase';
+import { AdminService } from '../../lib/adminService';
 
 interface BrandingSettings {
   id: string;
@@ -65,50 +66,32 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
     try {
       setLoading(true);
       
-      // 먼저 site_settings 테이블에서 로드 시도
-      const { data: settingsData, error: settingsError } = await supabase
-        .from('site_settings')
-        .select('*')
-        .eq('category', 'branding');
-
-      if (settingsError) {
-        console.log('site_settings table not found, using fallback...');
-        // 폴백: 기본 브랜딩 설정 사용
-        const defaultBranding: BrandingSettings = {
-          id: 'default',
-          site_title: 'Daddy Bath Bomb',
-          site_title_en: 'Daddy Bath Bomb',
-          site_description: 'Premium natural bath bombs for ultimate relaxation',
-          site_tagline: 'Transform your bath time',
-          logo_url: '',
-          logo_mobile_url: '',
-          logo_favicon_url: '',
-          logo_alt_text: 'Daddy Bath Bomb Logo',
-          logo_alt_text_en: 'Daddy Bath Bomb Logo',
-          logo_width: 200,
-          logo_height: 60,
-          logo_style: 'rounded',
-          logo_enabled: true,
-          brand_primary_color: '#007AFF',
-          brand_secondary_color: '#00FF88',
-          brand_accent_color: '#FFD700',
-          logo_cache_version: 1,
-          updated_at: new Date().toISOString()
-        };
-        setBranding(defaultBranding);
-      } else {
-        // 설정 데이터를 브랜딩 객체로 변환
-        const brandingObj: any = {
-          id: 'current',
-          updated_at: new Date().toISOString()
-        };
-        
-        settingsData?.forEach(setting => {
-          brandingObj[setting.setting_key] = setting.setting_value;
-        });
-        
-        setBranding(brandingObj as BrandingSettings);
-      }
+      // AdminService를 통해 설정 로드
+      const settings = await AdminService.getSiteSettings();
+      
+      const brandingSettings: BrandingSettings = {
+        id: 'current',
+        site_title: settings.site_title || 'Daddy Bath Bomb',
+        site_title_en: settings.site_title_en || 'Daddy Bath Bomb',
+        site_description: settings.site_description || 'Premium natural bath bombs for ultimate relaxation',
+        site_tagline: settings.site_tagline || 'Transform your bath time',
+        logo_url: settings.logo_url || '',
+        logo_mobile_url: settings.logo_mobile_url || '',
+        logo_favicon_url: settings.logo_favicon_url || '',
+        logo_alt_text: settings.logo_alt_text || 'Daddy Bath Bomb Logo',
+        logo_alt_text_en: settings.logo_alt_text_en || 'Daddy Bath Bomb Logo',
+        logo_width: parseInt(settings.logo_width) || 48,
+        logo_height: parseInt(settings.logo_height) || 48,
+        logo_style: (settings.logo_style as 'rounded' | 'square' | 'circle') || 'rounded',
+        logo_enabled: settings.logo_enabled === 'true' || settings.logo_enabled === true || true,
+        brand_primary_color: settings.brand_primary_color || settings.primary_color || '#FF2D55',
+        brand_secondary_color: settings.brand_secondary_color || settings.secondary_color || '#007AFF',
+        brand_accent_color: settings.brand_accent_color || settings.accent_color || '#FFD700',
+        logo_cache_version: parseInt(settings.logo_cache_version) || 1,
+        updated_at: settings.branding_updated_at || new Date().toISOString()
+      };
+      
+      setBranding(brandingSettings);
     } catch (error) {
       console.error('Failed to load branding settings:', error);
       setErrors({ general: 'Failed to load branding settings. Using defaults.' });
@@ -125,12 +108,12 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
         logo_favicon_url: '',
         logo_alt_text: 'Logo',
         logo_alt_text_en: 'Logo',
-        logo_width: 200,
-        logo_height: 60,
+        logo_width: 48,
+        logo_height: 48,
         logo_style: 'rounded',
         logo_enabled: true,
-        brand_primary_color: '#007AFF',
-        brand_secondary_color: '#00FF88',
+        brand_primary_color: '#FF2D55',
+        brand_secondary_color: '#007AFF',
         brand_accent_color: '#FFD700',
         logo_cache_version: 1,
         updated_at: new Date().toISOString()
@@ -286,26 +269,35 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.rpc('update_branding_settings', {
-        p_site_title: branding.site_title,
-        p_site_title_en: branding.site_title_en,
-        p_site_description: branding.site_description,
-        p_site_tagline: branding.site_tagline,
-        p_logo_url: branding.logo_url,
-        p_logo_mobile_url: branding.logo_mobile_url,
-        p_logo_favicon_url: branding.logo_favicon_url,
-        p_logo_alt_text: branding.logo_alt_text,
-        p_logo_alt_text_en: branding.logo_alt_text_en,
-        p_logo_width: branding.logo_width,
-        p_logo_height: branding.logo_height,
-        p_logo_style: branding.logo_style,
-        p_logo_enabled: branding.logo_enabled,
-        p_brand_primary_color: branding.brand_primary_color,
-        p_brand_secondary_color: branding.brand_secondary_color,
-        p_brand_accent_color: branding.brand_accent_color
-      });
+      // AdminService를 통해 각 설정 저장
+      const settingsToUpdate = [
+        { key: 'site_title', value: branding.site_title },
+        { key: 'site_title_en', value: branding.site_title_en },
+        { key: 'site_description', value: branding.site_description },
+        { key: 'site_tagline', value: branding.site_tagline },
+        { key: 'logo_url', value: branding.logo_url },
+        { key: 'logo_mobile_url', value: branding.logo_mobile_url },
+        { key: 'logo_favicon_url', value: branding.logo_favicon_url },
+        { key: 'logo_alt_text', value: branding.logo_alt_text },
+        { key: 'logo_alt_text_en', value: branding.logo_alt_text_en },
+        { key: 'logo_width', value: branding.logo_width.toString() },
+        { key: 'logo_height', value: branding.logo_height.toString() },
+        { key: 'logo_style', value: branding.logo_style },
+        { key: 'logo_enabled', value: branding.logo_enabled.toString() },
+        { key: 'brand_primary_color', value: branding.brand_primary_color },
+        { key: 'brand_secondary_color', value: branding.brand_secondary_color },
+        { key: 'brand_accent_color', value: branding.brand_accent_color },
+        { key: 'primary_color', value: branding.brand_primary_color },
+        { key: 'secondary_color', value: branding.brand_secondary_color },
+        { key: 'accent_color', value: branding.brand_accent_color }
+      ];
 
-      if (error) throw error;
+      // 병렬로 설정 업데이트
+      await Promise.all(
+        settingsToUpdate.map(setting => 
+          AdminService.updateSiteSetting(setting.key, setting.value, 'text')
+        )
+      );
 
       // 프론트엔드에 변경사항 알림
       window.dispatchEvent(new CustomEvent('brandingUpdated'));
@@ -314,6 +306,10 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
       await loadHistory();
       
       onSave?.();
+      
+      // 성공 메시지
+      setErrors({ general: '' });
+      alert('브랜딩 설정이 성공적으로 저장되었습니다!');
     } catch (error) {
       console.error('설정 저장 실패:', error);
       setErrors({ general: '설정 저장에 실패했습니다.' });
@@ -331,10 +327,10 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
 
   if (loading && !branding) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">브랜딩 설정을 불러오는 중...</p>
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-400" />
+          <p className="text-gray-300">브랜딩 설정을 불러오는 중...</p>
         </div>
       </div>
     );
@@ -342,10 +338,10 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
 
   if (!branding) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Alert className="max-w-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
+      <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center">
+        <Alert className="max-w-md bg-[#11162A] border-gray-600">
+          <AlertCircle className="h-4 w-4 text-red-400" />
+          <AlertDescription className="text-gray-300">
             브랜딩 설정을 불러올 수 없습니다. 새로고침을 시도해주세요.
           </AlertDescription>
         </Alert>
@@ -354,17 +350,17 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0B0F1A] text-white">
       {/* 페이지 헤더 */}
-      <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+      <div className="bg-[#11162A] border-b border-gray-600 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Home className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">로고 & 브랜딩 관리</h1>
-              <p className="text-sm text-gray-600">사이트 로고와 브랜딩을 체계적으로 관리합니다</p>
+              <h1 className="text-xl font-bold text-white">로고 & 브랜딩 관리</h1>
+              <p className="text-sm text-gray-300">사이트 로고와 브랜딩을 체계적으로 관리합니다</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -395,21 +391,21 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
 
       <div className="max-w-7xl mx-auto p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="preview">미리보기</TabsTrigger>
-            <TabsTrigger value="upload">업로드</TabsTrigger>
-            <TabsTrigger value="branding">브랜딩</TabsTrigger>
-            <TabsTrigger value="history">변경 이력</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 mb-6 bg-[#11162A] border-gray-600">
+            <TabsTrigger value="preview" className="data-[state=active]:bg-[#007AFF] data-[state=active]:text-white text-gray-300">미리보기</TabsTrigger>
+            <TabsTrigger value="upload" className="data-[state=active]:bg-[#007AFF] data-[state=active]:text-white text-gray-300">업로드</TabsTrigger>
+            <TabsTrigger value="branding" className="data-[state=active]:bg-[#007AFF] data-[state=active]:text-white text-gray-300">브랜딩</TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-[#007AFF] data-[state=active]:text-white text-gray-300">변경 이력</TabsTrigger>
           </TabsList>
 
           {/* 미리보기 탭 */}
           <TabsContent value="preview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 데스크톱 미리보기 */}
-              <Card>
+              <Card className="bg-[#11162A] border-gray-600">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Monitor className="w-5 h-5 text-blue-600" />
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Monitor className="w-5 h-5 text-blue-400" />
                     데스크톱 미리보기
                   </CardTitle>
                 </CardHeader>
@@ -458,10 +454,10 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
               </Card>
 
               {/* 모바일 미리보기 */}
-              <Card>
+              <Card className="bg-[#11162A] border-gray-600">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Smartphone className="w-5 h-5 text-green-600" />
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Smartphone className="w-5 h-5 text-green-400" />
                     모바일 미리보기
                   </CardTitle>
                 </CardHeader>

@@ -1,15 +1,27 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { LanguageKey, PageKey } from "../App";
 import { Button } from "./ui/button";
 import AnimatedBackground from "./AnimatedBackground";
-import { Zap, Heart, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Zap, Heart, Star, ChevronLeft, ChevronRight, Palette, Wind, Users, Sparkles } from "lucide-react";
 import SimpleEditable from "./SimpleEditable";
 import AdminToggle from "./AdminToggle";
 import HeroImageEditor from "./HeroImageEditor";
 import { AdminService } from "../lib/adminService";
+import { defaultBanners } from "../data/defaultBanners";
 
 // AdminService에서 HeroBanner 타입 import
 import type { HeroBanner } from "../lib/adminService";
+
+// 아이콘 매핑
+const iconMap = {
+  Heart,
+  Zap,
+  Star,
+  Palette,
+  Wind,
+  Users,
+  Sparkles,
+} as const;
 
 const copyMap: Record<LanguageKey, {
   headlineTop: string;
@@ -48,93 +60,16 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const [banners, setBanners] = useState<HeroBanner[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 기본 배너 데이터
-  const defaultBanners: HeroBanner[] = [
-    {
-      id: "banner-1",
-      title: copy.headlineTop,
-      subtitle: copy.headlineMid,
-      description: copy.tagline,
-      tagline: copy.tagline,
-      primaryButtonText: copy.primaryCta,
-      secondaryButtonText: copy.secondaryCta,
-      imageUrl: "",
-      isActive: true,
-      displayOrder: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "banner-2",
-      title: "FUN",
-      subtitle: "BATH TIME",
-      description: "Make every bath an adventure!",
-      tagline: "Fun & Fizzy Adventures",
-      primaryButtonText: "Shop Now",
-      secondaryButtonText: "Learn More",
-      imageUrl: "",
-      isActive: true,
-      displayOrder: 2,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "banner-3",
-      title: "COLORS",
-      subtitle: "GALORE",
-      description: "Rainbow of fun awaits you!",
-      tagline: "Colorful Bath Experience",
-      primaryButtonText: "Explore",
-      secondaryButtonText: "Gallery",
-      imageUrl: "",
-      isActive: true,
-      displayOrder: 3,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "banner-4",
-      title: "SPARKLE",
-      subtitle: "MAGIC",
-      description: "Add sparkle to your day!",
-      tagline: "Magical Bath Moments",
-      primaryButtonText: "Discover",
-      secondaryButtonText: "Stories",
-      imageUrl: "",
-      isActive: true,
-      displayOrder: 4,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "banner-5",
-      title: "RELAX",
-      subtitle: "REVIVE",
-      description: "Perfect relaxation time!",
-      tagline: "Relaxing Bath Therapy",
-      primaryButtonText: "Shop",
-      secondaryButtonText: "About",
-      imageUrl: "",
-      isActive: true,
-      displayOrder: 5,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "banner-6",
-      title: "FAMILY",
-      subtitle: "FUN",
-      description: "Fun for the whole family!",
-      tagline: "Family Bath Time",
-      primaryButtonText: "Products",
-      secondaryButtonText: "Contact",
-      imageUrl: "",
-      isActive: true,
-      displayOrder: 6,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ];
+  // 아이콘 렌더링 함수
+  const renderIcon = useMemo(() => {
+    return (iconName?: string, color?: string, className: string = "w-8 h-8") => {
+      if (!iconName || !(iconName in iconMap)) {
+        return <Heart className={className} style={{ color: color || "#FF2D55" }} />;
+      }
+      const IconComponent = iconMap[iconName as keyof typeof iconMap];
+      return <IconComponent className={className} style={{ color: color || "#FF2D55" }} />;
+    };
+  }, []);
 
   const loadBanners = useCallback(async () => {
     try {
@@ -177,168 +112,126 @@ export default function Hero({ language, navigateTo }: HeroProps) {
     setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
   };
 
-  const currentBanner = banners[currentBannerIndex] || banners[0];
+  const currentBanner = banners.length > 0 ? banners[currentBannerIndex] || banners[0] : null;
 
   if (loading) {
     return (
       <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="text-white text-xl">Loading banners...</div>
+          <div className="animate-pulse">
+            <div className="w-full h-96 bg-white/10 rounded-2xl mb-8"></div>
+            <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-white/10 rounded w-1/2 mx-auto"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!currentBanner) {
+    return (
+      <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-white text-xl">No banners available</div>
+          <p className="text-[#B8C4DB] mt-4">Please check back later or contact support.</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
       <AdminToggle />
 
-      <div className="absolute top-16 right-10 hidden lg:block">
+      <div className="absolute top-4 right-4 z-20 hidden lg:block">
         <div className="bg-white rounded-full px-4 py-2 comic-border relative">
           <span className="font-fredoka text-black font-bold">POW!</span>
           <div className="absolute -bottom-2 left-6 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-white" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* 왼쪽 텍스트 영역 - 애니메이션 효과 */}
-          <div className="text-center lg:text-left">
-            {/* 태그라인 */}
-            <div className="flex items-center justify-center lg:justify-start mb-4">
-              <Star className="w-8 h-8 text-[#FFD700] mr-2 animate-pulse" />
-              <span className="font-nunito text-[#B8C4DB] text-lg font-bold animate-bounce">
-                {currentBanner.tagline}
-              </span>
-              <Star className="w-8 h-8 text-[#FFD700] ml-2 animate-pulse" />
-            </div>
-
-            {/* 메인 제목 */}
-            <div className="text-center lg:text-left mb-8">
-              <h1 className="font-fredoka text-6xl sm:text-7xl lg:text-8xl font-bold text-white mb-2 leading-none comic-shadow animate-bounce">
-                {currentBanner.title}
-              </h1>
-              
-              <h2 className="font-fredoka text-4xl sm:text-5xl lg:text-6xl font-bold text-[#FF2D55] mb-2 leading-none comic-shadow relative animate-pulse">
-                {currentBanner.subtitle}
-                <Zap className="absolute -top-2 -right-8 w-12 h-12 text-[#FFD700] rotate-12 animate-spin" style={{ animationDuration: "3s" }} />
-              </h2>
-              
-              <h3 className="font-fredoka text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-none comic-shadow animate-fade-in">
-                {currentBanner.description}
-              </h3>
-            </div>
-
-            {/* 버튼들 */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button
-                size="lg"
-                className="bg-[#FF2D55] hover:bg-[#FF1744] text-white px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all animate-pulse"
-                onClick={() => navigateTo("gallery")}
-              >
-                <Heart className="w-5 h-5 mr-2" />
-                {currentBanner.primaryButtonText}
-              </Button>
-              <Button
-                size="lg"
-                className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all animate-pulse"
-                onClick={() => navigateTo("board")}
-              >
-                <Zap className="w-5 h-5 mr-2" />
-                {currentBanner.secondaryButtonText}
-              </Button>
-            </div>
-          </div>
-
-          {/* 우측 이미지 영역 */}
-          <div className="relative animate-pulse">
-            <div
-              className="w-96 h-96 mx-auto bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] rounded-full comic-border border-8 border-white flex items-center justify-center relative overflow-hidden animate-bounce"
-              style={{ animationDuration: "3s" }}
-            >
-              {currentBanner.imageUrl ? (
-                <div className="w-full h-full relative">
-                  <img
-                    src={currentBanner.imageUrl}
-                    alt={currentBanner.title}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                  <HeroImageEditor
-                    currentImageUrl={currentBanner.imageUrl}
-                    currentEmoji="🦸‍♂️"
-                    onSave={async (newImageUrl) => {
-                      // 배너 이미지 업데이트 로직
-                      try {
-                        await AdminService.updateHeroBanner(currentBanner.id, {
-                          ...currentBanner,
-                          imageUrl: newImageUrl
-                        });
-                        await loadBanners();
-                      } catch (error) {
-                        console.error('Error updating banner image:', error);
-                      }
-                    }}
-                    className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              ) : (
-                <HeroImageEditor
-                  currentImageUrl=""
-                  currentEmoji="🦸‍♂️"
-                  onSave={async (newImageUrl) => {
-                    // 배너 이미지 업데이트 로직
-                    try {
-                      await AdminService.updateHeroBanner(currentBanner.id, {
-                        ...currentBanner,
-                        imageUrl: newImageUrl
-                      });
-                      await loadBanners();
-                    } catch (error) {
-                      console.error('Error updating banner image:', error);
-                    }
-                  }}
-                  className="w-64 h-64 flex items-center justify-center"
-                />
-              )}
-
-              {/* 장식 요소들 */}
-              <div className="absolute bottom-8 right-8 comic-button">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD700] to-[#00FF88] comic-border border-4 border-black flex items-center justify-center animate-spin" style={{ animationDuration: "4s" }}>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF2D55] to-[#007AFF]" />
+      {/* 메인 배너 영역 - 100% 너비, 큰 반응형 높이 */}
+      <div className="w-full h-[70vh] sm:h-[80vh] lg:h-[90vh] xl:h-[95vh] relative z-10 mb-12">
+        <div className="w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden">
+          {currentBanner.imageUrl ? (
+            <div className="w-full h-full relative">
+              <img
+                src={currentBanner.imageUrl}
+                alt={currentBanner.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <h1 className="font-fredoka text-4xl sm:text-6xl lg:text-8xl font-bold mb-4 comic-shadow animate-bounce">
+                    {currentBanner.title}
+                  </h1>
+                  <h2 className="font-fredoka text-2xl sm:text-4xl lg:text-6xl font-bold text-[#FF2D55] comic-shadow animate-pulse">
+                    {currentBanner.subtitle}
+                  </h2>
                 </div>
               </div>
-
-              <div className="absolute -top-8 -left-8 w-20 h-20 bg-[#FFD700] rounded-full comic-border border-4 border-black flex items-center justify-center animate-pulse">
-                <span className="font-fredoka font-bold text-black text-sm">FIZZ!</span>
-              </div>
-
-              <div className="absolute -bottom-6 -left-10 w-12 h-12 bg-[#00FF88] rounded-full comic-border border-4 border-black animate-bounce" />
-              <div className="absolute -top-6 -right-8 w-14 h-14 bg-[#FF2D55] rounded-full comic-border border-4 border-black animate-pulse" />
-
-              <div className="absolute top-4 left-4 w-3 h-3 bg-white rounded-full animate-ping" />
-              <div className="absolute bottom-4 right-4 w-2 h-2 bg-white rounded-full animate-ping" style={{ animationDelay: "0.5s" }} />
-              <div className="absolute top-1/2 left-2 w-4 h-4 bg-white rounded-full animate-ping" style={{ animationDelay: "1s" }} />
+              <HeroImageEditor
+                currentImageUrl={currentBanner.imageUrl}
+                currentEmoji="🦸‍♂️"
+                onSave={async (newImageUrl) => {
+                  try {
+                    await AdminService.updateHeroBanner(currentBanner.id, {
+                      ...currentBanner,
+                      imageUrl: newImageUrl
+                    });
+                    await loadBanners();
+                  } catch (error) {
+                    console.error('Error updating banner image:', error);
+                  }
+                }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity"
+              />
             </div>
-
-            {/* 배경 효과들 */}
-            <div className="absolute -top-12 -left-12 w-32 h-32 bg-[#FF2D55] rounded-full opacity-20 blur-3xl animate-pulse" />
-            <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-[#007AFF] rounded-full opacity-20 blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-            <div className="absolute top-1/3 -right-8 w-20 h-20 bg-[#FFD700] rounded-full opacity-30 blur-2xl animate-pulse" style={{ animationDelay: "0.5s" }} />
-            <div className="absolute bottom-1/3 -left-8 w-24 h-24 bg-[#00FF88] rounded-full opacity-25 blur-2xl animate-pulse" style={{ animationDelay: "1.5s" }} />
-          </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-center">
+              <div>
+                <h1 className="font-fredoka text-4xl sm:text-6xl lg:text-8xl font-bold text-white mb-4 comic-shadow animate-bounce">
+                  {currentBanner.title}
+                </h1>
+                <h2 className="font-fredoka text-2xl sm:text-4xl lg:text-6xl font-bold text-[#FF2D55] mb-4 comic-shadow animate-pulse relative">
+                  {currentBanner.subtitle}
+                  <Zap className="absolute -top-2 -right-8 w-12 h-12 text-[#FFD700] rotate-12 animate-spin" style={{ animationDuration: "3s" }} />
+                </h2>
+                <p className="font-nunito text-xl text-[#B8C4DB] font-medium">
+                  {currentBanner.description}
+                </p>
+              </div>
+              <HeroImageEditor
+                currentImageUrl=""
+                currentEmoji="🦸‍♂️"
+                onSave={async (newImageUrl) => {
+                  try {
+                    await AdminService.updateHeroBanner(currentBanner.id, {
+                      ...currentBanner,
+                      imageUrl: newImageUrl
+                    });
+                    await loadBanners();
+                  } catch (error) {
+                    console.error('Error updating banner image:', error);
+                  }
+                }}
+                className="absolute top-4 right-4 w-16 h-16 opacity-50 hover:opacity-100 transition-opacity"
+              />
+            </div>
+          )}
         </div>
         
-        {/* 배너 네비게이션 */}
+        {/* 배너 네비게이션 - 배너 하단에 위치 */}
         {banners.length > 1 && (
-          <div className="flex items-center justify-center mt-8 space-x-4">
+          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 bg-black/50 backdrop-blur-lg rounded-full px-6 py-3">
             <Button
               variant="outline"
               size="sm"
               onClick={goToPrevBanner}
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -348,7 +241,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 <button
                   key={index}
                   onClick={() => setCurrentBannerIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
+                  className={`w-2 h-2 rounded-full transition-all ${
                     index === currentBannerIndex
                       ? "bg-[#FF2D55] scale-125"
                       : "bg-white/30 hover:bg-white/50"
@@ -361,12 +254,49 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               variant="outline"
               size="sm"
               onClick={goToNextBanner}
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         )}
+      </div>
+
+      {/* 하단 콘텐츠 영역 - 간단한 버튼과 설명 */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative z-10 text-center">
+        {/* 태그라인 */}
+        <div className="flex items-center justify-center mb-6">
+          {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-6 h-6 mr-2 animate-pulse")}
+          <span className="font-nunito text-[#B8C4DB] text-lg font-bold animate-bounce">
+            {currentBanner.tagline}
+          </span>
+          {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-6 h-6 ml-2 animate-pulse")}
+        </div>
+
+        {/* 설명 */}
+        <p className="font-nunito text-xl text-[#B8C4DB] mb-8 leading-relaxed font-medium max-w-2xl mx-auto">
+          {currentBanner.description}
+        </p>
+
+        {/* 버튼들 */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <Button
+            size="lg"
+            className="bg-[#FF2D55] hover:bg-[#FF1744] text-white px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all"
+            onClick={() => navigateTo("gallery")}
+          >
+            <Heart className="w-5 h-5 mr-2" />
+            {currentBanner.primaryButtonText}
+          </Button>
+          <Button
+            size="lg"
+            className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all"
+            onClick={() => navigateTo("board")}
+          >
+            <Zap className="w-5 h-5 mr-2" />
+            {currentBanner.secondaryButtonText}
+          </Button>
+        </div>
         
         {/* 하단 아이콘 섹션 */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md">

@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS hero_banners (
     primary_button_text TEXT,
     secondary_button_text TEXT,
     image_url TEXT,
+    icon_name TEXT DEFAULT 'Heart',
+    icon_color TEXT DEFAULT '#FF2D55',
     is_active BOOLEAN DEFAULT true,
     display_order INTEGER DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -29,7 +31,7 @@ CREATE POLICY "Allow admin to manage hero banners" ON hero_banners
 INSERT INTO hero_banners (
     id, title, subtitle, description, tagline, 
     primary_button_text, secondary_button_text, 
-    image_url, is_active, display_order
+    image_url, icon_name, icon_color, is_active, display_order
 ) VALUES 
 (
     'banner-1',
@@ -40,6 +42,8 @@ INSERT INTO hero_banners (
     'ช้อปบาธบอม',
     'ดูเรื่องราวสีสัน',
     '',
+    'Heart',
+    '#FF2D55',
     true,
     1
 ),
@@ -52,6 +56,8 @@ INSERT INTO hero_banners (
     'Shop Now',
     'Learn More',
     '',
+    'Zap',
+    '#007AFF',
     true,
     2
 ),
@@ -64,6 +70,8 @@ INSERT INTO hero_banners (
     'Explore',
     'Gallery',
     '',
+    'Palette',
+    '#00FF88',
     true,
     3
 ),
@@ -76,6 +84,8 @@ INSERT INTO hero_banners (
     'Discover',
     'Stories',
     '',
+    'Sparkles',
+    '#FFD700',
     true,
     4
 ),
@@ -88,6 +98,8 @@ INSERT INTO hero_banners (
     'Shop',
     'About',
     '',
+    'Wind',
+    '#AF52DE',
     true,
     5
 ),
@@ -100,6 +112,8 @@ INSERT INTO hero_banners (
     'Products',
     'Contact',
     '',
+    'Users',
+    '#FF9F1C',
     true,
     6
 )
