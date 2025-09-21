@@ -185,7 +185,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-screen py-12 sm:py-16 lg:py-20">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1000px] py-8 sm:py-12 lg:py-16">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
@@ -201,7 +201,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       {/* 컨테이너 - 화면의 80%를 기본으로 하되 작은 화면에서는 꽉 참 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* 메인 배너 영역 - 큰 임팩트 배너 */}
-        <div className="w-full h-[600px] sm:h-[700px] md:h-[800px] lg:h-[900px] xl:h-[1000px] relative mb-8 sm:mb-12 lg:mb-16">
+        <div className="w-full h-[450px] sm:h-[550px] md:h-[650px] lg:h-[700px] xl:h-[750px] relative mb-6 sm:mb-8 lg:mb-10">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
@@ -306,12 +306,12 @@ export default function Hero({ language, navigateTo }: HeroProps) {
           </div>
 
           {/* 설명 */}
-          <p className="font-nunito text-xl sm:text-2xl text-[#B8C4DB] mb-10 sm:mb-14 leading-relaxed font-medium max-w-3xl mx-auto px-4">
+          <p className="font-nunito text-lg sm:text-xl text-[#B8C4DB] mb-8 sm:mb-10 leading-relaxed font-medium max-w-3xl mx-auto px-4">
             {currentBanner.description}
           </p>
 
           {/* 버튼들 */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 sm:mb-20 px-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-12 sm:mb-16 px-4">
             <Button
               size="lg"
               className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
@@ -333,7 +333,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
           </div>
           
           {/* 하단 아이콘 섹션 */}
-          <div className="flex items-center justify-center space-x-6 sm:space-x-12 text-white pb-12">
+          <div className="flex items-center justify-center space-x-6 sm:space-x-12 text-white pb-8">
             <div 
               className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
               onClick={() => navigateTo("gallery")}
