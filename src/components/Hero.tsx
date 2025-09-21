@@ -24,7 +24,7 @@ const BANNER_CLASSES = {
   subtitle: "font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] comic-shadow animate-pulse"
 };
 
-const BUTTON_BASE_CLASSES = "px-8 sm:px-10 py-4 sm:py-5 text-lg sm:text-xl font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all shadow-lg";
+const BUTTON_BASE_CLASSES = "px-10 sm:px-14 py-6 sm:py-8 text-xl sm:text-2xl lg:text-3xl font-bold font-nunito rounded-2xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all shadow-2xl";
 
 // 아이콘 매핑
 const iconMap = {
@@ -185,7 +185,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1300px] py-16 sm:py-20 lg:py-24">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1800px] sm:min-h-[2000px] md:min-h-[2200px] lg:min-h-[2400px] xl:min-h-[2600px] py-16 sm:py-20 lg:py-24">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
@@ -198,10 +198,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         </div>
       </div>
 
-      {/* 컨테이너 - 화면의 80%를 기본으로 하되 작은 화면에서는 꽉 참 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-16 sm:pt-20 lg:pt-24">
-        {/* 메인 배너 영역 - 큰 임팩트 배너 */}
-        <div className="w-full h-[450px] sm:h-[550px] md:h-[650px] lg:h-[700px] xl:h-[750px] relative mb-6 sm:mb-8 lg:mb-10">
+      {/* 컨테이너 - 100% 너비로 완전 반응형 */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-16 sm:pt-20 lg:pt-24">
+        {/* 메인 배너 영역 - 960px 기준 80% 증가된 크기 */}
+        <div className="w-full h-[960px] sm:h-[1100px] md:h-[1250px] lg:h-[1400px] xl:h-[1550px] relative mb-8 sm:mb-12 lg:mb-16">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
@@ -230,22 +230,22 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             ) : (
               <div className="w-full h-full flex items-center px-4">
                 <div className="flex w-full">
-                  {/* 왼쪽: 텍스트 콘텐츠 */}
-                  <div className="flex-1 text-left pl-6 lg:pl-12 flex flex-col justify-center">
-                    <h1 className="font-fredoka text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 comic-shadow animate-bounce">
+                  {/* 왼쪽: 텍스트 콘텐츠 - 크기 증가 및 간격 조정 */}
+                  <div className="flex-1 text-left pl-8 lg:pl-16 flex flex-col justify-center">
+                    <h1 className="font-fredoka text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold text-white mb-6 sm:mb-8 comic-shadow animate-bounce">
                       {currentBanner.title}
                     </h1>
-                    <h2 className="font-fredoka text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#FF2D55] mb-4 comic-shadow animate-pulse">
+                    <h2 className="font-fredoka text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-[#FF2D55] mb-6 sm:mb-8 comic-shadow animate-pulse">
                       {currentBanner.subtitle}
                     </h2>
-                    <p className="font-nunito text-base sm:text-lg text-[#B8C4DB] font-medium max-w-md leading-relaxed">
+                    <p className="font-nunito text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#B8C4DB] font-medium max-w-2xl leading-relaxed">
                       {currentBanner.description}
                     </p>
                   </div>
                   
-                  {/* 오른쪽: 슈퍼맨 아이콘 */}
-                  <div className="flex-1 flex justify-center items-center pr-6 lg:pr-12">
-                    <div className="text-[6rem] sm:text-[8rem] md:text-[10rem] lg:text-[12rem] xl:text-[14rem] animate-bounce">
+                  {/* 오른쪽: 슈퍼맨 아이콘 - 3배 더 크게, 우측 정렬 */}
+                  <div className="flex-1 flex justify-end items-center pr-8 lg:pr-16">
+                    <div className="text-[18rem] sm:text-[24rem] md:text-[30rem] lg:text-[36rem] xl:text-[42rem] animate-bounce">
                       🦸‍♂️
                     </div>
                   </div>
@@ -304,24 +304,19 @@ export default function Hero({ language, navigateTo }: HeroProps) {
           )}
         </div>
 
-        {/* 하단 콘텐츠 영역 */}
-        <div className="max-w-5xl mx-auto text-center relative mt-8 sm:mt-12">
+        {/* 하단 액션 영역 - 중복 제거 및 간소화 */}
+        <div className="w-full text-center relative mt-12 sm:mt-16 lg:mt-20">
           {/* 태그라인 */}
-          <div className="flex items-center justify-center mb-6">
-            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-5 h-5 sm:w-6 sm:h-6 mr-2 animate-pulse")}
-            <span className="font-nunito text-[#FFD700] text-lg sm:text-xl font-bold animate-bounce">
+          <div className="flex items-center justify-center mb-8 sm:mb-10">
+            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-7 h-7 sm:w-8 sm:h-8 mr-3 animate-pulse")}
+            <span className="font-nunito text-[#FFD700] text-2xl sm:text-3xl lg:text-4xl font-bold animate-bounce">
               {currentBanner.tagline}
             </span>
-            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-5 h-5 sm:w-6 sm:h-6 ml-2 animate-pulse")}
+            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-7 h-7 sm:w-8 sm:h-8 ml-3 animate-pulse")}
           </div>
 
-          {/* 설명 */}
-          <p className="font-nunito text-base sm:text-lg text-[#B8C4DB] mb-6 sm:mb-8 leading-relaxed font-medium max-w-2xl mx-auto px-4">
-            {currentBanner.description}
-          </p>
-
-          {/* 버튼들 */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-12 px-4">
+          {/* 버튼들 - 크기 증가 */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 sm:mb-20 px-4">
             <Button
               size="lg"
               className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
@@ -342,34 +337,34 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             </Button>
           </div>
           
-          {/* 하단 아이콘 섹션 */}
-          <div className="flex items-center justify-center space-x-6 sm:space-x-12 text-white pb-8">
+          {/* 하단 네비게이션 섹션 - 크기 증가 */}
+          <div className="flex items-center justify-center space-x-8 sm:space-x-16 lg:space-x-24 text-white pb-12 sm:pb-16">
             <div 
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
+              className="flex items-center space-x-3 sm:space-x-4 cursor-pointer hover:scale-110 transition-transform bg-black/30 backdrop-blur-lg rounded-2xl px-6 sm:px-8 py-4 sm:py-6" 
               onClick={() => navigateTo("gallery")}
             >
-              <Heart className="w-7 h-7 sm:w-8 sm:h-8 animate-pulse text-[#FFD700]" />
-              <span className="font-nunito text-base sm:text-xl font-bold">
+              <Heart className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 animate-pulse text-[#FFD700]" />
+              <span className="font-nunito text-lg sm:text-2xl lg:text-3xl font-bold">
                 {language === "th" ? "แกลเลอรี่" : "Gallery"}
               </span>
             </div>
-            <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse" />
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#FFD700] rounded-full animate-pulse" />
             <div 
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
+              className="flex items-center space-x-3 sm:space-x-4 cursor-pointer hover:scale-110 transition-transform bg-black/30 backdrop-blur-lg rounded-2xl px-6 sm:px-8 py-4 sm:py-6" 
               onClick={() => navigateTo("board")}
             >
-              <Star className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-[#FFD700]" />
-              <span className="font-nunito text-base sm:text-xl font-bold">
+              <Star className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 animate-spin text-[#FFD700]" />
+              <span className="font-nunito text-lg sm:text-2xl lg:text-3xl font-bold">
                 {language === "th" ? "กระทู้" : "Board"}
               </span>
             </div>
-            <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse" />
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#FFD700] rounded-full animate-pulse" />
             <div 
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
+              className="flex items-center space-x-3 sm:space-x-4 cursor-pointer hover:scale-110 transition-transform bg-black/30 backdrop-blur-lg rounded-2xl px-6 sm:px-8 py-4 sm:py-6" 
               onClick={() => navigateTo("contact")}
             >
-              <Zap className="w-7 h-7 sm:w-8 sm:h-8 animate-bounce text-[#FFD700]" />
-              <span className="font-nunito text-base sm:text-xl font-bold">
+              <Zap className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 animate-bounce text-[#FFD700]" />
+              <span className="font-nunito text-lg sm:text-2xl lg:text-3xl font-bold">
                 {language === "th" ? "ชุมชน" : "Community"}
               </span>
             </div>
