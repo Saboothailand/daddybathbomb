@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import type { LanguageKey, PageKey } from "../App";
 import { Button } from "./ui/button";
 import AnimatedBackground from "./AnimatedBackground";
@@ -110,7 +110,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const [error, setError] = useState<string | null>(null);
 
   // 개선된 아이콘 렌더링 함수
-  const renderIcon = useCallback((iconName?: string, color?: string, className: string = "w-8 h-8"): JSX.Element => {
+  const renderIcon = useCallback((iconName?: string, color?: string, className: string = "w-8 h-8"): React.JSX.Element => {
     if (!iconName || !(iconName in iconMap)) {
       return <Heart className={className} style={{ color: color || DEFAULT_ICON_COLOR }} />;
     }
