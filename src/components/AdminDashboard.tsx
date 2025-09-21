@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 // Import actual admin modules
 import ProductDetailManager from "./admin/ProductDetailManager";
 import BannerManagement from "./admin/BannerManagement";
+import HeroBannerManagement from "./admin/HeroBannerManagement";
 import OrderManagement from "./admin/OrderManagement";
 import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
@@ -29,7 +30,7 @@ import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
-type DashboardTab = "overview" | "orders" | "products" | "banners" | "features" | "gallery" | "branding" | "settings";
+type DashboardTab = "overview" | "orders" | "products" | "banners" | "hero-banners" | "features" | "gallery" | "branding" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
@@ -68,7 +69,13 @@ const menuItems: MenuItem[] = [
     id: "banners",
     label: "Banner Management",
     icon: Image,
-    description: "Hero, Middle, Bottom Banners"
+    description: "Middle, Bottom Banners"
+  },
+  {
+    id: "hero-banners",
+    label: "Hero Banners",
+    icon: Star,
+    description: "Main Page Hero Banners"
   },
   {
     id: "features",
@@ -121,6 +128,8 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
         return <ProductDetailManager />;
       case "banners":
         return <BannerManagement />;
+      case "hero-banners":
+        return <HeroBannerManagement />;
       case "features":
         return <FeaturesManagement />;
       case "gallery":
@@ -280,7 +289,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
         <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
             <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
@@ -304,10 +313,20 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
         <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
             <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
-              Active Banners
+              Hero Banners
             </CardTitle>
             <CardDescription className="text-3xl font-bold text-white">
               6
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
+              Other Banners
+            </CardTitle>
+            <CardDescription className="text-3xl font-bold text-white">
+              4
             </CardDescription>
           </CardHeader>
         </Card>
@@ -330,7 +349,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
             Quick shortcuts to the most common tasks
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
+        <CardContent className="grid gap-4 md:grid-cols-4">
           <Button 
             onClick={() => onSelectTab("products")}
             className="bg-[#007AFF] hover:bg-[#0051D5] text-white p-6 h-auto flex flex-col items-center gap-2"
@@ -339,11 +358,18 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
             <span>Add New Product</span>
           </Button>
           <Button 
+            onClick={() => onSelectTab("hero-banners")}
+            className="bg-[#FFD700] hover:bg-[#FFC107] text-black p-6 h-auto flex flex-col items-center gap-2"
+          >
+            <span className="text-2xl">🌟</span>
+            <span>Hero Banners</span>
+          </Button>
+          <Button 
             onClick={() => onSelectTab("banners")}
             className="bg-[#00FF88] hover:bg-[#00CC6A] text-black p-6 h-auto flex flex-col items-center gap-2"
           >
             <span className="text-2xl">🖼️</span>
-            <span>Manage Banners</span>
+            <span>Other Banners</span>
           </Button>
           <Button 
             onClick={() => onSelectTab("orders")}
