@@ -20,11 +20,11 @@ const DEFAULT_ICON_COLOR = "#FF2D55";
 const BANNER_CLASSES = {
   container: "w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden",
   overlay: "absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 flex items-center justify-center",
-  title: "font-fredoka text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 comic-shadow animate-bounce",
-  subtitle: "font-fredoka text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#FF2D55] comic-shadow animate-pulse"
+  title: "font-fredoka text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold mb-6 comic-shadow animate-bounce",
+  subtitle: "font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] comic-shadow animate-pulse"
 };
 
-const BUTTON_BASE_CLASSES = "px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all";
+const BUTTON_BASE_CLASSES = "px-8 sm:px-10 py-4 sm:py-5 text-lg sm:text-xl font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all shadow-lg";
 
 // 아이콘 매핑
 const iconMap = {
@@ -91,17 +91,27 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const loadBanners = useCallback(async () => {
     try {
       setLoading(true);
-      // AdminService에서 Hero 배너 데이터 가져오기
-      const bannerData = await AdminService.getHeroBanners();
-      if (bannerData && bannerData.length > 0) {
-        setBanners(bannerData);
-      } else {
-        setBanners(defaultBanners);
+      
+      // 먼저 샘플 배너를 표시 (빠른 로딩)
+      setBanners(defaultBanners.slice(0, 5)); // 5개만 사용
+      setLoading(false);
+      
+      // 백그라운드에서 실제 데이터 로드 시도
+      try {
+        const bannerData = await AdminService.getHeroBanners();
+        if (bannerData && bannerData.length > 0) {
+          // 실제 데이터가 있으면 교체
+          setBanners(bannerData.filter(banner => banner.isActive).slice(0, 5));
+          console.log('✅ 실제 배너 데이터로 업데이트됨:', bannerData.length, '개');
+        } else {
+          console.log('📋 샘플 배너 데이터 사용 중');
+        }
+      } catch (dataError) {
+        console.log('📋 실제 데이터 로드 실패, 샘플 데이터 유지:', dataError);
       }
     } catch (error) {
       console.error('Error loading banners:', error);
-      setBanners(defaultBanners);
-    } finally {
+      setBanners(defaultBanners.slice(0, 5));
       setLoading(false);
     }
   }, []);
@@ -190,8 +200,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
       {/* 컨테이너 - 화면의 80%를 기본으로 하되 작은 화면에서는 꽉 참 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* 메인 배너 영역 - 반응형 종횡비 유지 */}
-        <div className="w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[16/7] xl:aspect-[16/6] relative mb-8 sm:mb-12 lg:mb-16">
+        {/* 메인 배너 영역 - 더 높은 종횡비 */}
+        <div className="w-full aspect-[16/12] sm:aspect-[16/11] md:aspect-[16/10] lg:aspect-[16/9] xl:aspect-[16/8] relative mb-8 sm:mb-12 lg:mb-16">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
@@ -220,10 +230,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             ) : (
               <div className="w-full h-full flex items-center justify-center text-center px-4">
                 <div className="relative">
-                  <h1 className="font-fredoka text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 comic-shadow animate-bounce">
+                  <h1 className="font-fredoka text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white mb-6 comic-shadow animate-bounce">
                     {currentBanner.title}
                   </h1>
-                  <h2 className="font-fredoka text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#FF2D55] mb-4 comic-shadow animate-pulse relative">
+                  <h2 className="font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] mb-6 comic-shadow animate-pulse relative">
                     {currentBanner.subtitle}
                     <Zap className="absolute -top-2 -right-4 sm:-right-8 w-8 h-8 sm:w-12 sm:h-12 text-[#FFD700] rotate-12 animate-spin" style={{ animationDuration: "3s" }} />
                   </h2>
@@ -308,7 +318,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               onClick={() => navigateTo("gallery")}
               aria-label={`${currentBanner.primaryButtonText} - Navigate to gallery`}
             >
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <Heart className="w-6 h-6 sm:w-7 sm:h-7 mr-3" />
               {currentBanner.primaryButtonText}
             </Button>
             <Button
@@ -317,39 +327,39 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               onClick={() => navigateTo("board")}
               aria-label={`${currentBanner.secondaryButtonText} - Navigate to board`}
             >
-              <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <Zap className="w-6 h-6 sm:w-7 sm:h-7 mr-3" />
               {currentBanner.secondaryButtonText}
             </Button>
           </div>
           
           {/* 하단 아이콘 섹션 */}
-          <div className="flex items-center justify-center space-x-4 sm:space-x-8 text-white pb-8">
+          <div className="flex items-center justify-center space-x-6 sm:space-x-12 text-white pb-12">
             <div 
-              className="flex items-center space-x-1 sm:space-x-2 cursor-pointer hover:scale-110 transition-transform" 
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
               onClick={() => navigateTo("gallery")}
             >
-              <Heart className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse text-[#FFD700]" />
-              <span className="font-nunito text-sm sm:text-lg font-bold">
+              <Heart className="w-7 h-7 sm:w-8 sm:h-8 animate-pulse text-[#FFD700]" />
+              <span className="font-nunito text-base sm:text-xl font-bold">
                 {language === "th" ? "แกลเลอรี่" : "Gallery"}
               </span>
             </div>
-            <div className="w-1 h-1 bg-white rounded-full" />
+            <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse" />
             <div 
-              className="flex items-center space-x-1 sm:space-x-2 cursor-pointer hover:scale-110 transition-transform" 
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
               onClick={() => navigateTo("board")}
             >
-              <Star className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-[#FFD700]" />
-              <span className="font-nunito text-sm sm:text-lg font-bold">
+              <Star className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-[#FFD700]" />
+              <span className="font-nunito text-base sm:text-xl font-bold">
                 {language === "th" ? "กระทู้" : "Board"}
               </span>
             </div>
-            <div className="w-1 h-1 bg-white rounded-full" />
+            <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse" />
             <div 
-              className="flex items-center space-x-1 sm:space-x-2 cursor-pointer hover:scale-110 transition-transform" 
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-110 transition-transform bg-black/20 backdrop-blur-sm rounded-full px-4 py-3" 
               onClick={() => navigateTo("contact")}
             >
-              <Zap className="w-5 h-5 sm:w-6 sm:h-6 animate-bounce text-[#FFD700]" />
-              <span className="font-nunito text-sm sm:text-lg font-bold">
+              <Zap className="w-7 h-7 sm:w-8 sm:h-8 animate-bounce text-[#FFD700]" />
+              <span className="font-nunito text-base sm:text-xl font-bold">
                 {language === "th" ? "ชุมชน" : "Community"}
               </span>
             </div>
