@@ -6,8 +6,9 @@ import {
   Bell,
   HelpCircle,
   MessagesSquare,
-  Image as ImageIcon,
+  Camera,
   FileText,
+  Image
 } from "lucide-react";
 
 import type { LanguageKey, PageKey } from "../App";
@@ -35,22 +36,23 @@ type NavItem = {
   key: PageKey | "gallery" | "board";
   label: string;
   highlightColor: string;
+  icon?: React.ComponentType<any>;
   action?: () => void;
 };
 
 const navHighlightMap: Record<PageKey | "gallery" | "board", string> = {
   home: "bg-[#FFD700]",
   products: "bg-[#00FF88]",
+  about: "bg-[#007AFF]",
   gallery: "bg-[#FF2D55]",
-  board: "bg-[#007AFF]",
-  about: "bg-[#FF9F1C]",
+  board: "bg-[#FF9F1C]",
   notice: "bg-[#AF52DE]",
   faq: "bg-[#00C2FF]",
   contact: "bg-[#FF1744]",
   admin: "bg-[#FF2D55]",
 };
 
-export default function Header({
+export default function CMSHeader({
   currentPage,
   navigateTo,
   language,
@@ -83,7 +85,18 @@ export default function Header({
     try {
       await AdminService.updateSiteSetting(key, value, 'text');
       setBranding(prev => ({ ...prev, [key]: value }));
-      window.dispatchEvent(new CustomEvent('brandingUpdated'));
+      
+      // 브랜딩 업데이트 이벤트 발생
+      window.dispatchEvent(new CustomEvent('brandingUpdated', { 
+        detail: { key, value } 
+      }));
+      
+      // 로고 변경 시 추가 이벤트
+      if (key === 'logo_url') {
+        window.dispatchEvent(new CustomEvent('logoChanged', { 
+          detail: { logoUrl: value } 
+        }));
+      }
     } catch (error) {
       console.error('브랜딩 업데이트 실패:', error);
       throw error;
@@ -95,9 +108,22 @@ export default function Header({
   }, [loadBranding]);
 
   useEffect(() => {
-    window.addEventListener("brandingUpdated", loadBranding);
+    const handleBrandingUpdate = (event: any) => {
+      console.log('브랜딩 업데이트 감지:', event.detail);
+      loadBranding();
+    };
+
+    const handleLogoChange = (event: any) => {
+      console.log('로고 변경 감지:', event.detail);
+      setBranding(prev => ({ ...prev, logo_url: event.detail.logoUrl }));
+    };
+
+    window.addEventListener("brandingUpdated", handleBrandingUpdate);
+    window.addEventListener("logoChanged", handleLogoChange);
+
     return () => {
-      window.removeEventListener("brandingUpdated", loadBranding);
+      window.removeEventListener("brandingUpdated", handleBrandingUpdate);
+      window.removeEventListener("logoChanged", handleLogoChange);
     };
   }, [loadBranding]);
 
@@ -116,22 +142,24 @@ export default function Header({
         action: () => navigateTo("products"),
       },
       {
+        key: "about",
+        label: t("about", language),
+        highlightColor: navHighlightMap.about,
+        action: () => navigateTo("about"),
+      },
+      {
         key: "gallery",
         label: language === "th" ? "แกลเลอรี่" : "Gallery",
         highlightColor: navHighlightMap.gallery,
+        icon: Camera,
         action: () => navigateTo("gallery"),
       },
       {
         key: "board",
         label: language === "th" ? "กระทู้" : "Board",
         highlightColor: navHighlightMap.board,
+        icon: FileText,
         action: () => navigateTo("board"),
-      },
-      {
-        key: "about",
-        label: t("about", language),
-        highlightColor: navHighlightMap.about,
-        action: () => navigateTo("about"),
       },
     ],
     [language, navigateTo],
@@ -143,18 +171,21 @@ export default function Header({
         key: "notice",
         label: t("notice", language),
         highlightColor: navHighlightMap.notice,
+        icon: Bell,
         action: () => navigateTo("notice"),
       },
       {
         key: "faq",
         label: t("faq", language),
         highlightColor: navHighlightMap.faq,
+        icon: HelpCircle,
         action: () => navigateTo("faq"),
       },
       {
         key: "contact",
         label: t("contact", language),
         highlightColor: navHighlightMap.contact,
+        icon: MessagesSquare,
         action: () => navigateTo("contact"),
       },
     ],
@@ -218,8 +249,9 @@ export default function Header({
               <button
                 key={item.key}
                 onClick={item.action}
-                className={`font-nunito text-lg font-bold text-[#B8C4DB] hover:text-white transition-colors relative group`}
+                className={`font-nunito text-lg font-bold text-[#B8C4DB] hover:text-white transition-colors relative group flex items-center gap-2`}
               >
+                {item.icon && <item.icon className="w-5 h-5" />}
                 {item.label}
                 <span
                   className={`absolute -bottom-1 left-0 h-1 rounded-full transition-all group-hover:w-full ${item.highlightColor}`}
@@ -235,11 +267,9 @@ export default function Header({
                 <button
                   key={item.key}
                   onClick={item.action}
-                  className="font-nunito text-sm font-bold text-[#94A3B8] hover:text-white transition-colors relative group"
+                  className="font-nunito text-sm font-bold text-[#94A3B8] hover:text-white transition-colors relative group flex items-center gap-1"
                 >
-                  {item.key === "notice" && <Bell className="w-4 h-4 inline mr-1" />}
-                  {item.key === "faq" && <HelpCircle className="w-4 h-4 inline mr-1" />}
-                  {item.key === "contact" && <MessagesSquare className="w-4 h-4 inline mr-1" />}
+                  {item.icon && <item.icon className="w-4 h-4" />}
                   {item.label}
                   <span
                     className={`absolute -bottom-1 left-0 h-0.5 rounded-full transition-all group-hover:w-full ${item.highlightColor}`}
@@ -264,7 +294,7 @@ export default function Header({
               className="p-3 text-[#B8C4DB] hover:text-white hover:bg-[#151B2E] rounded-full comic-button"
               onClick={() => navigateTo("gallery")}
             >
-              <ImageIcon className="h-6 w-6" />
+              <Camera className="h-6 w-6" />
             </Button>
 
             <Button
@@ -305,8 +335,9 @@ export default function Header({
                   item.action?.();
                   setIsMenuOpen(false);
                 }}
-                className="w-full text-left text-[#B8C4DB] hover:text-white text-sm font-semibold py-2"
+                className="w-full text-left text-[#B8C4DB] hover:text-white text-sm font-semibold py-2 flex items-center gap-2"
               >
+                {item.icon && <item.icon className="w-4 h-4" />}
                 {item.label}
               </button>
             ))}
@@ -339,3 +370,4 @@ export default function Header({
     </header>
   );
 }
+
