@@ -219,7 +219,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 원형 디자인 */}
-      <div className="w-full h-[960px] flex items-center justify-center relative z-10 py-54">
+      <div className="w-full h-[1400px] flex items-center justify-center relative z-10 py-54">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
