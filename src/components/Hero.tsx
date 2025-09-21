@@ -175,7 +175,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-screen py-8 sm:py-12 lg:py-16">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[780px] py-8 sm:py-12 lg:py-16">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
