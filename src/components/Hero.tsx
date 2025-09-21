@@ -292,7 +292,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
                     {/* 히어로 캐릭터 */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-[20rem] sm:text-[24rem] lg:text-[32rem] xl:text-[40rem] animate-bounce">
+                      <div className="text-[30rem] sm:text-[36rem] lg:text-[48rem] xl:text-[60rem] animate-bounce">
                         🦸‍♂️
                       </div>
                     </div>
