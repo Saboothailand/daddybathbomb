@@ -191,7 +191,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[980px]">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1600px]">
       <AnimatedBackground />
       
       {/* 에러 알림 */}
@@ -219,11 +219,11 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 원형 디자인 */}
-      <div className="w-full min-h-[1400px] flex items-center justify-center relative z-10 py-16 md:py-20">
+      <div className="w-full min-h-[1500px] flex items-center justify-center relative z-10 py-20 md:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
-            <div className="flex-1 text-center lg:text-left lg:pl-16 xl:pl-24">
+            <div className="flex-1 text-center lg:text-left lg:pl-32 xl:pl-48">
               {/* 상단 태그라인 */}
               <div className="flex items-center justify-center lg:justify-start mb-6">
                 <Star className="w-9 h-9 text-[#FFD700] mr-2 animate-pulse" />
@@ -274,7 +274,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             <div className="flex-1 flex justify-center lg:justify-end">
               <div className="relative">
                 {/* 원형 배경 */}
-                <div className="w-[60rem] h-[60rem] sm:w-[75rem] sm:h-[75rem] lg:w-[90rem] lg:h-[90rem] xl:w-[110rem] xl:h-[110rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
+                <div className="w-[80rem] h-[80rem] sm:w-[100rem] sm:h-[100rem] lg:w-[120rem] lg:h-[120rem] xl:w-[140rem] xl:h-[140rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FF2D55]/90 via-[#007AFF]/90 to-[#FFD700]/90 flex items-center justify-center relative overflow-hidden">
                     
                     {/* 배너 이미지 또는 기본 배경 */}
@@ -292,7 +292,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
                     {/* 히어로 캐릭터 */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-[90rem] sm:text-[108rem] lg:text-[144rem] xl:text-[180rem] animate-bounce">
+                      <div className="text-[120rem] sm:text-[144rem] lg:text-[192rem] xl:text-[240rem] animate-bounce">
                         🦸‍♂️
                       </div>
                     </div>
@@ -372,7 +372,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 하단 아이콘 섹션 */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative z-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 relative z-10">
         <div className="flex items-center justify-center space-x-10 text-white">
           <div className="flex items-center space-x-3 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
             <Heart className="w-8 h-8 animate-pulse text-[#FFD700]" />
