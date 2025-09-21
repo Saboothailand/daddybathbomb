@@ -219,7 +219,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 원형 디자인 */}
-      <div className="w-full min-h-[240vh] flex items-center justify-center relative z-10 py-36">
+      <div className="w-full min-h-[360vh] flex items-center justify-center relative z-10 py-54">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
@@ -274,7 +274,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             <div className="flex-1 flex justify-center lg:justify-end">
               <div className="relative">
                 {/* 원형 배경 */}
-                <div className="w-[28rem] h-[28rem] sm:w-[36rem] sm:h-[36rem] lg:w-[48rem] lg:h-[48rem] xl:w-[56rem] xl:h-[56rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
+                <div className="w-[42rem] h-[42rem] sm:w-[54rem] sm:h-[54rem] lg:w-[72rem] lg:h-[72rem] xl:w-[84rem] xl:h-[84rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FF2D55]/90 via-[#007AFF]/90 to-[#FFD700]/90 flex items-center justify-center relative overflow-hidden">
                     
                     {/* 배너 이미지 또는 기본 배경 */}
@@ -292,7 +292,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
                     {/* 히어로 캐릭터 */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-[10rem] sm:text-[12rem] lg:text-[16rem] xl:text-[20rem] animate-bounce">
+                      <div className="text-[15rem] sm:text-[18rem] lg:text-[24rem] xl:text-[30rem] animate-bounce">
                         🦸‍♂️
                       </div>
                     </div>
