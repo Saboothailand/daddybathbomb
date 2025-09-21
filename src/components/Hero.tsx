@@ -185,7 +185,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1000px] py-8 sm:py-12 lg:py-16">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1300px] py-16 sm:py-20 lg:py-24">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
@@ -199,7 +199,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 컨테이너 - 화면의 80%를 기본으로 하되 작은 화면에서는 꽉 참 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-16 sm:pt-20 lg:pt-24">
         {/* 메인 배너 영역 - 큰 임팩트 배너 */}
         <div className="w-full h-[450px] sm:h-[550px] md:h-[650px] lg:h-[700px] xl:h-[750px] relative mb-6 sm:mb-8 lg:mb-10">
           <div className={BANNER_CLASSES.container}>
@@ -228,18 +228,28 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 />
               </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-center px-4">
-                <div className="relative">
-                  <h1 className="font-fredoka text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white mb-6 comic-shadow animate-bounce">
-                    {currentBanner.title}
-                  </h1>
-                  <h2 className="font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] mb-6 comic-shadow animate-pulse relative">
-                    {currentBanner.subtitle}
-                    <Zap className="absolute -top-2 -right-4 sm:-right-8 w-8 h-8 sm:w-12 sm:h-12 text-[#FFD700] rotate-12 animate-spin" style={{ animationDuration: "3s" }} />
-                  </h2>
-                  <p className="font-nunito text-lg sm:text-xl text-[#B8C4DB] font-medium">
-                    {currentBanner.description}
-                  </p>
+              <div className="w-full h-full flex items-center px-4">
+                <div className="flex w-full">
+                  {/* 왼쪽: 텍스트 콘텐츠 */}
+                  <div className="flex-1 text-left pl-8 lg:pl-16">
+                    <h1 className="font-fredoka text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white mb-6 comic-shadow animate-bounce">
+                      {currentBanner.title}
+                    </h1>
+                    <h2 className="font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] mb-6 comic-shadow animate-pulse">
+                      {currentBanner.subtitle}
+                    </h2>
+                    <p className="font-nunito text-lg sm:text-xl text-[#B8C4DB] font-medium max-w-lg">
+                      {currentBanner.description}
+                    </p>
+                  </div>
+                  
+                  {/* 오른쪽: 슈퍼맨 아이콘 */}
+                  <div className="flex-1 flex justify-end items-center pr-8 lg:pr-16">
+                    <div className="text-[8rem] sm:text-[10rem] md:text-[12rem] lg:text-[14rem] xl:text-[16rem] animate-bounce">
+                      🦸‍♂️
+                    </div>
+                  </div>
+                  
                   <HeroImageEditor
                     currentImageUrl=""
                     currentEmoji="🦸‍♂️"
