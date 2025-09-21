@@ -12,6 +12,26 @@ import { defaultBanners } from "../data/defaultBanners";
 // AdminService에서 HeroBanner 타입 import
 import type { HeroBanner } from "../lib/adminService";
 
+// 상수 정의
+const BANNER_TRANSITION_INTERVAL = 5000;
+const DEFAULT_ICON_COLOR = "#FF2D55";
+const HERO_SECTION_HEIGHTS = {
+  mobile: "85vh",
+  tablet: "90vh", 
+  desktop: "95vh",
+  large: "100vh"
+};
+
+// 스타일 상수
+const BANNER_CLASSES = {
+  container: "w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden",
+  overlay: "absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 flex items-center justify-center",
+  title: "font-fredoka text-4xl sm:text-6xl lg:text-8xl font-bold mb-4 comic-shadow animate-bounce",
+  subtitle: "font-fredoka text-2xl sm:text-4xl lg:text-6xl font-bold text-[#FF2D55] comic-shadow animate-pulse"
+};
+
+const BUTTON_BASE_CLASSES = "px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all";
+
 // 아이콘 매핑
 const iconMap = {
   Heart,
@@ -22,6 +42,9 @@ const iconMap = {
   Users,
   Sparkles,
 } as const;
+
+// 타입 정의
+type IconName = keyof typeof iconMap;
 
 const copyMap: Record<LanguageKey, {
   headlineTop: string;
@@ -55,20 +78,20 @@ type HeroProps = {
 };
 
 export default function Hero({ language, navigateTo }: HeroProps) {
-  const copy = copyMap[language];
+  // 복사본 텍스트 메모이제이션
+  const copy = useMemo(() => copyMap[language], [language]);
+  
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [banners, setBanners] = useState<HeroBanner[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 아이콘 렌더링 함수
-  const renderIcon = useMemo(() => {
-    return (iconName?: string, color?: string, className: string = "w-8 h-8") => {
-      if (!iconName || !(iconName in iconMap)) {
-        return <Heart className={className} style={{ color: color || "#FF2D55" }} />;
-      }
-      const IconComponent = iconMap[iconName as keyof typeof iconMap];
-      return <IconComponent className={className} style={{ color: color || "#FF2D55" }} />;
-    };
+  // 개선된 아이콘 렌더링 함수
+  const renderIcon = useCallback((iconName?: string, color?: string, className: string = "w-8 h-8"): JSX.Element => {
+    if (!iconName || !(iconName in iconMap)) {
+      return <Heart className={className} style={{ color: color || DEFAULT_ICON_COLOR }} />;
+    }
+    const IconComponent = iconMap[iconName as IconName];
+    return <IconComponent className={className} style={{ color: color || DEFAULT_ICON_COLOR }} />;
   }, []);
 
   const loadBanners = useCallback(async () => {
@@ -93,26 +116,44 @@ export default function Hero({ language, navigateTo }: HeroProps) {
     loadBanners();
   }, [loadBanners]);
 
+  // 현재 배너 계산을 메모이제이션
+  const currentBanner = useMemo(() => {
+    return banners.length > 0 ? banners[currentBannerIndex] || banners[0] : null;
+  }, [banners, currentBannerIndex]);
+
+  // 배너 업데이트 함수를 useCallback으로 래핑
+  const updateBannerImage = useCallback(async (newImageUrl: string) => {
+    if (!currentBanner) return;
+    
+    try {
+      await AdminService.updateHeroBanner(currentBanner.id, {
+        ...currentBanner,
+        imageUrl: newImageUrl
+      });
+      await loadBanners();
+    } catch (error) {
+      console.error('Error updating banner image:', error);
+    }
+  }, [currentBanner, loadBanners]);
+
   // 자동 슬라이드 기능
   useEffect(() => {
     if (banners.length <= 1) return;
     
     const interval = setInterval(() => {
       setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
-    }, 5000); // 5초마다 변경
+    }, BANNER_TRANSITION_INTERVAL);
 
     return () => clearInterval(interval);
   }, [banners.length]);
 
-  const goToNextBanner = () => {
+  const goToNextBanner = useCallback(() => {
     setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
-  };
+  }, [banners.length]);
 
-  const goToPrevBanner = () => {
+  const goToPrevBanner = useCallback(() => {
     setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
-  };
-
-  const currentBanner = banners.length > 0 ? banners[currentBannerIndex] || banners[0] : null;
+  }, [banners.length]);
 
   if (loading) {
     return (
@@ -154,21 +195,21 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 메인 배너 영역 - 100% 너비, 매우 큰 반응형 높이 */}
-      <div className="w-full h-[85vh] sm:h-[90vh] lg:h-[95vh] xl:h-screen relative z-10 mb-12">
-        <div className="w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden">
+      <div className={`w-full h-[${HERO_SECTION_HEIGHTS.mobile}] sm:h-[${HERO_SECTION_HEIGHTS.tablet}] lg:h-[${HERO_SECTION_HEIGHTS.desktop}] xl:h-[${HERO_SECTION_HEIGHTS.large}] relative z-10 mb-12`}>
+        <div className={BANNER_CLASSES.container}>
           {currentBanner.imageUrl ? (
             <div className="w-full h-full relative">
               <img
                 src={currentBanner.imageUrl}
-                alt={currentBanner.title}
+                alt={`${currentBanner.title} - ${currentBanner.subtitle}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 flex items-center justify-center">
+              <div className={BANNER_CLASSES.overlay}>
                 <div className="text-center text-white">
-                  <h1 className="font-fredoka text-4xl sm:text-6xl lg:text-8xl font-bold mb-4 comic-shadow animate-bounce">
+                  <h1 className={BANNER_CLASSES.title}>
                     {currentBanner.title}
                   </h1>
-                  <h2 className="font-fredoka text-2xl sm:text-4xl lg:text-6xl font-bold text-[#FF2D55] comic-shadow animate-pulse">
+                  <h2 className={BANNER_CLASSES.subtitle}>
                     {currentBanner.subtitle}
                   </h2>
                 </div>
@@ -176,17 +217,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               <HeroImageEditor
                 currentImageUrl={currentBanner.imageUrl}
                 currentEmoji="🦸‍♂️"
-                onSave={async (newImageUrl) => {
-                  try {
-                    await AdminService.updateHeroBanner(currentBanner.id, {
-                      ...currentBanner,
-                      imageUrl: newImageUrl
-                    });
-                    await loadBanners();
-                  } catch (error) {
-                    console.error('Error updating banner image:', error);
-                  }
-                }}
+                onSave={updateBannerImage}
                 className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity"
               />
             </div>
@@ -232,11 +263,12 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               size="sm"
               onClick={goToPrevBanner}
               className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
+              aria-label="Previous banner"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
             
-            <div className="flex space-x-2">
+            <div className="flex space-x-2" role="tablist" aria-label="Banner navigation">
               {banners.map((_, index) => (
                 <button
                   key={index}
@@ -244,8 +276,11 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   className={`w-3 h-3 rounded-full transition-all ${
                     index === currentBannerIndex
                       ? "bg-[#FF2D55] scale-125"
-                      : "bg-gray-400 hover:bg-gray-300"
+                      : "bg-white/70 hover:bg-white/90"
                   }`}
+                  aria-label={`Go to banner ${index + 1}`}
+                  aria-current={index === currentBannerIndex ? "true" : "false"}
+                  role="tab"
                 />
               ))}
             </div>
@@ -255,6 +290,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               size="sm"
               onClick={goToNextBanner}
               className="border-white/20 text-white hover:bg-white/10 w-8 h-8 p-0"
+              aria-label="Next banner"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -282,16 +318,18 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Button
             size="lg"
-            className="bg-[#FF2D55] hover:bg-[#FF1744] text-white px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all"
+            className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
             onClick={() => navigateTo("gallery")}
+            aria-label={`${currentBanner.primaryButtonText} - Navigate to gallery`}
           >
             <Heart className="w-5 h-5 mr-2" />
             {currentBanner.primaryButtonText}
           </Button>
           <Button
             size="lg"
-            className="bg-[#007AFF] hover:bg-[#0051D5] text-white px-8 py-4 text-lg font-bold font-nunito rounded-xl comic-border comic-button border-4 border-black transform hover:scale-105 transition-all"
+            className={`bg-[#007AFF] hover:bg-[#0051D5] text-white ${BUTTON_BASE_CLASSES}`}
             onClick={() => navigateTo("board")}
+            aria-label={`${currentBanner.secondaryButtonText} - Navigate to board`}
           >
             <Zap className="w-5 h-5 mr-2" />
             {currentBanner.secondaryButtonText}
