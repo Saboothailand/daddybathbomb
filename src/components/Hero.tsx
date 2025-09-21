@@ -153,8 +153,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         </div>
       </div>
 
-      {/* 메인 배너 영역 - 100% 너비, 큰 반응형 높이 */}
-      <div className="w-full h-[70vh] sm:h-[80vh] lg:h-[90vh] xl:h-[95vh] relative z-10 mb-12">
+      {/* 메인 배너 영역 - 100% 너비, 매우 큰 반응형 높이 */}
+      <div className="w-full h-[85vh] sm:h-[90vh] lg:h-[95vh] xl:h-screen relative z-10 mb-12">
         <div className="w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden">
           {currentBanner.imageUrl ? (
             <div className="w-full h-full relative">
@@ -241,10 +241,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 <button
                   key={index}
                   onClick={() => setCurrentBannerIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`w-3 h-3 rounded-full transition-all border-2 ${
                     index === currentBannerIndex
-                      ? "bg-[#FF2D55] scale-125"
-                      : "bg-white/30 hover:bg-white/50"
+                      ? "bg-[#FF2D55] border-[#FF2D55] scale-125"
+                      : "bg-transparent border-white/80 hover:border-[#FFD700] hover:bg-[#FFD700]/30"
                   }`}
                 />
               ))}
@@ -300,7 +300,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         
         {/* 하단 아이콘 섹션 */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md">
-          <div className="flex items-center justify-center space-x-8 text-white">
+          <div className="flex items-center justify-center space-x-8 text-white bg-black/30 backdrop-blur-sm rounded-full px-6 py-3">
             <div className="flex items-center space-x-2 cursor-pointer hover:scale-110 transition-transform" onClick={() => navigateTo("gallery")}>
               <Heart className="w-6 h-6 animate-pulse text-[#FFD700]" />
               <span className="font-nunito text-lg font-bold">
