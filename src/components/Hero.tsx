@@ -231,21 +231,21 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               <div className="w-full h-full flex items-center px-4">
                 <div className="flex w-full">
                   {/* 왼쪽: 텍스트 콘텐츠 */}
-                  <div className="flex-1 text-left pl-8 lg:pl-16">
-                    <h1 className="font-fredoka text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white mb-6 comic-shadow animate-bounce">
+                  <div className="flex-1 text-left pl-6 lg:pl-12 flex flex-col justify-center">
+                    <h1 className="font-fredoka text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 comic-shadow animate-bounce">
                       {currentBanner.title}
                     </h1>
-                    <h2 className="font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] mb-6 comic-shadow animate-pulse">
+                    <h2 className="font-fredoka text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#FF2D55] mb-4 comic-shadow animate-pulse">
                       {currentBanner.subtitle}
                     </h2>
-                    <p className="font-nunito text-lg sm:text-xl text-[#B8C4DB] font-medium max-w-lg">
+                    <p className="font-nunito text-base sm:text-lg text-[#B8C4DB] font-medium max-w-md leading-relaxed">
                       {currentBanner.description}
                     </p>
                   </div>
                   
                   {/* 오른쪽: 슈퍼맨 아이콘 */}
-                  <div className="flex-1 flex justify-end items-center pr-8 lg:pr-16">
-                    <div className="text-[8rem] sm:text-[10rem] md:text-[12rem] lg:text-[14rem] xl:text-[16rem] animate-bounce">
+                  <div className="flex-1 flex justify-center items-center pr-6 lg:pr-12">
+                    <div className="text-[6rem] sm:text-[8rem] md:text-[10rem] lg:text-[12rem] xl:text-[14rem] animate-bounce">
                       🦸‍♂️
                     </div>
                   </div>
@@ -268,10 +268,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 variant="outline"
                 size="sm"
                 onClick={goToPrevBanner}
-                className="border-white/20 text-white hover:bg-white/10 w-7 h-7 sm:w-8 sm:h-8 p-0"
+                className="border-gray-300 bg-white text-black hover:bg-gray-100 w-7 h-7 sm:w-8 sm:h-8 p-0"
                 aria-label="Previous banner"
               >
-                <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
               </Button>
               
               <div className="flex space-x-1 sm:space-x-2" role="tablist" aria-label="Banner navigation">
@@ -295,33 +295,33 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                 variant="outline"
                 size="sm"
                 onClick={goToNextBanner}
-                className="border-white/20 text-white hover:bg-white/10 w-7 h-7 sm:w-8 sm:h-8 p-0"
+                className="border-gray-300 bg-white text-black hover:bg-gray-100 w-7 h-7 sm:w-8 sm:h-8 p-0"
                 aria-label="Next banner"
               >
-                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
               </Button>
             </div>
           )}
         </div>
 
         {/* 하단 콘텐츠 영역 */}
-        <div className="max-w-5xl mx-auto text-center relative">
+        <div className="max-w-5xl mx-auto text-center relative mt-8 sm:mt-12">
           {/* 태그라인 */}
-          <div className="flex items-center justify-center mb-8">
-            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-6 h-6 sm:w-7 sm:h-7 mr-3 animate-pulse")}
-            <span className="font-nunito text-[#FFD700] text-xl sm:text-2xl font-bold animate-bounce">
+          <div className="flex items-center justify-center mb-6">
+            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-5 h-5 sm:w-6 sm:h-6 mr-2 animate-pulse")}
+            <span className="font-nunito text-[#FFD700] text-lg sm:text-xl font-bold animate-bounce">
               {currentBanner.tagline}
             </span>
-            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-6 h-6 sm:w-7 sm:h-7 ml-3 animate-pulse")}
+            {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-5 h-5 sm:w-6 sm:h-6 ml-2 animate-pulse")}
           </div>
 
           {/* 설명 */}
-          <p className="font-nunito text-lg sm:text-xl text-[#B8C4DB] mb-8 sm:mb-10 leading-relaxed font-medium max-w-3xl mx-auto px-4">
+          <p className="font-nunito text-base sm:text-lg text-[#B8C4DB] mb-6 sm:mb-8 leading-relaxed font-medium max-w-2xl mx-auto px-4">
             {currentBanner.description}
           </p>
 
           {/* 버튼들 */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-12 sm:mb-16 px-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-12 px-4">
             <Button
               size="lg"
               className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
