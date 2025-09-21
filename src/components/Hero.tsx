@@ -201,7 +201,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       {/* 컨테이너 - 화면의 80%를 기본으로 하되 작은 화면에서는 꽉 참 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* 메인 배너 영역 - 큰 임팩트 배너 */}
-        <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[650px] xl:h-[700px] relative mb-8 sm:mb-12 lg:mb-16">
+        <div className="w-full h-[600px] sm:h-[700px] md:h-[800px] lg:h-[900px] xl:h-[1000px] relative mb-8 sm:mb-12 lg:mb-16">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
