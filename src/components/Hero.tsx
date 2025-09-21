@@ -223,7 +223,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             {/* 왼쪽: 텍스트 콘텐츠 */}
-            <div className="flex-1 text-center lg:text-left">
+            <div className="flex-1 text-center lg:text-left lg:pl-16 xl:pl-24">
               {/* 상단 태그라인 */}
               <div className="flex items-center justify-center lg:justify-start mb-6">
                 <Star className="w-9 h-9 text-[#FFD700] mr-2 animate-pulse" />
@@ -274,7 +274,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             <div className="flex-1 flex justify-center lg:justify-end">
               <div className="relative">
                 {/* 원형 배경 */}
-                <div className="w-[42rem] h-[42rem] sm:w-[54rem] sm:h-[54rem] lg:w-[72rem] lg:h-[72rem] xl:w-[84rem] xl:h-[84rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
+                <div className="w-[60rem] h-[60rem] sm:w-[75rem] sm:h-[75rem] lg:w-[90rem] lg:h-[90rem] xl:w-[110rem] xl:h-[110rem] rounded-full bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] p-1 animate-pulse">
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FF2D55]/90 via-[#007AFF]/90 to-[#FFD700]/90 flex items-center justify-center relative overflow-hidden">
                     
                     {/* 배너 이미지 또는 기본 배경 */}
