@@ -33,10 +33,10 @@ import { AdminService } from '../../lib/adminService';
 
 interface HeroBanner {
   id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  tagline: string;
+  mainTitle: string;        // 대제목 (예: "DADDY")
+  subTitle: string;         // 중제목 (예: "BATH BOMB")
+  description: string;      // 세부내용 (예: "ฮีโร่อ่างอาบน้ำ")
+  tagline: string;          // 태그라인 (예: "สนุกสุดฟอง สดชื่นทุกสี เพื่อคุณ")
   primaryButtonText: string;
   secondaryButtonText: string;
   imageUrl: string;
@@ -79,10 +79,10 @@ const colorOptions = [
 ];
 
 interface HeroBannerFormData {
-  title: string;
-  subtitle: string;
-  description: string;
-  tagline: string;
+  mainTitle: string;        // 대제목
+  subTitle: string;         // 중제목
+  description: string;      // 세부내용
+  tagline: string;          // 태그라인
   primaryButtonText: string;
   secondaryButtonText: string;
   imageUrl: string;
@@ -92,113 +92,17 @@ interface HeroBannerFormData {
   displayOrder: number;
 }
 
-const defaultBanners: HeroBanner[] = [
-  {
-    id: "banner-1",
-    title: "DADDY",
-    subtitle: "BATH BOMB",
-    description: "ฮีโร่อ่างอาบน้ำ",
-    tagline: "สนุกสุดฟอง สดชื่นทุกสี เพื่อคุณ",
-    primaryButtonText: "ช้อปบาธบอม",
-    secondaryButtonText: "ดูเรื่องราวสีสัน",
-    imageUrl: "",
-    iconName: "Heart",
-    iconColor: "#FF2D55",
-    isActive: true,
-    displayOrder: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "banner-2",
-    title: "FUN",
-    subtitle: "BATH TIME",
-    description: "Make every bath an adventure!",
-    tagline: "Fun & Fizzy Adventures",
-    primaryButtonText: "Shop Now",
-    secondaryButtonText: "Learn More",
-    imageUrl: "",
-    iconName: "Zap",
-    iconColor: "#007AFF",
-    isActive: true,
-    displayOrder: 2,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "banner-3",
-    title: "COLORS",
-    subtitle: "GALORE",
-    description: "Rainbow of fun awaits you!",
-    tagline: "Colorful Bath Experience",
-    primaryButtonText: "Explore",
-    secondaryButtonText: "Gallery",
-    imageUrl: "",
-    iconName: "Palette",
-    iconColor: "#00FF88",
-    isActive: true,
-    displayOrder: 3,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "banner-4",
-    title: "SPARKLE",
-    subtitle: "MAGIC",
-    description: "Add sparkle to your day!",
-    tagline: "Magical Bath Moments",
-    primaryButtonText: "Discover",
-    secondaryButtonText: "Stories",
-    imageUrl: "",
-    iconName: "Sparkles",
-    iconColor: "#FFD700",
-    isActive: true,
-    displayOrder: 4,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "banner-5",
-    title: "RELAX",
-    subtitle: "REVIVE",
-    description: "Perfect relaxation time!",
-    tagline: "Relaxing Bath Therapy",
-    primaryButtonText: "Shop",
-    secondaryButtonText: "About",
-    imageUrl: "",
-    iconName: "Wind",
-    iconColor: "#AF52DE",
-    isActive: true,
-    displayOrder: 5,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "banner-6",
-    title: "FAMILY",
-    subtitle: "FUN",
-    description: "Fun for the whole family!",
-    tagline: "Family Bath Time",
-    primaryButtonText: "Products",
-    secondaryButtonText: "Contact",
-    imageUrl: "",
-    iconName: "Users",
-    iconColor: "#FF9F1C",
-    isActive: true,
-    displayOrder: 6,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// AdminService의 기본 배너 데이터를 사용
+const getDefaultBanners = () => AdminService.getDefaultHeroBanners();
 
 export default function HeroBannerManagement() {
-  const [banners, setBanners] = useState<HeroBanner[]>(defaultBanners);
+  const [banners, setBanners] = useState<HeroBanner[]>(getDefaultBanners());
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<HeroBanner | null>(null);
   const [formData, setFormData] = useState<HeroBannerFormData>({
-    title: '',
-    subtitle: '',
+    mainTitle: '',
+    subTitle: '',
     description: '',
     tagline: '',
     primaryButtonText: '',
@@ -223,7 +127,7 @@ export default function HeroBannerManagement() {
     } catch (error) {
       console.error('Error loading banners:', error);
       setErrorMessage('Failed to load banners');
-      setBanners(defaultBanners);
+      setBanners(getDefaultBanners());
     } finally {
       setLoading(false);
     }
@@ -233,8 +137,8 @@ export default function HeroBannerManagement() {
     if (banner) {
       setEditingBanner(banner);
       setFormData({
-        title: banner.title,
-        subtitle: banner.subtitle,
+        mainTitle: banner.mainTitle,
+        subTitle: banner.subTitle,
         description: banner.description,
         tagline: banner.tagline,
         primaryButtonText: banner.primaryButtonText,
@@ -248,8 +152,8 @@ export default function HeroBannerManagement() {
     } else {
       setEditingBanner(null);
       setFormData({
-        title: '',
-        subtitle: '',
+        mainTitle: '',
+        subTitle: '',
         description: '',
         tagline: '',
         primaryButtonText: '',
@@ -269,8 +173,8 @@ export default function HeroBannerManagement() {
     setDialogOpen(false);
     setEditingBanner(null);
     setFormData({
-      title: '',
-      subtitle: '',
+      mainTitle: '',
+      subTitle: '',
       description: '',
       tagline: '',
       primaryButtonText: '',
@@ -285,33 +189,43 @@ export default function HeroBannerManagement() {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.subtitle) {
-      setErrorMessage('Title and subtitle are required');
+    if (!formData.mainTitle || !formData.subTitle) {
+      setErrorMessage('Main title and sub title are required');
       return;
     }
 
     try {
       setLoading(true);
+      setErrorMessage(null);
       
       if (editingBanner) {
         // Update existing banner
+        console.log('Updating banner:', editingBanner.id, formData);
         const success = await AdminService.updateHeroBanner(editingBanner.id, formData);
         if (!success) {
           throw new Error('Failed to update banner');
         }
+        console.log('Banner updated successfully');
       } else {
         // Create new banner
+        console.log('Creating new banner:', formData);
         const newBanner = await AdminService.createHeroBanner(formData);
         if (!newBanner) {
           throw new Error('Failed to create banner');
         }
+        console.log('Banner created successfully:', newBanner);
       }
       
       await loadBanners(); // Reload banners from server
+      
+      // 배너 업데이트 이벤트 발생
+      window.dispatchEvent(new CustomEvent('bannerUpdated'));
+      
       handleCloseDialog();
+      alert('Banner saved successfully!');
     } catch (error) {
       console.error('Error saving banner:', error);
-      setErrorMessage('Failed to save banner');
+      setErrorMessage(`Failed to save banner: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -329,6 +243,9 @@ export default function HeroBannerManagement() {
         throw new Error('Failed to delete banner');
       }
       await loadBanners(); // Reload banners from server
+      
+      // 배너 업데이트 이벤트 발생
+      window.dispatchEvent(new CustomEvent('bannerUpdated'));
     } catch (error) {
       console.error('Error deleting banner:', error);
       setErrorMessage('Failed to delete banner');
@@ -348,6 +265,9 @@ export default function HeroBannerManagement() {
       }
       
       await loadBanners(); // Reload banners from server
+      
+      // 배너 업데이트 이벤트 발생
+      window.dispatchEvent(new CustomEvent('bannerUpdated'));
     } catch (error) {
       console.error('Error toggling banner status:', error);
       setErrorMessage('Failed to update banner status');
@@ -371,6 +291,9 @@ export default function HeroBannerManagement() {
       ]);
       
       await loadBanners(); // Reload banners from server
+      
+      // 배너 업데이트 이벤트 발생
+      window.dispatchEvent(new CustomEvent('bannerUpdated'));
     } catch (error) {
       console.error('Error moving banner:', error);
       setErrorMessage('Failed to reorder banners');
@@ -454,8 +377,8 @@ export default function HeroBannerManagement() {
                 )}
                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                   <div className="text-center text-white">
-                    <h3 className="font-bold text-lg">{banner.title}</h3>
-                    <p className="text-sm">{banner.subtitle}</p>
+                    <h3 className="font-bold text-lg">{banner.mainTitle}</h3>
+                    <p className="text-sm">{banner.subTitle}</p>
                   </div>
                 </div>
               </div>
@@ -463,12 +386,16 @@ export default function HeroBannerManagement() {
               {/* Banner Info */}
               <div className="space-y-2">
                 <div>
-                  <h4 className="font-semibold text-white text-sm">Title</h4>
-                  <p className="text-gray-300 text-sm truncate">{banner.title}</p>
+                  <h4 className="font-semibold text-white text-sm">Main Title</h4>
+                  <p className="text-gray-300 text-sm truncate">{banner.mainTitle}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white text-sm">Subtitle</h4>
-                  <p className="text-gray-300 text-sm truncate">{banner.subtitle}</p>
+                  <h4 className="font-semibold text-white text-sm">Sub Title</h4>
+                  <p className="text-gray-300 text-sm truncate">{banner.subTitle}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white text-sm">Description</h4>
+                  <p className="text-gray-300 text-sm truncate">{banner.description}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-white text-sm">Icon & Color</h4>
@@ -550,32 +477,32 @@ export default function HeroBannerManagement() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-gray-300">Title *</Label>
+                <Label className="text-gray-300">Main Title (대제목) *</Label>
                 <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  value={formData.mainTitle}
+                  onChange={(e) => setFormData(prev => ({ ...prev, mainTitle: e.target.value }))}
                   className="bg-[#0F1424] border-gray-600 text-white"
-                  placeholder="Main title"
+                  placeholder="예: DADDY"
                 />
               </div>
               <div>
-                <Label className="text-gray-300">Subtitle *</Label>
+                <Label className="text-gray-300">Sub Title (중제목) *</Label>
                 <Input
-                  value={formData.subtitle}
-                  onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
+                  value={formData.subTitle}
+                  onChange={(e) => setFormData(prev => ({ ...prev, subTitle: e.target.value }))}
                   className="bg-[#0F1424] border-gray-600 text-white"
-                  placeholder="Subtitle"
+                  placeholder="예: BATH BOMB"
                 />
               </div>
             </div>
 
             <div>
-              <Label className="text-gray-300">Description</Label>
+              <Label className="text-gray-300">Description (세부내용)</Label>
               <Input
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 className="bg-[#0F1424] border-gray-600 text-white"
-                placeholder="Description text"
+                placeholder="예: ฮีโร่อ่างอาบน้ำ"
               />
             </div>
 

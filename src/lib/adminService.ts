@@ -5,6 +5,21 @@ export interface SiteSettings {
   [key: string]: string;
 }
 
+export interface SEOSettings {
+  siteTitle: string;
+  siteDescription: string;
+  siteKeywords: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  twitterTitle: string;
+  twitterDescription: string;
+  twitterImage: string;
+  canonicalUrl: string;
+  robotsTxt: string;
+  sitemapUrl: string;
+}
+
 export interface LogoSettingsPayload {
   logo_url?: string | null;
   site_title?: string | null;
@@ -54,10 +69,10 @@ export interface Product {
 
 export interface HeroBanner {
   id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  tagline: string;
+  mainTitle: string;        // 대제목 (예: "DADDY")
+  subTitle: string;         // 중제목 (예: "BATH BOMB")
+  description: string;      // 세부내용 (예: "ฮีโร่อ่างอาบน้ำ")
+  tagline: string;          // 태그라인 (예: "สนุกสุดฟอง สดชื่นทุกสี เพื่อคุณ")
   primaryButtonText: string;
   secondaryButtonText: string;
   imageUrl: string;
@@ -649,26 +664,43 @@ export class AdminService {
   // Hero 배너 관련 메서드들
   static async getHeroBanners(): Promise<HeroBanner[]> {
     try {
-      if (!hasSupabaseCredentials()) {
-        // Supabase 설정이 없는 경우 기본 데이터 반환
-        return this.getDefaultHeroBanners();
+      if (!hasSupabaseCredentials) {
+        console.log('📋 Supabase 설정 없음 - 로컬 스토리지 사용');
+        
+        // 로컬 스토리지에서 배너 가져오기
+        const localBanners = readLocalStorage<HeroBanner[]>('daddy_hero_banners');
+        if (localBanners && localBanners.length > 0) {
+          return localBanners;
+        }
+        
+        // 로컬 스토리지에 기본 배너 저장
+        const defaultBanners = this.getDefaultHeroBanners();
+        writeLocalStorage('daddy_hero_banners', defaultBanners);
+        return defaultBanners;
       }
 
+      console.log('🔄 Supabase에서 배너 데이터 로드 중...');
       const { data, error } = await supabase
         .from('hero_banners')
         .select('*')
+        .eq('is_active', true)
         .order('display_order', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase 배너 조회 오류:', error);
+        throw error;
+      }
       
       if (!data || data.length === 0) {
+        console.log('📋 Supabase에 활성 배너 없음 - 기본 데이터 사용');
         return this.getDefaultHeroBanners();
       }
 
+      console.log('✅ Supabase 배너 데이터 로드 성공:', data.length, '개');
       return data.map(banner => ({
         id: banner.id,
-        title: banner.title || '',
-        subtitle: banner.subtitle || '',
+        mainTitle: banner.main_title || banner.title || '',
+        subTitle: banner.sub_title || banner.subtitle || '',
         description: banner.description || '',
         tagline: banner.tagline || '',
         primaryButtonText: banner.primary_button_text || '',
@@ -683,6 +715,7 @@ export class AdminService {
       }));
     } catch (error) {
       console.error('Error fetching hero banners:', error);
+      console.log('📋 오류 발생 - 기본 배너 데이터 사용');
       return this.getDefaultHeroBanners();
     }
   }
@@ -691,13 +724,13 @@ export class AdminService {
     return [
       {
         id: "banner-1",
-        title: "DADDY",
-        subtitle: "BATH BOMB",
+        mainTitle: "DADDY",
+        subTitle: "BATH BOMB",
         description: "ฮีโร่อ่างอาบน้ำ",
         tagline: "สนุกสุดฟอง สดชื่นทุกสี เพื่อคุณ",
         primaryButtonText: "ช้อปบาธบอม",
         secondaryButtonText: "ดูเรื่องราวสีสัน",
-        imageUrl: "",
+        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Heart",
         iconColor: "#FF2D55",
         isActive: true,
@@ -707,13 +740,13 @@ export class AdminService {
       },
       {
         id: "banner-2",
-        title: "FUN",
-        subtitle: "BATH TIME",
-        description: "Make every bath an adventure!",
-        tagline: "Fun & Fizzy Adventures",
+        mainTitle: "SUPER",
+        subTitle: "RELAXATION",
+        description: "Premium spa experience at home",
+        tagline: "Luxury Bath Time Awaits",
         primaryButtonText: "Shop Now",
         secondaryButtonText: "Learn More",
-        imageUrl: "",
+        imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Zap",
         iconColor: "#007AFF",
         isActive: true,
@@ -723,13 +756,13 @@ export class AdminService {
       },
       {
         id: "banner-3",
-        title: "COLORS",
-        subtitle: "GALORE",
-        description: "Rainbow of fun awaits you!",
-        tagline: "Colorful Bath Experience",
+        mainTitle: "RAINBOW",
+        subTitle: "MAGIC",
+        description: "Colorful fizzing adventure",
+        tagline: "Every Color, Every Mood",
         primaryButtonText: "Explore",
         secondaryButtonText: "Gallery",
-        imageUrl: "",
+        imageUrl: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Palette",
         iconColor: "#00FF88",
         isActive: true,
@@ -739,13 +772,13 @@ export class AdminService {
       },
       {
         id: "banner-4",
-        title: "SPARKLE",
-        subtitle: "MAGIC",
-        description: "Add sparkle to your day!",
-        tagline: "Magical Bath Moments",
+        mainTitle: "SPARKLE",
+        subTitle: "EVERYWHERE",
+        description: "Glittering moments of joy",
+        tagline: "Shine Bright Like a Star",
         primaryButtonText: "Discover",
         secondaryButtonText: "Stories",
-        imageUrl: "",
+        imageUrl: "https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Sparkles",
         iconColor: "#FFD700",
         isActive: true,
@@ -755,13 +788,13 @@ export class AdminService {
       },
       {
         id: "banner-5",
-        title: "RELAX",
-        subtitle: "REVIVE",
-        description: "Perfect relaxation time!",
-        tagline: "Relaxing Bath Therapy",
+        mainTitle: "PEACE",
+        subTitle: "MOMENTS",
+        description: "Tranquil escape from daily stress",
+        tagline: "Find Your Inner Calm",
         primaryButtonText: "Shop",
         secondaryButtonText: "About",
-        imageUrl: "",
+        imageUrl: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Wind",
         iconColor: "#AF52DE",
         isActive: true,
@@ -771,17 +804,113 @@ export class AdminService {
       },
       {
         id: "banner-6",
-        title: "FAMILY",
-        subtitle: "FUN",
-        description: "Fun for the whole family!",
-        tagline: "Family Bath Time",
+        mainTitle: "FAMILY",
+        subTitle: "BONDING",
+        description: "Create memories together",
+        tagline: "Quality Time, Quality Fun",
         primaryButtonText: "Products",
         secondaryButtonText: "Contact",
-        imageUrl: "",
+        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Users",
         iconColor: "#FF9F1C",
         isActive: true,
         displayOrder: 6,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-7",
+        mainTitle: "GALAXY",
+        subTitle: "DREAM",
+        description: "Immerse yourself in cosmic colors",
+        tagline: "A Universe in Your Tub",
+        primaryButtonText: "Explore Galaxy",
+        secondaryButtonText: "View Collection",
+        imageUrl: "https://images.unsplash.com/photo-1504370805625-d932428e0c65?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
+        iconName: "Star",
+        iconColor: "#BF5AF2",
+        isActive: true,
+        displayOrder: 7,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-8",
+        mainTitle: "TROPICAL",
+        subTitle: "ESCAPE",
+        description: "Bring the island vibes to your bath",
+        tagline: "Your Personal Paradise",
+        primaryButtonText: "Shop Tropical",
+        secondaryButtonText: "Summer Scents",
+        imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
+        iconName: "Wind",
+        iconColor: "#34C759",
+        isActive: true,
+        displayOrder: 8,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-9",
+        mainTitle: "SWEET",
+        subTitle: "TREAT",
+        description: "Indulge in delightful dessert aromas",
+        tagline: "Guilt-Free Sweetness",
+        primaryButtonText: "Discover Sweets",
+        secondaryButtonText: "Gift Sets",
+        imageUrl: "https://images.unsplash.com/photo-1558324401-211621121121?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
+        iconName: "Heart",
+        iconColor: "#FF9F0A",
+        isActive: true,
+        displayOrder: 9,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-10",
+        mainTitle: "FOREST",
+        subTitle: "ADVENTURE",
+        description: "Experience the calming scent of nature",
+        tagline: "Into the Wild Bath",
+        primaryButtonText: "Explore Forest",
+        secondaryButtonText: "Eco-Friendly",
+        imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
+        iconName: "Palette",
+        iconColor: "#6A8D73",
+        isActive: true,
+        displayOrder: 10,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-11",
+        mainTitle: "OCEAN",
+        subTitle: "BREEZE",
+        description: "Feel the refreshing touch of the sea",
+        tagline: "A Wave of Freshness",
+        primaryButtonText: "Dive In",
+        secondaryButtonText: "Marine Collection",
+        imageUrl: "https://images.unsplash.com/photo-1509479129703-dd775961648a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
+        iconName: "Zap",
+        iconColor: "#007AFF",
+        isActive: true,
+        displayOrder: 11,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "banner-12",
+        mainTitle: "PARTY",
+        subTitle: "TIME",
+        description: "Turn your bath into a celebration",
+        tagline: "Fizz, Fun & Festivities",
+        primaryButtonText: "Start the Party",
+        secondaryButtonText: "Party Packs",
+        imageUrl: "https://images.unsplash.com/photo-1514525253164-ff4ae05c1906?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
+        iconName: "Sparkles",
+        iconColor: "#FF2D55",
+        isActive: true,
+        displayOrder: 12,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -790,22 +919,28 @@ export class AdminService {
 
   static async createHeroBanner(bannerData: Omit<HeroBanner, 'id' | 'createdAt' | 'updatedAt'>): Promise<HeroBanner | null> {
     try {
-      if (!hasSupabaseCredentials()) {
-        console.warn('Supabase not configured - using local storage');
+      if (!hasSupabaseCredentials) {
+        console.warn('📋 Supabase not configured - using local storage');
         const newBanner: HeroBanner = {
           ...bannerData,
           id: `banner-${Date.now()}`,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
+        
+        // 로컬 스토리지에 저장
+        const existingBanners = this.getDefaultHeroBanners();
+        const updatedBanners = [...existingBanners, newBanner];
+        writeLocalStorage('daddy_hero_banners', updatedBanners);
+        
         return newBanner;
       }
 
       const { data, error } = await supabase
         .from('hero_banners')
         .insert({
-          title: bannerData.title,
-          subtitle: bannerData.subtitle,
+          main_title: bannerData.mainTitle,
+          sub_title: bannerData.subTitle,
           description: bannerData.description,
           tagline: bannerData.tagline,
           primary_button_text: bannerData.primaryButtonText,
@@ -823,8 +958,8 @@ export class AdminService {
       
       return {
         id: data.id,
-        title: data.title,
-        subtitle: data.subtitle,
+        mainTitle: data.main_title || data.title || '',
+        subTitle: data.sub_title || data.subtitle || '',
         description: data.description,
         tagline: data.tagline,
         primaryButtonText: data.primary_button_text,
@@ -845,14 +980,27 @@ export class AdminService {
 
   static async updateHeroBanner(id: string, bannerData: Partial<HeroBanner>): Promise<boolean> {
     try {
-      if (!hasSupabaseCredentials()) {
-        console.warn('Supabase not configured - using local storage');
+      if (!hasSupabaseCredentials) {
+        console.warn('📋 Supabase not configured - using local storage');
+        
+        // 로컬 스토리지에서 배너 업데이트
+        const existingBanners = this.getDefaultHeroBanners();
+        const bannerIndex = existingBanners.findIndex(banner => banner.id === id);
+        if (bannerIndex !== -1) {
+          existingBanners[bannerIndex] = {
+            ...existingBanners[bannerIndex],
+            ...bannerData,
+            updatedAt: new Date().toISOString(),
+          };
+          writeLocalStorage('daddy_hero_banners', existingBanners);
+        }
+        
         return true;
       }
 
       const updateData: any = {};
-      if (bannerData.title !== undefined) updateData.title = bannerData.title;
-      if (bannerData.subtitle !== undefined) updateData.subtitle = bannerData.subtitle;
+      if (bannerData.mainTitle !== undefined) updateData.main_title = bannerData.mainTitle;
+      if (bannerData.subTitle !== undefined) updateData.sub_title = bannerData.subTitle;
       if (bannerData.description !== undefined) updateData.description = bannerData.description;
       if (bannerData.tagline !== undefined) updateData.tagline = bannerData.tagline;
       if (bannerData.primaryButtonText !== undefined) updateData.primary_button_text = bannerData.primaryButtonText;
@@ -880,8 +1028,8 @@ export class AdminService {
 
   static async deleteHeroBanner(id: string): Promise<boolean> {
     try {
-      if (!hasSupabaseCredentials()) {
-        console.warn('Supabase not configured - using local storage');
+      if (!hasSupabaseCredentials) {
+        console.warn('📋 Supabase not configured - using local storage');
         return true;
       }
 
@@ -896,5 +1044,169 @@ export class AdminService {
       console.error('Error deleting hero banner:', error);
       return false;
     }
+  }
+
+  // SEO 설정 관리
+  static async getSEOSettings(): Promise<SEOSettings> {
+    const defaultSEOSettings: SEOSettings = {
+      siteTitle: 'Daddy Bath Bomb - Premium Natural Bath Bombs',
+      siteDescription: 'Experience the ultimate relaxation with our premium natural bath bombs. Safe for the whole family, made with 100% natural ingredients.',
+      siteKeywords: 'bath bombs, natural, relaxation, spa, aromatherapy, family safe, premium',
+      ogTitle: 'Daddy Bath Bomb - Premium Natural Bath Bombs',
+      ogDescription: 'Experience the ultimate relaxation with our premium natural bath bombs. Safe for the whole family, made with 100% natural ingredients.',
+      ogImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=630&fit=crop',
+      twitterTitle: 'Daddy Bath Bomb - Premium Natural Bath Bombs',
+      twitterDescription: 'Experience the ultimate relaxation with our premium natural bath bombs. Safe for the whole family, made with 100% natural ingredients.',
+      twitterImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=630&fit=crop',
+      canonicalUrl: 'https://daddybathbomb.com',
+      robotsTxt: 'User-agent: *\nAllow: /\nSitemap: https://daddybathbomb.com/sitemap.xml',
+      sitemapUrl: 'https://daddybathbomb.com/sitemap.xml'
+    };
+
+    if (hasSupabaseCredentials) {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('setting_key, setting_value')
+          .in('setting_key', [
+            'seo_site_title',
+            'seo_site_description',
+            'seo_site_keywords',
+            'seo_og_title',
+            'seo_og_description',
+            'seo_og_image',
+            'seo_twitter_title',
+            'seo_twitter_description',
+            'seo_twitter_image',
+            'seo_canonical_url',
+            'seo_robots_txt',
+            'seo_sitemap_url'
+          ]);
+
+        if (error) throw error;
+
+        const settings: SEOSettings = { ...defaultSEOSettings };
+        data?.forEach((item) => {
+          switch (item.setting_key) {
+            case 'seo_site_title':
+              settings.siteTitle = item.setting_value || defaultSEOSettings.siteTitle;
+              break;
+            case 'seo_site_description':
+              settings.siteDescription = item.setting_value || defaultSEOSettings.siteDescription;
+              break;
+            case 'seo_site_keywords':
+              settings.siteKeywords = item.setting_value || defaultSEOSettings.siteKeywords;
+              break;
+            case 'seo_og_title':
+              settings.ogTitle = item.setting_value || defaultSEOSettings.ogTitle;
+              break;
+            case 'seo_og_description':
+              settings.ogDescription = item.setting_value || defaultSEOSettings.ogDescription;
+              break;
+            case 'seo_og_image':
+              settings.ogImage = item.setting_value || defaultSEOSettings.ogImage;
+              break;
+            case 'seo_twitter_title':
+              settings.twitterTitle = item.setting_value || defaultSEOSettings.twitterTitle;
+              break;
+            case 'seo_twitter_description':
+              settings.twitterDescription = item.setting_value || defaultSEOSettings.twitterDescription;
+              break;
+            case 'seo_twitter_image':
+              settings.twitterImage = item.setting_value || defaultSEOSettings.twitterImage;
+              break;
+            case 'seo_canonical_url':
+              settings.canonicalUrl = item.setting_value || defaultSEOSettings.canonicalUrl;
+              break;
+            case 'seo_robots_txt':
+              settings.robotsTxt = item.setting_value || defaultSEOSettings.robotsTxt;
+              break;
+            case 'seo_sitemap_url':
+              settings.sitemapUrl = item.setting_value || defaultSEOSettings.sitemapUrl;
+              break;
+          }
+        });
+
+        return settings;
+      } catch (error) {
+        console.error('Error fetching SEO settings:', error);
+      }
+    }
+
+    return defaultSEOSettings;
+  }
+
+  static async updateSEOSettings(seoSettings: Partial<SEOSettings>): Promise<boolean> {
+    if (hasSupabaseCredentials) {
+      try {
+        const settingsToUpdate = Object.entries(seoSettings).map(([key, value]) => {
+          let settingKey = '';
+          switch (key) {
+            case 'siteTitle':
+              settingKey = 'seo_site_title';
+              break;
+            case 'siteDescription':
+              settingKey = 'seo_site_description';
+              break;
+            case 'siteKeywords':
+              settingKey = 'seo_site_keywords';
+              break;
+            case 'ogTitle':
+              settingKey = 'seo_og_title';
+              break;
+            case 'ogDescription':
+              settingKey = 'seo_og_description';
+              break;
+            case 'ogImage':
+              settingKey = 'seo_og_image';
+              break;
+            case 'twitterTitle':
+              settingKey = 'seo_twitter_title';
+              break;
+            case 'twitterDescription':
+              settingKey = 'seo_twitter_description';
+              break;
+            case 'twitterImage':
+              settingKey = 'seo_twitter_image';
+              break;
+            case 'canonicalUrl':
+              settingKey = 'seo_canonical_url';
+              break;
+            case 'robotsTxt':
+              settingKey = 'seo_robots_txt';
+              break;
+            case 'sitemapUrl':
+              settingKey = 'seo_sitemap_url';
+              break;
+            default:
+              return null;
+          }
+
+          return {
+            setting_key: settingKey,
+            setting_value: value || '',
+            setting_type: 'text',
+            category: 'seo',
+            is_public: true,
+            updated_at: new Date().toISOString(),
+          };
+        }).filter(Boolean);
+
+        if (settingsToUpdate.length > 0) {
+          const { error } = await supabase
+            .from('site_settings')
+            .upsert(settingsToUpdate, { onConflict: 'setting_key' });
+
+          if (error) throw error;
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Error updating SEO settings:', error);
+        return false;
+      }
+    }
+
+    return true;
   }
 }

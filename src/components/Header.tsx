@@ -50,6 +50,7 @@ const navHighlightMap: Record<PageKey | "gallery", string> = {
   faq: "bg-[#AF52DE]",
   contact: "bg-[#00C2FF]",
   admin: "bg-[#FF2D55]",
+  textbg: "bg-[#9333EA]",
 };
 
 export default function Header({
@@ -166,6 +167,12 @@ export default function Header({
         label: t("contact", language),
         highlightColor: navHighlightMap.contact,
         action: () => navigateTo("contact"),
+      },
+      {
+        key: "textbg",
+        label: language === "th" ? "텍스트+배경" : "Text+BG",
+        highlightColor: navHighlightMap.textbg,
+        action: () => navigateTo("textbg"),
       },
     ],
     [language, navigateTo],

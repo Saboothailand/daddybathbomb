@@ -18,6 +18,8 @@ import MiddleBanner from "./components/MiddleBanner";
 import CheckoutForm from "./components/CheckoutForm";
 import EditableContent from "./components/EditableContent";
 import GalleryPage from "./components/GalleryPage";
+import TextWithBackground from "./components/TextWithBackground";
+import TextWithBackgroundDemo from "./components/TextWithBackgroundDemo";
 
 const NAVIGATION_EVENT_NAME = "navigate";
 
@@ -30,7 +32,8 @@ export type PageKey =
   | "notice"
   | "faq"
   | "contact"
-  | "admin";
+  | "admin"
+  | "textbg";
 
 export type LanguageKey = "th" | "en";
 
@@ -181,6 +184,10 @@ export default function App() {
 
           {currentPage === "contact" && (
             <ContactPage navigateTo={navigateTo} language={language} />
+          )}
+
+          {currentPage === "textbg" && (
+            <TextWithBackgroundDemo navigateTo={navigateTo} language={language} />
           )}
 
           {showCheckoutForm && (

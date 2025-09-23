@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import type { LanguageKey, PageKey } from "../App";
 import { Button } from "./ui/button";
 import AnimatedBackground from "./AnimatedBackground";
-import { Zap, Heart, Star, ChevronLeft, ChevronRight, Palette, Wind, Users, Sparkles } from "lucide-react";
+import { Zap, Heart, Star, ChevronLeft, ChevronRight, Palette, Wind, Users, Sparkles, Type } from "lucide-react";
 import SimpleEditable from "./SimpleEditable";
 import AdminToggle from "./AdminToggle";
 import HeroImageEditor from "./HeroImageEditor";
 import { AdminService } from "../lib/adminService";
-import { defaultBanners } from "../data/defaultBanners";
+import { hasSupabaseCredentials } from "../lib/supabase";
 
 // AdminService에서 HeroBanner 타입 import
 import type { HeroBanner } from "../lib/adminService";
@@ -91,33 +91,59 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   const loadBanners = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('🔄 배너 로딩 시작...');
       
-      // 먼저 샘플 배너를 표시 (빠른 로딩)
-      setBanners(defaultBanners.slice(0, 5)); // 5개만 사용
-      setLoading(false);
-      
-      // 백그라운드에서 실제 데이터 로드 시도
-      try {
-        const bannerData = await AdminService.getHeroBanners();
-        if (bannerData && bannerData.length > 0) {
-          // 실제 데이터가 있으면 교체
-          setBanners(bannerData.filter(banner => banner.isActive).slice(0, 5));
-          console.log('✅ 실제 배너 데이터로 업데이트됨:', bannerData.length, '개');
-        } else {
-          console.log('📋 샘플 배너 데이터 사용 중');
+      if (hasSupabaseCredentials) {
+        // Supabase가 설정된 경우 실제 데이터만 로드
+        console.log('📡 Supabase 연결됨 - 실제 데이터 로드 시도');
+        try {
+          const bannerData = await AdminService.getHeroBanners();
+          console.log('📊 받은 배너 데이터:', bannerData);
+          
+          if (bannerData && bannerData.length > 0) {
+            const activeBanners = bannerData.filter(banner => banner.isActive).slice(0, 5);
+            setBanners(activeBanners);
+            console.log('✅ Supabase 배너 데이터 로드됨:', activeBanners.length, '개');
+          } else {
+            // Supabase에 데이터가 없으면 기본 데이터 사용
+            setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
+            console.log('📋 Supabase에 배너 데이터 없음 - 기본 데이터 사용');
+          }
+        } catch (dataError) {
+          console.error('Supabase 배너 로드 실패:', dataError);
+          setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
+          console.log('📋 Supabase 오류 - 기본 데이터 사용');
         }
-      } catch (dataError) {
-        console.log('📋 실제 데이터 로드 실패, 샘플 데이터 유지:', dataError);
+      } else {
+        // Supabase가 설정되지 않은 경우 기본 데이터만 사용
+        console.log('📋 Supabase 미설정 - 기본 데이터 사용');
+        setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
       }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error loading banners:', error);
-      setBanners(defaultBanners.slice(0, 5));
+      setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     loadBanners();
+  }, [loadBanners]);
+
+  // 배너 업데이트 이벤트 리스너
+  useEffect(() => {
+    const handleBannerUpdate = () => {
+      console.log('🔄 배너 업데이트 이벤트 수신 - 배너 다시 로드');
+      loadBanners();
+    };
+
+    window.addEventListener('bannerUpdated', handleBannerUpdate);
+    
+    return () => {
+      window.removeEventListener('bannerUpdated', handleBannerUpdate);
+    };
   }, [loadBanners]);
 
   // 현재 배너 계산을 메모이제이션
@@ -185,7 +211,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden min-h-[1800px] sm:min-h-[2000px] md:min-h-[2200px] lg:min-h-[2400px] xl:min-h-[2600px] py-16 sm:py-20 lg:py-24">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden py-16 sm:py-20 lg:py-24">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
@@ -200,24 +226,27 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-16 sm:pt-20 lg:pt-24">
-        {/* 메인 배너 영역 - 960px 기준 80% 증가된 크기 */}
-        <div className="w-full h-[960px] sm:h-[1100px] md:h-[1250px] lg:h-[1400px] xl:h-[1550px] relative mb-8 sm:mb-12 lg:mb-16">
+        {/* 메인 배너 영역 - 이미지 비율에 맞춘 크기 */}
+        <div className="w-full aspect-[16/9] sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6] relative mb-8 sm:mb-12 lg:mb-16">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
                 <img
                   src={currentBanner.imageUrl}
-                  alt={`${currentBanner.title} - ${currentBanner.subtitle}`}
+                  alt={`${currentBanner.mainTitle} - ${currentBanner.subTitle}`}
                   className="w-full h-full object-cover"
                 />
                 <div className={BANNER_CLASSES.overlay}>
                   <div className="text-center text-white px-4">
                     <h1 className={BANNER_CLASSES.title}>
-                      {currentBanner.title}
+                      {currentBanner.mainTitle}
                     </h1>
                     <h2 className={BANNER_CLASSES.subtitle}>
-                      {currentBanner.subtitle}
+                      {currentBanner.subTitle}
                     </h2>
+                    <p className="font-nunito text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#B8C4DB] font-medium max-w-2xl mx-auto leading-relaxed mt-4">
+                      {currentBanner.description}
+                    </p>
                   </div>
                 </div>
                 <HeroImageEditor
@@ -233,10 +262,10 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   {/* 왼쪽: 텍스트 콘텐츠 - 크기 증가 및 간격 조정 */}
                   <div className="flex-1 text-left pl-8 lg:pl-16 flex flex-col justify-center">
                     <h1 className="font-fredoka text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold text-white mb-6 sm:mb-8 comic-shadow animate-bounce">
-                      {currentBanner.title}
+                      {currentBanner.mainTitle}
                     </h1>
                     <h2 className="font-fredoka text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-[#FF2D55] mb-6 sm:mb-8 comic-shadow animate-pulse">
-                      {currentBanner.subtitle}
+                      {currentBanner.subTitle}
                     </h2>
                     <p className="font-nunito text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#B8C4DB] font-medium max-w-2xl leading-relaxed">
                       {currentBanner.description}
@@ -366,6 +395,16 @@ export default function Hero({ language, navigateTo }: HeroProps) {
               <Zap className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 animate-bounce text-[#FFD700]" />
               <span className="font-nunito text-lg sm:text-2xl lg:text-3xl font-bold">
                 {language === "th" ? "ชุมชน" : "Community"}
+              </span>
+            </div>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#FFD700] rounded-full animate-pulse" />
+            <div 
+              className="flex items-center space-x-3 sm:space-x-4 cursor-pointer hover:scale-110 transition-transform bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-lg rounded-2xl px-6 sm:px-8 py-4 sm:py-6 border-2 border-purple-400/30" 
+              onClick={() => navigateTo("textbg")}
+            >
+              <Type className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 animate-pulse text-[#9333EA]" />
+              <span className="font-nunito text-lg sm:text-2xl lg:text-3xl font-bold">
+                {language === "th" ? "텍스트+배경" : "Text+BG"}
               </span>
             </div>
           </div>

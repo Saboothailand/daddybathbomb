@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { 
   Home, ExternalLink, Menu, X, 
   BarChart3, ShoppingCart, Package, Image, 
-  Star, Camera, Palette, Settings, Users,
+  Star, Camera, Palette, Settings, Users, Search,
   ChevronRight, ChevronDown, Plus, Edit3, Trash2, RefreshCw
 } from "lucide-react";
 import type { PageKey } from "../App";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { cn } from "./ui/utils";
 import { AdminService } from "../lib/adminService";
 import { supabase, galleryAdminService } from "../lib/supabase";
+import SupabaseStatus from "./SupabaseStatus";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
@@ -26,11 +27,12 @@ import HeroBannerManagement from "./admin/HeroBannerManagement";
 import OrderManagement from "./admin/OrderManagement";
 import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
+import SEOManagement from "./admin/SEOManagement";
 
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
-type DashboardTab = "overview" | "orders" | "products" | "banners" | "hero-banners" | "features" | "gallery" | "branding" | "settings";
+type DashboardTab = "overview" | "orders" | "products" | "banners" | "hero-banners" | "features" | "gallery" | "branding" | "seo" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
@@ -96,6 +98,12 @@ const menuItems: MenuItem[] = [
     description: "Logo, Colors, Brand Identity"
   },
   {
+    id: "seo",
+    label: "SEO Management",
+    icon: Search,
+    description: "Meta Tags, SEO Settings"
+  },
+  {
     id: "settings",
     label: "Settings",
     icon: Settings,
@@ -136,6 +144,8 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
         return <GalleryManagement />;
       case "branding":
         return <ImprovedLogoManagement />;
+      case "seo":
+        return <SEOManagement />;
       default:
         return <OverviewSection onSelectTab={setActiveTab} />;
     }
@@ -171,6 +181,9 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
               </div>
               <div className="min-w-0">
                 <h1 className="text-lg font-bold text-white font-fredoka truncate">Admin Panel</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <SupabaseStatus className="text-xs" />
+                </div>
                 <p className="text-xs text-gray-300 truncate">Daddy Bath Bomb</p>
               </div>
             </div>

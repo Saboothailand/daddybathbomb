@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Supabase 클라이언트 설정
 import { createClient } from '@supabase/supabase-js';
 
@@ -8,15 +7,61 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.en
 
 export const hasSupabaseCredentials = Boolean(supabaseUrl && supabaseAnonKey);
 
-// 환경 변수 검증
+// Supabase 연결 테스트 함수
+export async function testSupabaseConnection(): Promise<{ success: boolean; error?: string }> {
+  if (!hasSupabaseCredentials) {
+    return { success: false, error: 'Supabase credentials not configured' };
+  }
+
+  try {
+    // 먼저 간단한 테이블 존재 확인
+    const { data, error } = await supabase
+      .from('hero_banners')
+      .select('id')
+      .limit(1);
+    
+    if (error) {
+      console.error('Supabase 연결 테스트 실패:', error);
+      
+      // 특정 에러 타입에 따른 메시지 제공
+      if (error.message.includes('relation "hero_banners" does not exist')) {
+        return { success: false, error: 'hero_banners 테이블이 존재하지 않습니다. 마이그레이션을 실행해주세요.' };
+      } else if (error.message.includes('permission denied')) {
+        return { success: false, error: '데이터베이스 권한이 없습니다. RLS 정책을 확인해주세요.' };
+      } else if (error.message.includes('JWT')) {
+        return { success: false, error: '인증 토큰이 유효하지 않습니다. API 키를 확인해주세요.' };
+      }
+      
+      return { success: false, error: error.message };
+    }
+    
+    console.log('✅ Supabase 연결 테스트 성공');
+    return { success: true };
+  } catch (error) {
+    console.error('Supabase 연결 테스트 중 오류:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+// 환경 변수 검증 및 로깅
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables are not set. Using mock data.');
-  console.warn('Please set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY in your .env file');
+  console.warn('⚠️ Supabase 환경 변수가 설정되지 않았습니다. 모킹 데이터를 사용합니다.');
+  console.warn('📝 .env 파일에 다음을 추가하세요:');
+  console.warn('   VITE_SUPABASE_URL=your_supabase_project_url');
+  console.warn('   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key');
+} else {
+  console.log('✅ Supabase 연결 설정됨:', supabaseUrl);
 }
 
 // Supabase 클라이언트 초기화
 export const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
   : createMockSupabaseClient();
 
 // 환경 변수가 없을 때 사용할 모킹 클라이언트
@@ -1154,7 +1199,14 @@ export const cmsService = {
           return data;
         } catch (error) {
           if (isMissingRpcFunction(error, 'admin_save_banner_image')) {
-            console.error('Supabase function admin_save_banner_image is not deployed. Please execute supabase/sql/admin_media_functions.sql.');
+            console.warn('Supabase RPC function not available, using local storage fallback');
+            // RPC 함수가 없으면 로컬 스토리지 사용
+            const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+            const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+            banners.push(newBanner);
+            writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+            emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+            return newBanner;
           }
           throw error;
         }
@@ -1168,7 +1220,18 @@ export const cmsService = {
       }
     } catch (error) {
       console.error('Error creating banner:', error);
-      throw error;
+      // 최종 폴백으로 로컬 스토리지 사용
+      try {
+        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+        const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+        banners.push(newBanner);
+        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+        return newBanner;
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw error;
+      }
     }
   },
 
@@ -1194,7 +1257,24 @@ export const cmsService = {
           return data;
         } catch (error) {
           if (isMissingRpcFunction(error, 'admin_save_banner_image')) {
-            console.error('Supabase function admin_save_banner_image is not deployed. Please execute supabase/sql/admin_media_functions.sql.');
+            console.warn('Supabase RPC function not available, using local storage fallback');
+            // RPC 함수가 없으면 로컬 스토리지 사용
+            const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+            const index = banners.findIndex(b => b.id == id);
+
+            if (index === -1) {
+              throw new Error('Banner not found');
+            }
+
+            banners[index] = {
+              ...banners[index],
+              ...updateData,
+              updated_at: new Date().toISOString()
+            };
+
+            writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+            emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+            return banners[index];
           }
           throw error;
         }
@@ -1218,7 +1298,28 @@ export const cmsService = {
       }
     } catch (error) {
       console.error('Error updating banner:', error);
-      throw error;
+      // 최종 폴백으로 로컬 스토리지 사용
+      try {
+        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+        const index = banners.findIndex(b => b.id == id);
+
+        if (index === -1) {
+          throw new Error('Banner not found');
+        }
+
+        banners[index] = {
+          ...banners[index],
+          ...updateData,
+          updated_at: new Date().toISOString()
+        };
+
+        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+        return banners[index];
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw error;
+      }
     }
   },
 
@@ -1232,7 +1333,13 @@ export const cmsService = {
           return data ?? true;
         } catch (error) {
           if (isMissingRpcFunction(error, 'admin_delete_banner_image')) {
-            console.error('Supabase function admin_delete_banner_image is not deployed. Please execute supabase/sql/admin_media_functions.sql.');
+            console.warn('Supabase RPC function not available, using local storage fallback');
+            // RPC 함수가 없으면 로컬 스토리지 사용
+            const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+            const filtered = banners.filter(b => b.id != id);
+            writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
+            emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+            return true;
           }
           throw error;
         }
@@ -1245,7 +1352,17 @@ export const cmsService = {
       }
     } catch (error) {
       console.error('Error deleting banner:', error);
-      throw error;
+      // 최종 폴백으로 로컬 스토리지 사용
+      try {
+        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+        const filtered = banners.filter(b => b.id != id);
+        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
+        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+        return true;
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw error;
+      }
     }
   }
 };
