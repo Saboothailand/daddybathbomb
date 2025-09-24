@@ -175,6 +175,26 @@ function getMockData(table, filter = {}) {
         is_active: true,
         display_order: 4,
         created_at: new Date().toISOString()
+      },
+      {
+        id: 5,
+        title: 'Long Lasting Bubbles',
+        description: 'Rich, long-lasting bubbles that maintain volume throughout bath time',
+        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop&sig=bubbles',
+        icon: '🫧',
+        is_active: true,
+        display_order: 5,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 6,
+        title: 'Stress Relief Formula',
+        description: 'Specially formulated to help reduce daily stress and promote deep relaxation',
+        image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=500&h=400&fit=crop&sig=relax',
+        icon: '🧘‍♀️',
+        is_active: true,
+        display_order: 6,
+        created_at: new Date().toISOString()
       }
     ],
     gallery_images: [

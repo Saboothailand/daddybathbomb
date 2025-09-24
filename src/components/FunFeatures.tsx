@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Palette, Wind, Heart, Star, Zap, Sparkles } from "lucide-react";
+import { Palette, Wind, Heart, Star, Zap, Sparkles, Droplets, Shield } from "lucide-react";
 
 import type { LanguageKey } from "../App";
 import { featuresService } from "../lib/supabase";
@@ -39,13 +39,13 @@ const defaultFeatures: Feature[] = [
   },
   {
     id: 5,
-    title: "Relaxing Experience",
-    description: "Transform your bath time into a luxurious spa experience",
+    title: "Long Lasting Bubbles",
+    description: "Rich, long-lasting bubbles that maintain volume throughout bath time",
   },
   {
     id: 6,
-    title: "Long Lasting Scent",
-    description: "Enjoy beautiful fragrances that last long after your bath",
+    title: "Stress Relief Formula",
+    description: "Specially formulated to help reduce daily stress and promote deep relaxation",
   },
 ];
 
@@ -73,13 +73,13 @@ const defaultFeaturesTranslations = {
     },
     {
       id: 5,
-      title: "ประสบการณ์ผ่อนคลาย",
-      description: "เปลี่ยนเวลาอาบน้ำให้กลายเป็นประสบการณ์สปาหรูหรา",
+      title: "ฟองสบู่นานนาน",
+      description: "ฟองสบู่อุดมสมบูรณ์ที่คงความหนาแน่นตลอดการอาบน้ำ",
     },
     {
       id: 6,
-      title: "กลิ่นหอมยาวนาน",
-      description: "เพลิดเพลินกับกลิ่นหอมสวยงามที่คงอยู่นานหลังการอาบน้ำ",
+      title: "สูตรคลายเครียด",
+      description: "สูตรพิเศษที่ช่วยลดความเครียดในชีวิตประจำวันและส่งเสริมการผ่อนคลายอย่างลึกซึ้ง",
     },
   ]
 };
@@ -89,8 +89,8 @@ const iconPalette = [
   <Wind className="w-16 h-16" key="wind" />,
   <Heart className="w-16 h-16" key="heart" />,
   <Star className="w-16 h-16" key="star" />,
-  <Zap className="w-16 h-16" key="zap" />,
-  <Sparkles className="w-16 h-16" key="sparkles" />,
+  <Droplets className="w-16 h-16" key="droplets" />,
+  <Shield className="w-16 h-16" key="shield" />,
 ];
 
 export default function FunFeatures({ language }: FunFeaturesProps) {
@@ -157,10 +157,10 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {features.map((feature, index) => (
-            <div key={feature.id} className="text-center group">
-              <div className="bg-gradient-to-br from-[#FF2D55]/20 to-[#FFD700]/20 rounded-3xl p-8 comic-border border-4 border-black hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative">
+            <div key={feature.id} className="text-center group flex flex-col">
+              <div className="bg-gradient-to-br from-[#FF2D55]/20 to-[#FFD700]/20 rounded-3xl p-8 comic-border border-4 border-black hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative flex flex-col h-full">
                 <div className="absolute -top-4 -right-4 w-12 h-12 bg-[#FFD700] rounded-full comic-border border-3 border-black flex items-center justify-center rotate-12">
                   <Star className="w-6 h-6 text-black" />
                 </div>
@@ -168,7 +168,7 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
                 <div className="flex justify-center mb-6">
                   <div
                     className="w-24 h-24 rounded-full comic-border border-4 border-black flex items-center justify-center relative"
-                    style={{ backgroundColor: feature.color || ["#FF2D55", "#007AFF", "#00FF88", "#FFD700", "#AF52DE", "#FF9F1C"][index % 6] }}
+                    style={{ backgroundColor: feature.color || ["#FF2D55", "#4ECDC4", "#4CAF50", "#FFD700", "#9C27B0", "#FF9800"][index % 6] }}
                   >
                     <div className="text-white">
                       {iconPalette[index % iconPalette.length]}
@@ -182,7 +182,7 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
                   {feature.title}
                 </h3>
 
-                <p className="font-nunito text-[#B8C4DB] text-lg leading-relaxed">
+                <p className="font-nunito text-[#B8C4DB] text-lg leading-relaxed flex-grow">
                   {feature.description}
                 </p>
 

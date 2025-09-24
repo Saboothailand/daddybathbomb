@@ -38,15 +38,21 @@ export default function GalleryPage({ navigateTo, language }: GalleryPageProps) 
       const { data, error } = await supabase
         .from('gallery')
         .select('*')
-        .eq('is_active', true)
-        .order('is_notice', { ascending: false })
-        .order('created_at', { ascending: false });
+        .eq('is_active', true);
 
       if (error) {
         console.error('Error loading gallery items:', error);
         setGalleryItems(getFallbackData());
       } else {
-        setGalleryItems(data || []);
+        // 클라이언트 사이드에서 정렬
+        const sortedData = (data || []).sort((a, b) => {
+          // is_notice가 true인 항목을 먼저 표시
+          if (a.is_notice && !b.is_notice) return -1;
+          if (!a.is_notice && b.is_notice) return 1;
+          // 그 다음 created_at으로 정렬
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        setGalleryItems(sortedData);
       }
     } catch (error) {
       console.error('Error:', error);
