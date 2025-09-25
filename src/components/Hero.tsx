@@ -219,7 +219,6 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
   return (
     <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden py-2 sm:py-4 lg:py-6">
-      <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
       <AdminToggle />
@@ -235,6 +234,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
         {/* 메인 배너 영역 - 이미지 비율에 맞춘 크기 */}
         <div className="w-full aspect-[16/6] sm:aspect-[16/6] md:aspect-[16/6] lg:aspect-[16/6] relative mb-0 sm:mb-0 lg:mb-1">
+          <AnimatedBackground />
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
