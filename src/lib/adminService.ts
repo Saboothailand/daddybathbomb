@@ -40,32 +40,6 @@ export interface LogoSettingsResponse {
   };
 }
 
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  short_description?: string;
-  long_description?: string;
-  price: number;
-  original_price?: number;
-  image_url: string;
-  category: string;
-  sku?: string;
-  stock_quantity: number;
-  is_featured: boolean;
-  is_active: boolean;
-  color?: string;
-  scent?: string;
-  weight?: string;
-  ingredients?: string;
-  rating: number;
-  review_count: number;
-  colors?: string[];
-  tags?: string[];
-  benefits?: string[];
-  created_at?: string;
-  updated_at?: string;
-}
 
 export interface HeroBanner {
   id: string;
@@ -100,35 +74,7 @@ export interface Banner {
 }
 
 const SITE_SETTINGS_STORAGE_KEY = 'daddy_site_settings';
-const PRODUCTS_STORAGE_KEY = 'daddy_products';
 
-const DEFAULT_PRODUCTS: Product[] = [
-  {
-    id: 'sample-1',
-    name: 'SUPER RED FIZZ',
-    description: 'POW! Cherry explosion with super bubbles and strawberry fun power!',
-    short_description: 'Cherry explosion with fizz and fun.',
-    long_description: 'Cherry explosion with fizz and fun.',
-    price: 390,
-    original_price: 450,
-    image_url: 'https://images.unsplash.com/photo-1590147266845-821cd5ffb2d5?w=500&h=400&fit=crop',
-    category: 'Hero Series',
-    sku: 'HERO-RED-001',
-    stock_quantity: 25,
-    is_featured: true,
-    is_active: true,
-    color: '#FF2D55',
-    scent: 'Cherry',
-    weight: '150g',
-    ingredients: 'Sodium Bicarbonate, Citric Acid, Essential Oils',
-    rating: 4.8,
-    review_count: 42,
-    colors: ['#FF2D55'],
-    tags: ['hero', 'fizzy'],
-    benefits: ['Relaxing', 'Colorful'],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
   {
     id: 'sample-2',
     name: 'HERO BLUE BLAST',
@@ -382,107 +328,6 @@ export class AdminService {
     }
   }
 
-  // 제품 관리
-  static async getProducts(): Promise<Product[]> {
-    if (hasSupabaseCredentials) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        const products = (data || []) as Product[];
-        writeLocalStorage(PRODUCTS_STORAGE_KEY, products);
-        return products;
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      }
-    }
-
-    return readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
-  }
-
-  static async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product | null> {
-    const payload = {
-      ...product,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    } as Product;
-
-    if (hasSupabaseCredentials) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .insert(product)
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        const createdProduct = data as Product;
-        const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
-        writeLocalStorage(PRODUCTS_STORAGE_KEY, [createdProduct, ...stored]);
-        return createdProduct;
-      } catch (error) {
-        console.error('Error creating product:', error);
-      }
-    }
-
-    const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
-    const newProduct: Product = {
-      ...payload,
-      id: `local-${Date.now()}`,
-    };
-    writeLocalStorage(PRODUCTS_STORAGE_KEY, [newProduct, ...stored]);
-    return newProduct;
-  }
-
-  static async updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
-    const timestamped = { ...updates, updated_at: new Date().toISOString() };
-
-    if (hasSupabaseCredentials) {
-      try {
-        const { error } = await supabase
-          .from('products')
-          .update(timestamped)
-          .eq('id', id);
-
-        if (error) throw error;
-      } catch (error) {
-        console.error('Error updating product:', error);
-        return false;
-      }
-    }
-
-    const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
-    const updated = stored.map((product) =>
-      product.id === id ? { ...product, ...timestamped } : product,
-    );
-    writeLocalStorage(PRODUCTS_STORAGE_KEY, updated);
-    return true;
-  }
-
-  static async deleteProduct(id: string): Promise<boolean> {
-    if (hasSupabaseCredentials) {
-      try {
-        const { error } = await supabase
-          .from('products')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        return false;
-      }
-    }
-
-    const stored = readLocalStorage<Product[]>(PRODUCTS_STORAGE_KEY, DEFAULT_PRODUCTS);
-    const filtered = stored.filter((product) => product.id !== id);
-    writeLocalStorage(PRODUCTS_STORAGE_KEY, filtered);
-    return true;
-  }
 
   // 배너 관리
   static async getBanners(): Promise<Banner[]> {
@@ -555,108 +400,31 @@ export class AdminService {
     }
   }
 
-  // 주문 관리
-  static async getOrders(): Promise<any[]> {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            id,
-            product_id,
-            quantity,
-            unit_price,
-            total_price,
-            products (
-              name,
-              image_url
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      return [];
-    }
-  }
-
-  static async updateOrderStatus(orderId: string, status: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
-
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      return false;
-    }
-  }
-
-  // 제품 이미지 관리
-  static async getProductImages(productId: string): Promise<any[]> {
-    try {
-      const { data, error } = await supabase
-        .from('product_images')
-        .select('*')
-        .eq('product_id', productId)
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching product images:', error);
-      return [];
-    }
-  }
-
-  static async addProductImage(productId: string, imageUrl: string, altText: string = '', displayOrder: number = 0): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('product_images')
-        .insert({
-          product_id: productId,
-          image_url: imageUrl,
-          alt_text: altText,
-          display_order: displayOrder
-        });
-
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error adding product image:', error);
-      return false;
-    }
-  }
 
   // 대시보드 통계
   static async getDashboardStats(): Promise<any> {
     try {
-      const [productsResult, ordersResult, activeOrdersResult] = await Promise.all([
-        supabase.from('products').select('id', { count: 'exact' }),
-        supabase.from('orders').select('id', { count: 'exact' }),
-        supabase.from('orders').select('id', { count: 'exact' }).neq('status', 'delivered')
+      const [bannersResult, heroBannersResult, galleryResult, featuresResult] = await Promise.all([
+        supabase.from('banners').select('id', { count: 'exact' }),
+        supabase.from('hero_banners').select('id', { count: 'exact' }),
+        supabase.from('gallery').select('id', { count: 'exact' }),
+        supabase.from('features').select('id', { count: 'exact' })
       ]);
 
       return {
-        totalProducts: productsResult.count || 0,
-        totalOrders: ordersResult.count || 0,
-        activeOrders: activeOrdersResult.count || 0,
-        totalRevenue: 0 // 실제로는 주문 총액 계산 필요
+        totalBanners: bannersResult.count || 0,
+        totalHeroBanners: heroBannersResult.count || 0,
+        totalGalleryImages: galleryResult.count || 0,
+        totalFeatures: featuresResult.count || 0
       };
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       return {
-        totalProducts: 0,
-        totalOrders: 0,
-        activeOrders: 0,
-        totalRevenue: 0
+        totalBanners: 0,
+        totalHeroBanners: 0,
+        totalGalleryImages: 0,
+        totalFeatures: 0
       };
     }
   }
@@ -808,7 +576,7 @@ export class AdminService {
         subTitle: "BONDING",
         description: "Create memories together",
         tagline: "Quality Time, Quality Fun",
-        primaryButtonText: "Products",
+        primaryButtonText: "Gallery",
         secondaryButtonText: "Contact",
         imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop",
         iconName: "Users",

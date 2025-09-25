@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ShoppingCart,
   Search,
   User,
   Menu,
@@ -12,10 +11,7 @@ import {
 
 import type { LanguageKey, PageKey } from "../App";
 import { t } from "../utils/translations";
-import { getCartItemCount } from "../utils/cart";
 import AuthModal from "./AuthModal";
-import CartSidebar from "./CartSidebar";
-import OrderForm from "./OrderForm";
 import { Button } from "./ui/button";
 import SimpleEditable from "./SimpleEditable";
 import LogoEditor from "./LogoEditor";
@@ -62,9 +58,6 @@ export default function Header({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [adminClicks, setAdminClicks] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
-  const [showCart, setShowCart] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [cartItemCount, setCartItemCount] = useState(0);
   const [branding, setBranding] = useState<BrandingState>({
     logo_url: "",
     site_title: "Daddy Bath Bomb",
@@ -101,20 +94,10 @@ export default function Header({
   }, [loadBranding]);
 
   useEffect(() => {
-    const updateCartCount = () => {
-      setCartItemCount(getCartItemCount());
-    };
-
-    updateCartCount();
-    window.addEventListener("cartUpdated", updateCartCount);
     window.addEventListener("brandingUpdated", loadBranding);
-    const handleCartOpen = () => setShowCart(true);
-    window.addEventListener("cartSidebar:open", handleCartOpen as EventListener);
 
     return () => {
-      window.removeEventListener("cartUpdated", updateCartCount);
       window.removeEventListener("brandingUpdated", loadBranding);
-      window.removeEventListener("cartSidebar:open", handleCartOpen as EventListener);
     };
   }, [loadBranding]);
 
@@ -275,14 +258,6 @@ export default function Header({
               <option value="en">🇺🇸 English</option>
             </select>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-3 text-[#B8C4DB] hover:text-white hover:bg-[#151B2E] rounded-full comic-button"
-              onClick={() => navigateTo("products")}
-            >
-              <Search className="h-6 w-6" />
-            </Button>
 
             <Button
               variant="ghost"
@@ -293,19 +268,6 @@ export default function Header({
               <User className="h-6 w-6" />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative p-3 text-[#B8C4DB] hover:text-white hover:bg-[#151B2E] rounded-full comic-button"
-              onClick={() => setShowCart(true)}
-            >
-              <ShoppingCart className="h-6 w-6" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#FF2D55] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold comic-border border-2">
-                  {cartItemCount}
-                </span>
-              )}
-            </Button>
 
             <Button
               variant="ghost"
@@ -359,25 +321,6 @@ export default function Header({
 
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} language={language} />
 
-      <CartSidebar
-        isOpen={showCart}
-        onClose={() => setShowCart(false)}
-        onCheckout={() => {
-          setShowCart(false);
-          setShowOrderForm(true);
-        }}
-        language={language}
-      />
-
-      <OrderForm
-        isOpen={showOrderForm}
-        onClose={() => setShowOrderForm(false)}
-        onOrderComplete={() => {
-          setCartItemCount(0);
-          window.dispatchEvent(new CustomEvent("cartUpdated"));
-        }}
-        language={language}
-      />
     </header>
   );
 }

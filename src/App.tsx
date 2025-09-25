@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import ProductGrid from "./components/ProductGrid";
 import FunFeatures from "./components/FunFeatures";
 import HowToUse from "./components/HowToUse";
 import InstagramGallery from "./components/InstagramGallery";
@@ -9,13 +8,11 @@ import Footer from "./components/Footer";
 import SmoothScroll from "./components/SmoothScroll";
 import SparkleEffect from "./components/SparkleEffect";
 import AboutPage from "./components/AboutPage";
-import ProductListing from "./components/ProductListing";
 import NoticePage from "./components/NoticePage";
 import FAQPage from "./components/FAQPage";
 import ContactPage from "./components/ContactPage";
 import AdminDashboard from "./components/AdminDashboard";
 import MiddleBanner from "./components/MiddleBanner";
-import CheckoutForm from "./components/CheckoutForm";
 import EditableContent from "./components/EditableContent";
 import GalleryPage from "./components/GalleryPage";
 import TextWithBackground from "./components/TextWithBackground";
@@ -26,7 +23,6 @@ const NAVIGATION_EVENT_NAME = "navigate";
 export type PageKey =
   | "home"
   | "about"
-  | "products"
   | "gallery"
   | "board"
   | "notice"
@@ -49,7 +45,6 @@ declare global {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageKey>("home");
   const [language, setLanguage] = useState<LanguageKey>("th");
-  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
   const navigateTo = useCallback((page: PageKey) => {
     setCurrentPage(page);
@@ -122,14 +117,6 @@ export default function App() {
     };
   }, [navigateTo]);
 
-  useEffect(() => {
-    const handleOpenCheckout = () => setShowCheckoutForm(true);
-    window.addEventListener('openCheckoutForm', handleOpenCheckout);
-    
-    return () => {
-      window.removeEventListener('openCheckoutForm', handleOpenCheckout);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] font-nunito">
@@ -150,7 +137,6 @@ export default function App() {
           {currentPage === "home" && (
             <main>
               <Hero navigateTo={navigateTo} language={language} />
-              <ProductGrid language={language} navigateTo={navigateTo} />
               <FunFeatures language={language} />
               <MiddleBanner language={language} navigateTo={navigateTo} />
               <InstagramGallery language={language} />
@@ -162,9 +148,6 @@ export default function App() {
             <AboutPage navigateTo={navigateTo} language={language} />
           )}
 
-          {currentPage === "products" && (
-            <ProductListing language={language} navigateTo={navigateTo} />
-          )}
 
           {currentPage === "gallery" && (
             <GalleryPage navigateTo={navigateTo} language={language} />
@@ -190,17 +173,6 @@ export default function App() {
             <TextWithBackgroundDemo navigateTo={navigateTo} language={language} />
           )}
 
-          {showCheckoutForm && (
-            <CheckoutForm
-              onOrderComplete={() => {
-                setShowCheckoutForm(false);
-                // 장바구니 업데이트
-                window.dispatchEvent(new CustomEvent('cartUpdated'));
-              }}
-              onClose={() => setShowCheckoutForm(false)}
-              language={language}
-            />
-          )}
 
           <Footer navigateTo={navigateTo} language={language} />
         </>

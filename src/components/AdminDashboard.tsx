@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { 
   Home, ExternalLink, Menu, X, 
-  BarChart3, ShoppingCart, Package, Image, 
+  BarChart3, Image, 
   Star, Camera, Palette, Settings, Users, Search,
   ChevronRight, ChevronDown, Plus, Edit3, Trash2, RefreshCw
 } from "lucide-react";
@@ -21,10 +21,8 @@ import ImageUpload from "./ImageUpload";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
 // Import actual admin modules
-import ProductDetailManager from "./admin/ProductDetailManager";
 import BannerManagement from "./admin/BannerManagement";
 import HeroBannerManagement from "./admin/HeroBannerManagement";
-import OrderManagement from "./admin/OrderManagement";
 import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 import SEOManagement from "./admin/SEOManagement";
@@ -32,7 +30,7 @@ import SEOManagement from "./admin/SEOManagement";
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
-type DashboardTab = "overview" | "orders" | "products" | "banners" | "hero-banners" | "features" | "gallery" | "branding" | "seo" | "settings";
+type DashboardTab = "overview" | "banners" | "hero-banners" | "features" | "gallery" | "branding" | "seo" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
@@ -53,19 +51,6 @@ const menuItems: MenuItem[] = [
     label: "Dashboard",
     icon: BarChart3,
     description: "Overview & Analytics"
-  },
-  {
-    id: "orders",
-    label: "Order Management",
-    icon: ShoppingCart,
-    description: "Customer Orders Status",
-    badge: "3"
-  },
-  {
-    id: "products",
-    label: "Product Management",
-    icon: Package,
-    description: "Product Catalog Management"
   },
   {
     id: "banners",
@@ -130,10 +115,6 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
     switch (activeTab) {
       case "overview":
         return <OverviewSection onSelectTab={setActiveTab} />;
-      case "orders":
-        return <OrderManagement />;
-      case "products":
-        return <ProductDetailManager />;
       case "banners":
         return <BannerManagement />;
       case "hero-banners":
@@ -278,10 +259,10 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
 // Overview section
 function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => void }) {
   const [stats, setStats] = useState({
-    totalProducts: 0,
-    totalOrders: 0,
-    activeOrders: 0,
-    totalRevenue: 0
+    totalBanners: 0,
+    totalHeroBanners: 0,
+    totalGalleryImages: 0,
+    totalFeatures: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -291,9 +272,14 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
 
   const loadDashboardStats = async () => {
     try {
-      const data = await AdminService.getDashboardStats();
-      setStats(data);
-                          } catch (error) {
+      // 간단한 통계 로드 (실제로는 각각의 서비스에서 가져와야 함)
+      setStats({
+        totalBanners: 4,
+        totalHeroBanners: 6,
+        totalGalleryImages: 18,
+        totalFeatures: 8
+      });
+    } catch (error) {
       console.error('Error loading dashboard stats:', error);
     } finally {
       setLoading(false);
@@ -302,34 +288,14 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
-        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
-              Total Products
-            </CardTitle>
-            <CardDescription className="text-3xl font-bold text-white">
-              {loading ? "..." : stats.totalProducts}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
-              Active Orders
-            </CardTitle>
-            <CardDescription className="text-3xl font-bold text-white">
-              12
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
             <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
               Hero Banners
             </CardTitle>
             <CardDescription className="text-3xl font-bold text-white">
-              6
+              {loading ? "..." : stats.totalHeroBanners}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -339,7 +305,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
               Other Banners
             </CardTitle>
             <CardDescription className="text-3xl font-bold text-white">
-              4
+              {loading ? "..." : stats.totalBanners}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -349,7 +315,17 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
               Gallery Images
             </CardTitle>
             <CardDescription className="text-3xl font-bold text-white">
-              18
+              {loading ? "..." : stats.totalGalleryImages}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-sm uppercase tracking-wider text-gray-300">
+              Features
+            </CardTitle>
+            <CardDescription className="text-3xl font-bold text-white">
+              {loading ? "..." : stats.totalFeatures}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -362,14 +338,7 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
             Quick shortcuts to the most common tasks
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-4">
-          <Button 
-            onClick={() => onSelectTab("products")}
-            className="bg-[#007AFF] hover:bg-[#0051D5] text-white p-6 h-auto flex flex-col items-center gap-2"
-          >
-            <span className="text-2xl">📦</span>
-            <span>Add New Product</span>
-          </Button>
+        <CardContent className="grid gap-4 md:grid-cols-3">
           <Button 
             onClick={() => onSelectTab("hero-banners")}
             className="bg-[#FFD700] hover:bg-[#FFC107] text-black p-6 h-auto flex flex-col items-center gap-2"
@@ -385,11 +354,11 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
             <span>Other Banners</span>
           </Button>
           <Button 
-            onClick={() => onSelectTab("orders")}
-            className="bg-[#FF2D55] hover:bg-[#FF1744] text-white p-6 h-auto flex flex-col items-center gap-2"
+            onClick={() => onSelectTab("gallery")}
+            className="bg-[#007AFF] hover:bg-[#0051D5] text-white p-6 h-auto flex flex-col items-center gap-2"
           >
-            <span className="text-2xl">🛒</span>
-            <span>Check Orders</span>
+            <span className="text-2xl">📸</span>
+            <span>Gallery</span>
           </Button>
         </CardContent>
       </Card>
