@@ -101,36 +101,56 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
   useEffect(() => {
     const loadFeatures = async () => {
       try {
+        console.log('🔄 Features 로딩 시작...');
         const data = await featuresService.getActiveFeatures();
+        console.log('📊 받은 Features 데이터:', data);
+        
         if (Array.isArray(data) && data.length > 0) {
           const baseFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
-          setFeatures(
-            data.map((feature, index) => ({
-              id: feature.id ?? index,
-              title: feature.title ?? baseFeatures[index % baseFeatures.length].title,
-              description:
-                (language === "th" && feature.description_th) || feature.description ||
-                baseFeatures[index % baseFeatures.length].description,
-              image_url: feature.image_url,
-              color: feature.highlight_color,
-            })),
-          );
+          const mappedFeatures = data.map((feature, index) => ({
+            id: feature.id ?? index,
+            title: feature.title ?? baseFeatures[index % baseFeatures.length].title,
+            description:
+              (language === "th" && feature.description_th) || feature.description ||
+              baseFeatures[index % baseFeatures.length].description,
+            image_url: feature.image_url,
+            color: feature.highlight_color,
+          }));
+          
+          setFeatures(mappedFeatures);
+          console.log('✅ Features 데이터 로드됨:', mappedFeatures.length, '개');
         } else {
           // 데이터가 없으면 기본값 사용
-          setFeatures(language === "th" ? defaultFeaturesTranslations.th : defaultFeatures);
+          const defaultFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
+          setFeatures(defaultFeatures);
+          console.log('📋 기본 Features 데이터 사용');
         }
       } catch (error) {
         console.error("Unable to load features", error);
         // 에러 발생 시 기본값 사용
-        setFeatures(language === "th" ? defaultFeaturesTranslations.th : defaultFeatures);
+        const defaultFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
+        setFeatures(defaultFeatures);
+        console.log('📋 오류 - 기본 Features 데이터 사용');
       }
     };
 
     loadFeatures();
+    
+    // 관리자 대시보드에서 데이터 변경 시 자동 업데이트
+    const handleFeaturesUpdate = () => {
+      console.log('🔄 Features 업데이트 이벤트 수신');
+      loadFeatures();
+    };
+    
+    window.addEventListener('featuresUpdated', handleFeaturesUpdate);
+    
+    return () => {
+      window.removeEventListener('featuresUpdated', handleFeaturesUpdate);
+    };
   }, [language]);
 
   return (
-    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0B0F1A] to-[#151B2E] relative overflow-hidden">
+    <section id="features" className="py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0B0F1A] to-[#151B2E] relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-20 h-20 bg-[#FFD700] rounded-full" />
         <div className="absolute top-40 right-20 w-16 h-16 bg-[#FF2D55] rotate-45" />
@@ -139,8 +159,8 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center mb-6">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-3">
             <Star className="w-8 h-8 text-[#FFD700] animate-pulse" />
             <Zap className="w-10 h-10 text-[#FF2D55] mx-4 animate-bounce" />
             <Star className="w-8 h-8 text-[#00FF88] animate-pulse" />
@@ -157,15 +177,15 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {features.map((feature, index) => (
             <div key={feature.id} className="text-center group flex flex-col">
-              <div className="bg-gradient-to-br from-[#FF2D55]/20 to-[#FFD700]/20 rounded-3xl p-8 comic-border border-4 border-black hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative flex flex-col h-full">
+              <div className="bg-gradient-to-br from-[#FF2D55]/20 to-[#FFD700]/20 rounded-3xl p-6 comic-border border-4 border-black hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative flex flex-col h-full">
                 <div className="absolute -top-4 -right-4 w-12 h-12 bg-[#FFD700] rounded-full comic-border border-3 border-black flex items-center justify-center rotate-12">
                   <Star className="w-6 h-6 text-black" />
                 </div>
 
-                <div className="flex justify-center mb-6">
+                <div className="flex justify-center mb-4">
                   <div
                     className="w-24 h-24 rounded-full comic-border border-4 border-black flex items-center justify-center relative"
                     style={{ backgroundColor: feature.color || ["#FF2D55", "#4ECDC4", "#4CAF50", "#FFD700", "#9C27B0", "#FF9800"][index % 6] }}
@@ -178,11 +198,11 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
                   </div>
                 </div>
 
-                <h3 className="font-fredoka text-2xl font-bold text-white mb-4 comic-shadow">
+                <h3 className="font-fredoka text-xl font-bold text-white mb-3 comic-shadow">
                   {feature.title}
                 </h3>
 
-                <p className="font-nunito text-[#B8C4DB] text-lg leading-relaxed flex-grow">
+                <p className="font-nunito text-[#B8C4DB] text-base leading-relaxed flex-grow">
                   {feature.description}
                 </p>
 

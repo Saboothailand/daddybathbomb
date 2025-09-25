@@ -413,6 +413,12 @@ export const featuresService = {
           .single();
 
         if (error) throw error;
+        
+        // 이벤트 발생
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('featuresUpdated'));
+        }
+        
         return data;
       } else {
         // 로컬 스토리지 사용
@@ -427,6 +433,12 @@ export const featuresService = {
             updated_at: new Date().toISOString()
           };
           localStorage.setItem('daddy_features', JSON.stringify(features));
+          
+          // 이벤트 발생
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('featuresUpdated'));
+          }
+          
           return features[index];
         }
         throw new Error('Feature not found');

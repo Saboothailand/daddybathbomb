@@ -100,31 +100,24 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       setLoading(true);
       console.log('🔄 배너 로딩 시작...');
       
-      if (hasSupabaseCredentials) {
-        // Supabase가 설정된 경우 실제 데이터만 로드
-        console.log('📡 Supabase 연결됨 - 실제 데이터 로드 시도');
-        try {
-          const bannerData = await AdminService.getHeroBanners();
-          console.log('📊 받은 배너 데이터:', bannerData);
-          
-          if (bannerData && bannerData.length > 0) {
-            const activeBanners = bannerData.filter(banner => banner.isActive).slice(0, 5);
-            setBanners(activeBanners);
-            console.log('✅ Supabase 배너 데이터 로드됨:', activeBanners.length, '개');
-          } else {
-            // Supabase에 데이터가 없으면 기본 데이터 사용
-            setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
-            console.log('📋 Supabase에 배너 데이터 없음 - 기본 데이터 사용');
-          }
-        } catch (dataError) {
-          console.error('Supabase 배너 로드 실패:', dataError);
+      // 항상 AdminService를 통해 데이터 로드 (Supabase 연결 상태에 따라 자동 처리)
+      try {
+        const bannerData = await AdminService.getHeroBanners();
+        console.log('📊 받은 배너 데이터:', bannerData);
+        
+        if (bannerData && bannerData.length > 0) {
+          const activeBanners = bannerData.filter(banner => banner.isActive).slice(0, 5);
+          setBanners(activeBanners);
+          console.log('✅ 배너 데이터 로드됨:', activeBanners.length, '개');
+        } else {
+          // 데이터가 없으면 기본 데이터 사용
           setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
-          console.log('📋 Supabase 오류 - 기본 데이터 사용');
+          console.log('📋 기본 배너 데이터 사용');
         }
-      } else {
-        // Supabase가 설정되지 않은 경우 기본 데이터만 사용
-        console.log('📋 Supabase 미설정 - 기본 데이터 사용');
+      } catch (dataError) {
+        console.error('배너 로드 실패:', dataError);
         setBanners(AdminService.getDefaultHeroBanners().slice(0, 5));
+        console.log('📋 오류 - 기본 데이터 사용');
       }
       
       setLoading(false);
@@ -163,11 +156,18 @@ export default function Hero({ language, navigateTo }: HeroProps) {
     if (!currentBanner) return;
     
     try {
+      console.log('🔄 배너 이미지 업데이트 시작:', newImageUrl);
       await AdminService.updateHeroBanner(currentBanner.id, {
         ...currentBanner,
         imageUrl: newImageUrl
       });
+      console.log('✅ 배너 이미지 업데이트 완료');
+      
+      // 배너 데이터 다시 로드
       await loadBanners();
+      
+      // 전역 이벤트 발생시켜 다른 컴포넌트들에게 알림
+      window.dispatchEvent(new CustomEvent('bannerUpdated'));
     } catch (error) {
       console.error('Error updating banner image:', error);
     }
@@ -218,7 +218,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden py-12 sm:py-16 lg:py-20">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] overflow-hidden py-2 sm:py-4 lg:py-6">
       <AnimatedBackground />
       
       {/* 관리자 토글 버튼 */}
@@ -232,9 +232,9 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       </div>
 
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-8 sm:pt-12 lg:pt-16">
+      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
         {/* 메인 배너 영역 - 이미지 비율에 맞춘 크기 */}
-        <div className="w-full aspect-[16/5] sm:aspect-[16/4] md:aspect-[16/3] lg:aspect-[16/2.5] relative mb-1 sm:mb-2 lg:mb-3">
+        <div className="w-full aspect-[16/2] sm:aspect-[16/1.8] md:aspect-[16/1.5] lg:aspect-[16/1.2] relative mb-0 sm:mb-0 lg:mb-1">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
@@ -341,9 +341,9 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         </div>
 
         {/* 하단 액션 영역 - 중복 제거 및 간소화 */}
-        <div className="w-full text-center relative mt-2 sm:mt-3 lg:mt-4">
+        <div className="w-full text-center relative mt-0 sm:mt-0 lg:mt-1">
           {/* 태그라인 */}
-          <div className="flex items-center justify-center mb-2 sm:mb-3">
+          <div className="flex items-center justify-center mb-1 sm:mb-1">
             {renderIcon(currentBanner.iconName, currentBanner.iconColor, "w-7 h-7 sm:w-8 sm:h-8 mr-3 animate-pulse")}
             <span className={ACTION_STYLES.tagline}>
               {currentBanner.tagline}
@@ -352,7 +352,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
           </div>
 
           {/* 버튼들 - 크기 증가 */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-4 sm:mb-6 px-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center mb-2 sm:mb-2 px-4">
             <Button
               size="lg"
               className={`bg-[#FF2D55] hover:bg-[#FF1744] text-white ${BUTTON_BASE_CLASSES}`}
@@ -374,7 +374,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
           </div>
           
           {/* 하단 네비게이션 섹션 - 크기 증가 */}
-          <div className="flex items-center justify-center space-x-6 sm:space-x-12 lg:space-x-16 text-white pb-2 sm:pb-3">
+          <div className="flex items-center justify-center space-x-4 sm:space-x-8 lg:space-x-12 text-white pb-1 sm:pb-1">
             <div 
               className="flex items-center space-x-3 sm:space-x-4 cursor-pointer hover:scale-110 transition-transform bg-black/30 backdrop-blur-lg rounded-2xl px-6 sm:px-8 py-4 sm:py-6" 
               onClick={() => navigateTo("gallery")}

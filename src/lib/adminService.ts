@@ -995,6 +995,11 @@ export class AdminService {
           writeLocalStorage('daddy_hero_banners', existingBanners);
         }
         
+        // 이벤트 발생
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('bannerUpdated'));
+        }
+        
         return true;
       }
 
@@ -1019,6 +1024,12 @@ export class AdminService {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // 이벤트 발생
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('bannerUpdated'));
+      }
+      
       return true;
     } catch (error) {
       console.error('Error updating hero banner:', error);
