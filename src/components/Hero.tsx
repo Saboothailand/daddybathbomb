@@ -236,36 +236,66 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[500px] relative mb-0 sm:mb-0 lg:mb-1">
           <AnimatedBackground />
           <div className={BANNER_CLASSES.container}>
-            <div className="w-full h-full flex items-center px-4">
-              <div className="flex w-full">
-                {/* 왼쪽: 텍스트 콘텐츠 - 크기 증가 및 간격 조정 */}
-                <div className="flex-1 text-left pl-8 lg:pl-16 flex flex-col justify-center">
-                  <h1 className={BANNER_CLASSES.title}>
-                    {currentBanner.mainTitle}
-                  </h1>
-                  <h2 className={BANNER_CLASSES.subtitle}>
-                    {currentBanner.subTitle}
-                  </h2>
-                  <p className={BANNER_CLASSES.description}>
-                    {currentBanner.description}
-                  </p>
-                </div>
-                
-                {/* 오른쪽: 슈퍼맨 아이콘 - 3배 더 크게, 우측 정렬 */}
-                <div className="flex-1 flex justify-end items-center pr-8 lg:pr-16">
-                  <div className="text-[10rem] sm:text-[14rem] md:text-[18rem] lg:text-[22rem] xl:text-[26rem] 2xl:text-[30rem] animate-bounce">
-                    🦸‍♂️
+            {currentBanner.imageUrl ? (
+              <div className="w-full h-full relative">
+                <img
+                  src={currentBanner.imageUrl}
+                  alt={`${currentBanner.mainTitle} - ${currentBanner.subTitle}`}
+                  className="w-full h-full object-contain"
+                  style={{ minHeight: '100%', maxHeight: '100%' }}
+                />
+                <div className={BANNER_CLASSES.overlay}>
+                  <div className="text-center text-white px-4">
+                    <h1 className={BANNER_CLASSES.title}>
+                      {currentBanner.mainTitle}
+                    </h1>
+                    <h2 className={BANNER_CLASSES.subtitle}>
+                      {currentBanner.subTitle}
+                    </h2>
+                    <p className={`${BANNER_CLASSES.description} mx-auto mt-2`}>
+                      {currentBanner.description}
+                    </p>
                   </div>
                 </div>
-                
                 <HeroImageEditor
-                  currentImageUrl=""
+                  currentImageUrl={currentBanner.imageUrl}
                   currentEmoji="🦸‍♂️"
                   onSave={updateBannerImage}
-                  className="absolute top-4 right-4 w-12 h-12 sm:w-16 sm:h-16 opacity-50 hover:opacity-100 transition-opacity"
+                  className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity"
                 />
               </div>
-            </div>
+            ) : (
+              <div className="w-full h-full flex items-center px-4">
+                <div className="flex w-full">
+                  {/* 왼쪽: 텍스트 콘텐츠 - 크기 증가 및 간격 조정 */}
+                  <div className="flex-1 text-left pl-8 lg:pl-16 flex flex-col justify-center">
+                    <h1 className={BANNER_CLASSES.title}>
+                      {currentBanner.mainTitle}
+                    </h1>
+                    <h2 className={BANNER_CLASSES.subtitle}>
+                      {currentBanner.subTitle}
+                    </h2>
+                    <p className={BANNER_CLASSES.description}>
+                      {currentBanner.description}
+                    </p>
+                  </div>
+                  
+                  {/* 오른쪽: 슈퍼맨 아이콘 - 3배 더 크게, 우측 정렬 */}
+                  <div className="flex-1 flex justify-end items-center pr-8 lg:pr-16">
+                    <div className="text-[10rem] sm:text-[14rem] md:text-[18rem] lg:text-[22rem] xl:text-[26rem] 2xl:text-[30rem] animate-bounce">
+                      🦸‍♂️
+                    </div>
+                  </div>
+                  
+                  <HeroImageEditor
+                    currentImageUrl=""
+                    currentEmoji="🦸‍♂️"
+                    onSave={updateBannerImage}
+                    className="absolute top-4 right-4 w-12 h-12 sm:w-16 sm:h-16 opacity-50 hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              </div>
+            )}
           </div>
           
           {/* 배너 네비게이션 - 배너 하단에 위치 */}
