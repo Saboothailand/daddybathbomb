@@ -233,7 +233,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
         {/* 메인 배너 영역 - 이미지 비율에 맞춘 크기 */}
-        <div className="w-full aspect-[16/6] sm:aspect-[16/6] md:aspect-[16/6] lg:aspect-[16/6] relative mb-0 sm:mb-0 lg:mb-1">
+        <div className="w-full aspect-[16/6] sm:aspect-[16/6] md:aspect-[16/6] lg:aspect-[16/6] max-h-[520px] sm:max-h-[560px] md:max-h-[600px] lg:max-h-[640px] xl:max-h-[720px] relative mb-0 sm:mb-0 lg:mb-1">
           <AnimatedBackground />
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
@@ -281,7 +281,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   
                   {/* 오른쪽: 슈퍼맨 아이콘 - 3배 더 크게, 우측 정렬 */}
                   <div className="flex-1 flex justify-end items-center pr-8 lg:pr-16">
-                    <div className="text-[18rem] sm:text-[24rem] md:text-[30rem] lg:text-[36rem] xl:text-[42rem] animate-bounce">
+                    <div className="text-[10rem] sm:text-[14rem] md:text-[18rem] lg:text-[22rem] xl:text-[26rem] 2xl:text-[30rem] animate-bounce">
                       🦸‍♂️
                     </div>
                   </div>

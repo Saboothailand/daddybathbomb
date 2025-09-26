@@ -75,6 +75,8 @@ export interface Banner {
 
 const SITE_SETTINGS_STORAGE_KEY = 'daddy_site_settings';
 
+// 샘플 제품 데이터
+const sampleProducts = [
   {
     id: 'sample-2',
     name: 'HERO BLUE BLAST',
@@ -465,22 +467,88 @@ export class AdminService {
       }
 
       console.log('✅ Supabase 배너 데이터 로드 성공:', data.length, '개');
-      return data.map(banner => ({
-        id: banner.id,
-        mainTitle: banner.main_title || banner.title || '',
-        subTitle: banner.sub_title || banner.subtitle || '',
-        description: banner.description || '',
-        tagline: banner.tagline || '',
-        primaryButtonText: banner.primary_button_text || '',
-        secondaryButtonText: banner.secondary_button_text || '',
-        imageUrl: banner.image_url || '',
-        iconName: banner.icon_name || '',
-        iconColor: banner.icon_color || '#FF2D55',
-        isActive: banner.is_active || false,
-        displayOrder: banner.display_order || 1,
-        createdAt: banner.created_at || '',
-        updatedAt: banner.updated_at || ''
-      }));
+      const defaults = this.getDefaultHeroBanners();
+      const sanitizeText = (value?: string | null, fallbackValue = ''): string => {
+        if (typeof value === 'string' && value.trim().length > 0) {
+          return value.trim();
+        }
+        return fallbackValue;
+      };
+
+      const normalizeIconName = (iconName?: string | null, fallbackIcon?: string): string => {
+        if (typeof iconName !== 'string') {
+          return fallbackIcon || '';
+        }
+
+        const trimmed = iconName.trim();
+        if (!trimmed) {
+          return fallbackIcon || '';
+        }
+
+        // lucide-react 아이콘은 PascalCase 이므로 서버에서 소문자로 넘어와도 보정
+        const normalized = trimmed
+          .split(/[-_\s]+/)
+          .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+          .join('');
+
+        return normalized || fallbackIcon || '';
+      };
+
+      const defaultsByOrder = new Map<number, HeroBanner>();
+      defaults.forEach((banner) => {
+        defaultsByOrder.set(banner.displayOrder, banner);
+      });
+
+      const remoteBanners = (data || [])
+        .filter((banner) => banner?.is_active ?? true)
+        .map((banner, index) => {
+          const displayOrder = banner.display_order ?? defaults[index % defaults.length].displayOrder;
+          const fallback = defaultsByOrder.get(displayOrder) ?? defaults[index % defaults.length];
+
+          const normalizedBanner: HeroBanner = {
+            id: banner.id ?? fallback.id,
+            mainTitle: sanitizeText(banner.main_title || banner.title, fallback.mainTitle),
+            subTitle: sanitizeText(banner.sub_title || banner.subtitle, fallback.subTitle),
+            description: sanitizeText(banner.description, fallback.description),
+            tagline: sanitizeText(banner.tagline, fallback.tagline),
+            primaryButtonText: sanitizeText(banner.primary_button_text, fallback.primaryButtonText),
+            secondaryButtonText: sanitizeText(banner.secondary_button_text, fallback.secondaryButtonText),
+            imageUrl: sanitizeText(banner.image_url, fallback.imageUrl),
+            iconName: normalizeIconName(banner.icon_name, fallback.iconName),
+            iconColor: sanitizeText(banner.icon_color, fallback.iconColor),
+            isActive: true,
+            displayOrder,
+            createdAt: banner.created_at || fallback.createdAt,
+            updatedAt: banner.updated_at || fallback.updatedAt,
+          };
+
+          return normalizedBanner;
+        });
+
+      const mergedByOrder = new Map<number, HeroBanner>();
+      defaults.forEach((banner) => mergedByOrder.set(banner.displayOrder, banner));
+      remoteBanners.forEach((banner) => {
+        if (banner.imageUrl) {
+          mergedByOrder.set(banner.displayOrder, banner);
+        }
+      });
+
+      const MINIMUM_BANNERS = 5;
+      const merged = Array.from(mergedByOrder.values())
+        .filter((banner) => banner.isActive)
+        .sort((a, b) => a.displayOrder - b.displayOrder);
+
+      if (merged.length < MINIMUM_BANNERS) {
+        for (const fallback of defaults) {
+          if (merged.length >= MINIMUM_BANNERS) break;
+          const exists = merged.some((banner) => banner.displayOrder === fallback.displayOrder);
+          if (!exists) {
+            merged.push(fallback);
+          }
+        }
+      }
+
+      return merged;
     } catch (error) {
       console.error('Error fetching hero banners:', error);
       console.log('📋 오류 발생 - 기본 배너 데이터 사용');

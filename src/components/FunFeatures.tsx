@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Palette, Wind, Heart, Star, Zap, Sparkles, Droplets, Shield } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Palette, Wind, Heart, Star, Zap, Droplets, Shield } from "lucide-react";
 
 import type { LanguageKey } from "../App";
 import { featuresService } from "../lib/supabase";
@@ -14,6 +14,66 @@ type Feature = {
 
 type FunFeaturesProps = {
   language: LanguageKey;
+};
+
+const featureFallbackColors = [
+  "#FF2D55",
+  "#4ECDC4",
+  "#4CAF50",
+  "#FFD700",
+  "#9C27B0",
+  "#FF9800",
+];
+
+const sanitizeText = (value?: string | null, fallbackValue = ""): string => {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value.trim();
+  }
+  return fallbackValue;
+};
+
+const ensureMinimumFeatures = (input: Feature[], baseDefaults: Feature[]): Feature[] => {
+  const MIN_FEATURE_COUNT = 6;
+  const deduped: Feature[] = [];
+  const seenTitles = new Set<string>();
+
+  const pushFeature = (feature: Feature) => {
+    const key = sanitizeText(feature.title).toLowerCase();
+    if (!key || seenTitles.has(key)) {
+      return;
+    }
+
+    const color = feature.color || featureFallbackColors[deduped.length % featureFallbackColors.length];
+    deduped.push({ ...feature, color });
+    seenTitles.add(key);
+  };
+
+  input.forEach(pushFeature);
+
+  let fallbackIndex = 0;
+  while (deduped.length < MIN_FEATURE_COUNT && baseDefaults.length > 0) {
+    const fallback = baseDefaults[fallbackIndex % baseDefaults.length];
+    pushFeature({ ...fallback, id: `fallback-${fallback.id}-${fallbackIndex}` });
+    fallbackIndex += 1;
+
+    if (fallbackIndex > baseDefaults.length * 3) {
+      break;
+    }
+  }
+
+  if (deduped.length === 0) {
+    return baseDefaults.slice(0, MIN_FEATURE_COUNT);
+  }
+
+  return deduped;
+};
+
+const getDefaultsForLanguage = (language: LanguageKey): Feature[] => {
+  const source = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
+  return source.map((feature, index) => ({
+    ...feature,
+    color: feature.color || featureFallbackColors[index % featureFallbackColors.length],
+  }));
 };
 
 const defaultFeatures: Feature[] = [
@@ -94,9 +154,12 @@ const iconPalette = [
 ];
 
 export default function FunFeatures({ language }: FunFeaturesProps) {
-  const [features, setFeatures] = useState<Feature[]>(
-    language === "th" ? defaultFeaturesTranslations.th : defaultFeatures
-  );
+  const [features, setFeatures] = useState<Feature[]>(() => {
+    const defaults = getDefaultsForLanguage(language);
+    return ensureMinimumFeatures(defaults, defaults);
+  });
+
+  const baseDefaults = useMemo(() => getDefaultsForLanguage(language), [language]);
 
   useEffect(() => {
     const loadFeatures = async () => {
@@ -106,30 +169,37 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
         console.log('📊 받은 Features 데이터:', data);
         
         if (Array.isArray(data) && data.length > 0) {
-          const baseFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
-          const mappedFeatures = data.map((feature, index) => ({
-            id: feature.id ?? index,
-            title: feature.title ?? baseFeatures[index % baseFeatures.length].title,
-            description:
-              (language === "th" && feature.description_th) || feature.description ||
-              baseFeatures[index % baseFeatures.length].description,
-            image_url: feature.image_url,
-            color: feature.highlight_color,
-          }));
-          
-          setFeatures(mappedFeatures);
-          console.log('✅ Features 데이터 로드됨:', mappedFeatures.length, '개');
+          const mappedFeatures = data
+            .filter((feature) => feature?.is_active ?? true)
+            .map((feature, index) => {
+              const fallback = baseDefaults[index % baseDefaults.length];
+              return {
+                id: feature.id ?? `feature-${index}`,
+                title:
+                  (language === "th" && sanitizeText(feature.title_th, fallback.title)) ||
+                  sanitizeText(feature.title, fallback.title),
+                description:
+                  (language === "th" && sanitizeText(feature.description_th, fallback.description)) ||
+                  sanitizeText(feature.description, fallback.description),
+                image_url: sanitizeText(feature.image_url, fallback.image_url),
+                color: sanitizeText(feature.highlight_color, fallback.color),
+              };
+            });
+
+          const normalizedFeatures = ensureMinimumFeatures(mappedFeatures, baseDefaults);
+          setFeatures(normalizedFeatures);
+          console.log('✅ Features 데이터 로드됨:', normalizedFeatures.length, '개');
         } else {
           // 데이터가 없으면 기본값 사용
-          const defaultFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
-          setFeatures(defaultFeatures);
+          const fallbackFeatures = ensureMinimumFeatures(baseDefaults, baseDefaults);
+          setFeatures(fallbackFeatures);
           console.log('📋 기본 Features 데이터 사용');
         }
       } catch (error) {
         console.error("Unable to load features", error);
         // 에러 발생 시 기본값 사용
-        const defaultFeatures = language === "th" ? defaultFeaturesTranslations.th : defaultFeatures;
-        setFeatures(defaultFeatures);
+        const fallbackFeatures = ensureMinimumFeatures(baseDefaults, baseDefaults);
+        setFeatures(fallbackFeatures);
         console.log('📋 오류 - 기본 Features 데이터 사용');
       }
     };
@@ -147,7 +217,12 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
     return () => {
       window.removeEventListener('featuresUpdated', handleFeaturesUpdate);
     };
-  }, [language]);
+  }, [baseDefaults, language]);
+
+  useEffect(() => {
+    // 언어 변경 시 즉시 기본값으로 초기화하여 깜빡임 최소화
+    setFeatures(ensureMinimumFeatures(baseDefaults, baseDefaults));
+  }, [baseDefaults]);
 
   return (
     <section id="features" className="py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0B0F1A] to-[#151B2E] relative overflow-hidden">
@@ -188,7 +263,7 @@ export default function FunFeatures({ language }: FunFeaturesProps) {
                 <div className="flex justify-center mb-4">
                   <div
                     className="w-24 h-24 rounded-full comic-border border-4 border-black flex items-center justify-center relative"
-                    style={{ backgroundColor: feature.color || ["#FF2D55", "#4ECDC4", "#4CAF50", "#FFD700", "#9C27B0", "#FF9800"][index % 6] }}
+                    style={{ backgroundColor: feature.color || featureFallbackColors[index % featureFallbackColors.length] }}
                   >
                     <div className="text-white">
                       {iconPalette[index % iconPalette.length]}
