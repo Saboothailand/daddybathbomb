@@ -18,7 +18,7 @@ const DEFAULT_ICON_COLOR = "#FF2D55";
 
 // 스타일 상수
 const BANNER_CLASSES = {
-  container: "w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden",
+  container: "w-full h-full bg-gradient-to-r from-[#FF2D55]/20 via-[#007AFF]/20 to-[#FFD700]/20 rounded-2xl comic-border border-4 border-white/20 flex items-center justify-center overflow-hidden min-h-full",
   overlay: "absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 flex items-center justify-center",
   title: "font-fredoka text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white mb-4 sm:mb-6 comic-shadow animate-bounce",
   subtitle: "font-fredoka text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FF2D55] mb-4 sm:mb-6 comic-shadow animate-pulse",
@@ -233,7 +233,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
         {/* 메인 배너 영역 - 이미지 비율에 맞춘 크기 */}
-        <div className="w-full aspect-[16/8] sm:aspect-[16/7] md:aspect-[16/6] lg:aspect-[16/5] max-h-[400px] sm:max-h-[450px] md:max-h-[500px] lg:max-h-[550px] xl:max-h-[600px] relative mb-0 sm:mb-0 lg:mb-1">
+        <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[500px] relative mb-0 sm:mb-0 lg:mb-1">
           <AnimatedBackground />
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
@@ -242,6 +242,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   src={currentBanner.imageUrl}
                   alt={`${currentBanner.mainTitle} - ${currentBanner.subTitle}`}
                   className="w-full h-full object-cover"
+                  style={{ minHeight: '100%', maxHeight: '100%' }}
                 />
                 <div className={BANNER_CLASSES.overlay}>
                   <div className="text-center text-white px-4">
