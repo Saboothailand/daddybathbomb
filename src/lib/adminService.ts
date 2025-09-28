@@ -335,7 +335,7 @@ export class AdminService {
   static async getBanners(): Promise<Banner[]> {
     try {
       const { data, error } = await supabase
-        .from('banner_images')
+        .from('banners')
         .select('*')
         .order('display_order', { ascending: true });
 
@@ -359,7 +359,7 @@ export class AdminService {
   static async createBanner(banner: Omit<Banner, 'id' | 'created_at' | 'updated_at'>): Promise<Banner | null> {
     try {
       const { data, error } = await supabase
-        .from('banner_images')
+        .from('banners')
         .insert(banner)
         .select()
         .single();
@@ -375,7 +375,7 @@ export class AdminService {
   static async updateBanner(id: string, updates: Partial<Banner>): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('banner_images')
+        .from('banners')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id);
 
@@ -390,7 +390,7 @@ export class AdminService {
   static async deleteBanner(id: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('banner_images')
+        .from('banners')
         .delete()
         .eq('id', id);
 

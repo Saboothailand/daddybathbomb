@@ -197,7 +197,7 @@ function getMockData(table, filter = {}) {
         created_at: new Date().toISOString()
       }
     ],
-    gallery_images: [
+    gallery: [
       {
         id: 1,
         image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop',
@@ -482,7 +482,7 @@ export const galleryService = {
   async getActiveGalleryImages() {
     try {
       const { data, error } = await supabase
-        .from('gallery_images')
+        .from('gallery')
         .select('*')
         .eq('is_active', true)
         .order('display_order', { ascending: true });
@@ -513,7 +513,7 @@ export const galleryService = {
   async createGalleryImage(imageData) {
     try {
       const { data, error } = await supabase
-        .from('gallery_images')
+        .from('gallery')
         .insert([imageData])
         .select()
         .single();
@@ -539,7 +539,7 @@ export const galleryAdminService = {
   async list(includeInactive = true) {
     if (supabaseUrl && supabaseAnonKey) {
       try {
-        const { data, error } = await supabase.rpc('admin_list_gallery_images');
+        const { data, error } = await supabase.rpc('admin_list_gallery');
         if (error) throw error;
 
         const images = (data || []) as any[];
@@ -548,14 +548,14 @@ export const galleryAdminService = {
         }
         return images.filter((item) => item.is_active);
       } catch (error) {
-        if (isMissingRpcFunction(error, 'admin_list_gallery_images')) {
-          console.warn('Supabase function admin_list_gallery_images not found. Falling back to cached gallery data.');
+        if (isMissingRpcFunction(error, 'admin_list_gallery')) {
+          console.warn('Supabase function admin_list_gallery not found. Falling back to cached gallery data.');
         } else {
           console.error('Error fetching admin gallery images via RPC:', error);
         }
 
         try {
-          let query = supabase.from('gallery_images').select('*');
+          let query = supabase.from('gallery').select('*');
           if (!includeInactive) {
             query = query.eq('is_active', true);
           }
@@ -568,7 +568,7 @@ export const galleryAdminService = {
       }
     }
 
-    const cached = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery_images'));
+    const cached = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
     if (includeInactive) {
       return cached;
     }
@@ -601,7 +601,7 @@ export const galleryAdminService = {
       }
     }
 
-    const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery_images'));
+    const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
     let result;
     if (payload.id) {
       const index = gallery.findIndex((item) => item.id == payload.id);
@@ -644,7 +644,7 @@ export const galleryAdminService = {
       }
     }
 
-    const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery_images'));
+    const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
     const filtered = gallery.filter((item) => item.id != id);
     writeCmsStorage(CMS_GALLERY_STORAGE_KEY, filtered);
     emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
@@ -934,7 +934,7 @@ export const brandingService = {
 
 const CMS_BANNERS_STORAGE_KEY = 'daddy_banners';
 const CMS_BANNERS_UPDATED_EVENT = 'cms:bannersUpdated';
-const CMS_GALLERY_STORAGE_KEY = 'daddy_gallery_images';
+const CMS_GALLERY_STORAGE_KEY = 'daddy_gallery';
 const CMS_GALLERY_UPDATED_EVENT = 'cms:galleryUpdated';
 
 function emitCmsEvent(eventName: string) {
@@ -1152,7 +1152,7 @@ export const cmsService = {
     const { activeOnly = true } = options;
     if (supabaseUrl && supabaseAnonKey) {
       try {
-        const { data, error } = await supabase.rpc('admin_list_banner_images');
+        const { data, error } = await supabase.rpc('admin_list_banners');
         if (error) throw error;
 
         let banners = (data || []) as any[];
@@ -1164,14 +1164,14 @@ export const cmsService = {
         }
         return banners;
       } catch (error) {
-        if (isMissingRpcFunction(error, 'admin_list_banner_images')) {
-          console.warn('Supabase function admin_list_banner_images not found. Falling back to direct query/local cache.');
+        if (isMissingRpcFunction(error, 'admin_list_banners')) {
+          console.warn('Supabase function admin_list_banners not found. Falling back to direct query/local cache.');
         } else {
           console.error('Error fetching banners via RPC:', error);
         }
 
         try {
-          let query = supabase.from('banner_images').select('*');
+          let query = supabase.from('banners').select('*');
           if (activeOnly) {
             query = query.eq('is_active', true);
           }
