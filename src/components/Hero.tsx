@@ -236,7 +236,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
         <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[500px] relative mb-0 sm:mb-0 lg:mb-1">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
-              <div className="w-full h-[140%] relative -mt-[20%]">
+              <div className="w-full h-[110%] relative -mt-[5%]">
                 <img
                   src={currentBanner.imageUrl}
                   alt={`${currentBanner.mainTitle} - ${currentBanner.subTitle}`}
