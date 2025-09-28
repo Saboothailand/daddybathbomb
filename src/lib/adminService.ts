@@ -74,6 +74,7 @@ export interface Banner {
 }
 
 const SITE_SETTINGS_STORAGE_KEY = 'daddy_site_settings';
+const HERO_BANNERS_STORAGE_KEY = 'daddy_hero_banners';
 
 // 샘플 제품 데이터
 const sampleProducts = [
@@ -129,6 +130,20 @@ function writeLocalStorage<T>(key: string, value: T): void {
 }
 
 export class AdminService {
+  private static loadHeroBannersFromStorage(): HeroBanner[] {
+    const stored = readLocalStorage<HeroBanner[]>(HERO_BANNERS_STORAGE_KEY, []);
+    if (!stored || stored.length === 0) {
+      const defaults = this.getDefaultHeroBanners();
+      writeLocalStorage(HERO_BANNERS_STORAGE_KEY, defaults);
+      return [...defaults];
+    }
+    return stored;
+  }
+
+  private static saveHeroBannersToStorage(banners: HeroBanner[]): void {
+    writeLocalStorage(HERO_BANNERS_STORAGE_KEY, banners);
+  }
+
   // 사이트 설정 관리
   static async getSiteSettings(): Promise<SiteSettings> {
     if (hasSupabaseCredentials) {
@@ -436,17 +451,9 @@ export class AdminService {
     try {
       if (!hasSupabaseCredentials) {
         console.log('📋 Supabase 설정 없음 - 로컬 스토리지 사용');
-        
-        // 로컬 스토리지에서 배너 가져오기
-        const localBanners = readLocalStorage<HeroBanner[]>('daddy_hero_banners');
-        if (localBanners && localBanners.length > 0) {
-          return localBanners;
-        }
-        
-        // 로컬 스토리지에 기본 배너 저장
-        const defaultBanners = this.getDefaultHeroBanners();
-        writeLocalStorage('daddy_hero_banners', defaultBanners);
-        return defaultBanners;
+        const storedBanners = this.loadHeroBannersFromStorage();
+        const activeBanners = storedBanners.filter((banner) => banner.isActive);
+        return activeBanners.length > 0 ? activeBanners : storedBanners;
       }
 
       console.log('🔄 Supabase에서 배너 데이터 로드 중...');
@@ -764,10 +771,10 @@ export class AdminService {
           updatedAt: new Date().toISOString(),
         };
         
-        // 로컬 스토리지에 저장
-        const existingBanners = this.getDefaultHeroBanners();
-        const updatedBanners = [...existingBanners, newBanner];
-        writeLocalStorage('daddy_hero_banners', updatedBanners);
+        const existingBanners = this.loadHeroBannersFromStorage();
+        const filteredBanners = existingBanners.filter((banner) => banner.id !== newBanner.id);
+        const updatedBanners = [...filteredBanners, newBanner].sort((a, b) => a.displayOrder - b.displayOrder);
+        this.saveHeroBannersToStorage(updatedBanners);
         
         return newBanner;
       }
