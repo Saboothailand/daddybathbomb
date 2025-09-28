@@ -775,6 +775,10 @@ export class AdminService {
         const filteredBanners = existingBanners.filter((banner) => banner.id !== newBanner.id);
         const updatedBanners = [...filteredBanners, newBanner].sort((a, b) => a.displayOrder - b.displayOrder);
         this.saveHeroBannersToStorage(updatedBanners);
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('bannerUpdated'));
+        }
         
         return newBanner;
       }
@@ -826,23 +830,28 @@ export class AdminService {
       if (!hasSupabaseCredentials) {
         console.warn('📋 Supabase not configured - using local storage');
         
-        // 로컬 스토리지에서 배너 업데이트
-        const existingBanners = this.getDefaultHeroBanners();
-        const bannerIndex = existingBanners.findIndex(banner => banner.id === id);
-        if (bannerIndex !== -1) {
-          existingBanners[bannerIndex] = {
-            ...existingBanners[bannerIndex],
-            ...bannerData,
-            updatedAt: new Date().toISOString(),
-          };
-          writeLocalStorage('daddy_hero_banners', existingBanners);
+        const storedBanners = this.loadHeroBannersFromStorage();
+        const bannerIndex = storedBanners.findIndex((banner) => banner.id === id);
+        if (bannerIndex === -1) {
+          console.warn('⚠️ 로컬 스토리지에서 배너를 찾을 수 없습니다:', id);
+          return false;
         }
-        
-        // 이벤트 발생
+
+        const updatedBanner: HeroBanner = {
+          ...storedBanners[bannerIndex],
+          ...bannerData,
+          updatedAt: new Date().toISOString(),
+        };
+
+        const updatedBanners = [...storedBanners];
+        updatedBanners[bannerIndex] = updatedBanner;
+        updatedBanners.sort((a, b) => a.displayOrder - b.displayOrder);
+        this.saveHeroBannersToStorage(updatedBanners);
+
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('bannerUpdated'));
         }
-        
+
         return true;
       }
 
@@ -884,6 +893,14 @@ export class AdminService {
     try {
       if (!hasSupabaseCredentials) {
         console.warn('📋 Supabase not configured - using local storage');
+        const storedBanners = this.loadHeroBannersFromStorage();
+        const updatedBanners = storedBanners.filter((banner) => banner.id !== id);
+        this.saveHeroBannersToStorage(updatedBanners);
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('bannerUpdated'));
+        }
+
         return true;
       }
 

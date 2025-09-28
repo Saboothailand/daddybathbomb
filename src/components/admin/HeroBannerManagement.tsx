@@ -134,7 +134,10 @@ export default function HeroBannerManagement() {
   };
 
   const handleOpenDialog = (banner?: HeroBanner) => {
+    console.log('🔧 Opening dialog for banner:', banner?.id || 'new banner');
+    
     if (banner) {
+      console.log('📝 Editing existing banner:', banner);
       setEditingBanner(banner);
       setFormData({
         mainTitle: banner.mainTitle,
@@ -150,6 +153,7 @@ export default function HeroBannerManagement() {
         displayOrder: banner.displayOrder,
       });
     } else {
+      console.log('➕ Creating new banner');
       setEditingBanner(null);
       setFormData({
         mainTitle: '',
@@ -167,6 +171,7 @@ export default function HeroBannerManagement() {
     }
     setDialogOpen(true);
     setErrorMessage(null);
+    console.log('✅ Dialog state set to open');
   };
 
   const handleCloseDialog = () => {
@@ -366,7 +371,7 @@ export default function HeroBannerManagement() {
                 {banner.imageUrl ? (
                   <img
                     src={banner.imageUrl}
-                    alt={banner.title}
+                    alt={`${banner.mainTitle} - ${banner.subTitle}`}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -445,7 +450,10 @@ export default function HeroBannerManagement() {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => handleOpenDialog(banner)}
+                  onClick={() => {
+                    console.log('🖱️ Edit button clicked for banner:', banner.id);
+                    handleOpenDialog(banner);
+                  }}
                   className="flex-1 bg-[#007AFF] hover:bg-[#0051D5] text-white text-xs"
                 >
                   <Edit3 className="w-3 h-3 mr-1" />
