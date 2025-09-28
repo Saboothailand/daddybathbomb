@@ -1189,14 +1189,15 @@ export const cmsService = {
 
     let banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
 
-    if (!banners || banners.length === 0) {
-      banners = [
-        { id: 1, title: 'Welcome Banner', description: 'Premium bath bombs', image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', position: 'hero', display_order: 1, is_active: true },
-        { id: 2, title: 'Special Offer', description: 'Limited time promotion', image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', position: 'middle', display_order: 1, is_active: true },
-        { id: 3, title: 'Follow Us', description: 'Social media updates', image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', position: 'bottom', display_order: 1, is_active: true }
-      ];
-      writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
-    }
+    // 샘플 데이터 강제 반환 제거 - 실제 데이터만 반환
+    // if (!banners || banners.length === 0) {
+    //   banners = [
+    //     { id: 1, title: 'Welcome Banner', description: 'Premium bath bombs', image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', position: 'hero', display_order: 1, is_active: true },
+    //     { id: 2, title: 'Special Offer', description: 'Limited time promotion', image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', position: 'middle', display_order: 1, is_active: true },
+    //     { id: 3, title: 'Follow Us', description: 'Social media updates', image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', position: 'bottom', display_order: 1, is_active: true }
+    //   ];
+    //   writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+    // }
 
     if (activeOnly) {
       banners = banners.filter(b => b.is_active);
