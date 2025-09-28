@@ -537,35 +537,37 @@ interface GalleryAdminPayload {
 
 export const galleryAdminService = {
   async list(includeInactive = true) {
-    if (supabaseUrl && supabaseAnonKey) {
+    if (hasSupabaseCredentials) {
       try {
         const { data, error } = await supabase.rpc('admin_list_gallery');
-        if (error) throw error;
-
-        const images = (data || []) as any[];
-        if (includeInactive) {
-          return images;
-        }
-        return images.filter((item) => item.is_active);
-      } catch (error) {
-        if (isMissingRpcFunction(error, 'admin_list_gallery')) {
-          console.warn('Supabase function admin_list_gallery not found. Falling back to cached gallery data.');
-        } else {
-          console.error('Error fetching admin gallery images via RPC:', error);
+        if (!error) {
+          const images = (data || []) as any[];
+          return includeInactive ? images : images.filter((item) => item.is_active);
         }
 
-        try {
-          let query = supabase.from('gallery').select('*');
-          if (!includeInactive) {
-            query = query.eq('is_active', true);
-          }
-          const { data, error: directError } = await query.order('display_order', { ascending: true });
-          if (directError) throw directError;
-          return data || [];
-        } catch (fallbackError) {
-          console.error('Error fetching admin gallery images via direct query:', fallbackError);
+        if (!isMissingRpcFunction(error, 'admin_list_gallery')) {
+          throw error;
         }
+        console.warn('Supabase function admin_list_gallery not found. Falling back to direct query.');
+      } catch (rpcError) {
+        if (!isMissingRpcFunction(rpcError, 'admin_list_gallery')) {
+          console.error('Error fetching admin gallery images via RPC:', rpcError);
+          throw rpcError;
+        }
+        console.warn('Supabase function admin_list_gallery not found. Falling back to direct query.');
       }
+
+      let query = supabase.from('gallery').select('*');
+      if (!includeInactive) {
+        query = query.eq('is_active', true);
+      }
+      const { data: directData, error: directError } = await query.order('display_order', { ascending: true });
+      if (directError) {
+        console.error('Error fetching admin gallery images via direct query:', directError);
+        throw directError;
+      }
+
+      return directData || [];
     }
 
     const cached = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
@@ -580,7 +582,7 @@ export const galleryAdminService = {
       throw new Error('이미지 URL이 필요합니다.');
     }
 
-    if (supabaseUrl && supabaseAnonKey) {
+    if (hasSupabaseCredentials) {
       try {
         const { data, error } = await supabase.rpc('admin_save_gallery_image', {
           p_id: payload.id ?? null,
@@ -590,15 +592,55 @@ export const galleryAdminService = {
           p_display_order: payload.display_order ?? 0
         });
 
-        if (error) throw error;
-        emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
-        return data;
-      } catch (error) {
-        if (isMissingRpcFunction(error, 'admin_save_gallery_image')) {
-          console.error('Supabase function admin_save_gallery_image is not deployed. Please execute supabase/sql/admin_media_functions.sql.');
+        if (!error) {
+          emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
+          return data;
         }
-        throw error;
+
+        if (!isMissingRpcFunction(error, 'admin_save_gallery_image')) {
+          throw error;
+        }
+        console.warn('Supabase function admin_save_gallery_image not found. Falling back to direct mutation.');
+      } catch (rpcError) {
+        if (!isMissingRpcFunction(rpcError, 'admin_save_gallery_image')) {
+          console.error('Error saving gallery image via RPC:', rpcError);
+          throw rpcError;
+        }
+        console.warn('Supabase function admin_save_gallery_image not found. Falling back to direct mutation.');
       }
+
+      const mutation = payload.id
+        ? supabase
+            .from('gallery')
+            .update({
+              image_url: payload.image_url,
+              caption: payload.caption ?? null,
+              is_active: payload.is_active ?? true,
+              display_order: payload.display_order ?? 0,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', payload.id)
+            .select()
+            .single()
+        : supabase
+            .from('gallery')
+            .insert({
+              image_url: payload.image_url,
+              caption: payload.caption ?? null,
+              is_active: payload.is_active ?? true,
+              display_order: payload.display_order ?? 0
+            })
+            .select()
+            .single();
+
+      const { data: directData, error: directError } = await mutation;
+      if (directError) {
+        console.error('Error saving gallery image via direct mutation:', directError);
+        throw directError;
+      }
+
+      emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
+      return directData;
     }
 
     const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
@@ -630,18 +672,34 @@ export const galleryAdminService = {
   },
 
   async delete(id: string) {
-    if (supabaseUrl && supabaseAnonKey) {
+    if (hasSupabaseCredentials) {
       try {
         const { data, error } = await supabase.rpc('admin_delete_gallery_image', { p_id: id });
-        if (error) throw error;
-        emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
-        return data ?? true;
-      } catch (error) {
-        if (isMissingRpcFunction(error, 'admin_delete_gallery_image')) {
-          console.error('Supabase function admin_delete_gallery_image is not deployed. Please execute supabase/sql/admin_media_functions.sql.');
+        if (!error) {
+          emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
+          return data ?? true;
         }
-        throw error;
+
+        if (!isMissingRpcFunction(error, 'admin_delete_gallery_image')) {
+          throw error;
+        }
+        console.warn('Supabase function admin_delete_gallery_image not found. Falling back to direct mutation.');
+      } catch (rpcError) {
+        if (!isMissingRpcFunction(rpcError, 'admin_delete_gallery_image')) {
+          console.error('Error deleting gallery image via RPC:', rpcError);
+          throw rpcError;
+        }
+        console.warn('Supabase function admin_delete_gallery_image not found. Falling back to direct mutation.');
       }
+
+      const { error: directError } = await supabase.from('gallery').delete().eq('id', id);
+      if (directError) {
+        console.error('Error deleting gallery image via direct mutation:', directError);
+        throw directError;
+      }
+
+      emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
+      return true;
     }
 
     const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
@@ -944,6 +1002,13 @@ function emitCmsEvent(eventName: string) {
 }
 
 function readCmsStorage<T>(key: string, fallback: T): T {
+  if (hasSupabaseCredentials) {
+    if (Array.isArray(fallback)) {
+      return [] as unknown as T;
+    }
+    return fallback;
+  }
+
   if (typeof window === 'undefined') {
     return fallback;
   }
@@ -961,6 +1026,10 @@ function readCmsStorage<T>(key: string, fallback: T): T {
 }
 
 function writeCmsStorage<T>(key: string, value: T) {
+  if (hasSupabaseCredentials) {
+    return;
+  }
+
   if (typeof window === 'undefined') {
     return;
   }
@@ -1150,27 +1219,21 @@ export const cmsService = {
   // 배너 관리
   async getBanners(position = null, options = {}) {
     const { activeOnly = true } = options;
-    if (supabaseUrl && supabaseAnonKey) {
+
+    if (hasSupabaseCredentials) {
       try {
-        const { data, error } = await supabase.rpc('admin_list_banners');
-        if (error) throw error;
+        const rpcResult = await supabase.rpc('admin_list_banners');
+        let banners: any[] | null = null;
 
-        let banners = (data || []) as any[];
-        if (activeOnly) {
-          banners = banners.filter(b => b.is_active);
-        }
-        if (position) {
-          banners = banners.filter(b => b.position === position);
-        }
-        return banners;
-      } catch (error) {
-        if (isMissingRpcFunction(error, 'admin_list_banners')) {
-          console.warn('Supabase function admin_list_banners not found. Falling back to direct query/local cache.');
+        if (!rpcResult.error) {
+          banners = rpcResult.data || [];
+        } else if (!isMissingRpcFunction(rpcResult.error, 'admin_list_banners')) {
+          throw rpcResult.error;
         } else {
-          console.error('Error fetching banners via RPC:', error);
+          console.warn('Supabase function admin_list_banners not found. Falling back to direct query.');
         }
 
-        try {
+        if (!banners) {
           let query = supabase.from('banners').select('*');
           if (activeOnly) {
             query = query.eq('is_active', true);
@@ -1178,224 +1241,212 @@ export const cmsService = {
           if (position) {
             query = query.eq('position', position);
           }
-          const { data, error: directError } = await query.order('display_order', { ascending: true });
-          if (directError) throw directError;
-          return data || [];
-        } catch (fallbackError) {
-          console.error('Error fetching banners via direct query:', fallbackError);
+
+          const { data: directData, error: directError } = await query.order('display_order', { ascending: true });
+          if (directError) {
+            throw directError;
+          }
+          banners = directData || [];
         }
+
+        let filtered = banners;
+        if (activeOnly) {
+          filtered = filtered.filter((banner) => banner.is_active);
+        }
+        if (position) {
+          filtered = filtered.filter((banner) => banner.position === position);
+        }
+
+        return filtered;
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+        throw error;
       }
     }
 
     let banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-
-    // 샘플 데이터 강제 반환 제거 - 실제 데이터만 반환
-    // if (!banners || banners.length === 0) {
-    //   banners = [
-    //     { id: 1, title: 'Welcome Banner', description: 'Premium bath bombs', image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', position: 'hero', display_order: 1, is_active: true },
-    //     { id: 2, title: 'Special Offer', description: 'Limited time promotion', image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', position: 'middle', display_order: 1, is_active: true },
-    //     { id: 3, title: 'Follow Us', description: 'Social media updates', image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', position: 'bottom', display_order: 1, is_active: true }
-    //   ];
-    //   writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
-    // }
-
     if (activeOnly) {
-      banners = banners.filter(b => b.is_active);
+      banners = banners.filter((banner) => banner.is_active);
     }
-
     if (position) {
-      banners = banners.filter(b => b.position === position);
+      banners = banners.filter((banner) => banner.position === position);
     }
-
     return banners;
   },
 
   async createBanner(bannerData) {
-    try {
-      if (supabaseUrl && supabaseAnonKey) {
-        try {
-          const { data, error } = await supabase.rpc('admin_save_banner_image', {
-            p_id: null,
-            p_title: bannerData.title,
-            p_description: bannerData.description,
-            p_image_url: bannerData.image_url,
-            p_link_url: bannerData.link_url,
-            p_position: bannerData.position,
-            p_display_order: bannerData.display_order,
-            p_is_active: bannerData.is_active,
-            p_start_date: bannerData.start_date ?? null,
-            p_end_date: bannerData.end_date ?? null
-          });
-
-          if (error) throw error;
-          emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-          return data;
-        } catch (error) {
-          if (isMissingRpcFunction(error, 'admin_save_banner_image')) {
-            console.warn('Supabase RPC function not available, using local storage fallback');
-            // RPC 함수가 없으면 로컬 스토리지 사용
-            const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-            const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
-            banners.push(newBanner);
-            writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
-            emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-            return newBanner;
-          }
-          throw error;
-        }
-      } else {
-        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-        const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
-        banners.push(newBanner);
-        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
-        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-        return newBanner;
-      }
-    } catch (error) {
-      console.error('Error creating banner:', error);
-      // 최종 폴백으로 로컬 스토리지 사용
+    if (hasSupabaseCredentials) {
       try {
-        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-        const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
-        banners.push(newBanner);
-        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+        const rpcResult = await supabase.rpc('admin_save_banner_image', {
+          p_id: null,
+          p_title: bannerData.title,
+          p_description: bannerData.description,
+          p_image_url: bannerData.image_url,
+          p_link_url: bannerData.link_url,
+          p_position: bannerData.position,
+          p_display_order: bannerData.display_order,
+          p_is_active: bannerData.is_active,
+          p_start_date: bannerData.start_date ?? null,
+          p_end_date: bannerData.end_date ?? null
+        });
+
+        if (!rpcResult.error) {
+          emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+          return rpcResult.data;
+        }
+
+        if (!isMissingRpcFunction(rpcResult.error, 'admin_save_banner_image')) {
+          throw rpcResult.error;
+        }
+        console.warn('Supabase function admin_save_banner_image not found. Falling back to direct insert.');
+
+        const insertPayload: Record<string, any> = {
+          title: bannerData.title,
+          image_url: bannerData.image_url,
+          position: bannerData.position,
+          display_order: bannerData.display_order,
+          is_active: bannerData.is_active,
+          start_date: bannerData.start_date ?? null,
+          end_date: bannerData.end_date ?? null
+        };
+
+        if (bannerData.description !== undefined) insertPayload.description = bannerData.description;
+        if (bannerData.link_url !== undefined) insertPayload.link_url = bannerData.link_url;
+
+        const { data: insertData, error: insertError } = await supabase
+          .from('banners')
+          .insert(insertPayload)
+          .select()
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+
         emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-        return newBanner;
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
+        return insertData;
+      } catch (error) {
+        console.error('Error creating banner:', error);
         throw error;
       }
     }
+
+    const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+    const newBanner = { ...bannerData, id: Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    banners.push(newBanner);
+    writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+    emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+    return newBanner;
   },
 
   async updateBanner(id, updateData) {
-    try {
-      if (supabaseUrl && supabaseAnonKey) {
-        try {
-          const { data, error } = await supabase.rpc('admin_save_banner_image', {
-            p_id: id,
-            p_title: updateData.title,
-            p_description: updateData.description,
-            p_image_url: updateData.image_url,
-            p_link_url: updateData.link_url,
-            p_position: updateData.position,
-            p_display_order: updateData.display_order,
-            p_is_active: updateData.is_active,
-            p_start_date: updateData.start_date ?? null,
-            p_end_date: updateData.end_date ?? null
-          });
-
-          if (error) throw error;
-          emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-          return data;
-        } catch (error) {
-          if (isMissingRpcFunction(error, 'admin_save_banner_image')) {
-            console.warn('Supabase RPC function not available, using local storage fallback');
-            // RPC 함수가 없으면 로컬 스토리지 사용
-            const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-            const index = banners.findIndex(b => b.id == id);
-
-            if (index === -1) {
-              throw new Error('Banner not found');
-            }
-
-            banners[index] = {
-              ...banners[index],
-              ...updateData,
-              updated_at: new Date().toISOString()
-            };
-
-            writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
-            emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-            return banners[index];
-          }
-          throw error;
-        }
-      } else {
-        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-        const index = banners.findIndex(b => b.id == id);
-
-        if (index === -1) {
-          throw new Error('Banner not found');
-        }
-
-        banners[index] = {
-          ...banners[index],
-          ...updateData,
-          updated_at: new Date().toISOString()
-        };
-
-        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
-        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-        return banners[index];
-      }
-    } catch (error) {
-      console.error('Error updating banner:', error);
-      // 최종 폴백으로 로컬 스토리지 사용
+    if (hasSupabaseCredentials) {
       try {
-        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-        const index = banners.findIndex(b => b.id == id);
+        const rpcResult = await supabase.rpc('admin_save_banner_image', {
+          p_id: id,
+          p_title: updateData.title,
+          p_description: updateData.description,
+          p_image_url: updateData.image_url,
+          p_link_url: updateData.link_url,
+          p_position: updateData.position,
+          p_display_order: updateData.display_order,
+          p_is_active: updateData.is_active,
+          p_start_date: updateData.start_date ?? null,
+          p_end_date: updateData.end_date ?? null
+        });
 
-        if (index === -1) {
-          throw new Error('Banner not found');
+        if (!rpcResult.error) {
+          emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+          return rpcResult.data;
         }
 
-        banners[index] = {
-          ...banners[index],
-          ...updateData,
+        if (!isMissingRpcFunction(rpcResult.error, 'admin_save_banner_image')) {
+          throw rpcResult.error;
+        }
+        console.warn('Supabase function admin_save_banner_image not found. Falling back to direct update.');
+
+        const updatePayload: Record<string, any> = {
           updated_at: new Date().toISOString()
         };
 
-        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+        if (updateData.title !== undefined) updatePayload.title = updateData.title;
+        if (updateData.description !== undefined) updatePayload.description = updateData.description;
+        if (updateData.image_url !== undefined) updatePayload.image_url = updateData.image_url;
+        if (updateData.link_url !== undefined) updatePayload.link_url = updateData.link_url;
+        if (updateData.position !== undefined) updatePayload.position = updateData.position;
+        if (updateData.display_order !== undefined) updatePayload.display_order = updateData.display_order;
+        if (updateData.is_active !== undefined) updatePayload.is_active = updateData.is_active;
+        if (updateData.start_date !== undefined) updatePayload.start_date = updateData.start_date;
+        if (updateData.end_date !== undefined) updatePayload.end_date = updateData.end_date;
+
+        const mutation = supabase
+          .from('banners')
+          .update(updatePayload)
+          .eq('id', id)
+          .select()
+          .single();
+
+        const { data: updated, error: updateError } = await mutation;
+        if (updateError) {
+          throw updateError;
+        }
+
         emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-        return banners[index];
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
+        return updated;
+      } catch (error) {
+        console.error('Error updating banner:', error);
         throw error;
       }
     }
+
+    const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+    const index = banners.findIndex((banner) => banner.id == id);
+    if (index === -1) {
+      throw new Error('Banner not found');
+    }
+
+    banners[index] = {
+      ...banners[index],
+      ...updateData,
+      updated_at: new Date().toISOString()
+    };
+
+    writeCmsStorage(CMS_BANNERS_STORAGE_KEY, banners);
+    emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+    return banners[index];
   },
 
   async deleteBanner(id) {
-    try {
-      if (supabaseUrl && supabaseAnonKey) {
-        try {
-          const { data, error } = await supabase.rpc('admin_delete_banner_image', { p_id: id });
-          if (error) throw error;
-          emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-          return data ?? true;
-        } catch (error) {
-          if (isMissingRpcFunction(error, 'admin_delete_banner_image')) {
-            console.warn('Supabase RPC function not available, using local storage fallback');
-            // RPC 함수가 없으면 로컬 스토리지 사용
-            const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-            const filtered = banners.filter(b => b.id != id);
-            writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
-            emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-            return true;
-          }
-          throw error;
-        }
-      } else {
-        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-        const filtered = banners.filter(b => b.id != id);
-        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
-        emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
-        return true;
-      }
-    } catch (error) {
-      console.error('Error deleting banner:', error);
-      // 최종 폴백으로 로컬 스토리지 사용
+    if (hasSupabaseCredentials) {
       try {
-        const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
-        const filtered = banners.filter(b => b.id != id);
-        writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
+        const rpcResult = await supabase.rpc('admin_delete_banner_image', { p_id: id });
+        if (!rpcResult.error) {
+          emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+          return rpcResult.data ?? true;
+        }
+
+        if (!isMissingRpcFunction(rpcResult.error, 'admin_delete_banner_image')) {
+          throw rpcResult.error;
+        }
+        console.warn('Supabase function admin_delete_banner_image not found. Falling back to direct delete.');
+
+        const { error: deleteError } = await supabase.from('banners').delete().eq('id', id);
+        if (deleteError) {
+          throw deleteError;
+        }
+
         emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return true;
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
+      } catch (error) {
+        console.error('Error deleting banner:', error);
         throw error;
       }
     }
+
+    const banners = readCmsStorage<any[]>(CMS_BANNERS_STORAGE_KEY, []);
+    const filtered = banners.filter((banner) => banner.id != id);
+    writeCmsStorage(CMS_BANNERS_STORAGE_KEY, filtered);
+    emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
+    return true;
   }
 };
