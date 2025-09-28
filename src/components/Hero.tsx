@@ -237,7 +237,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
           <AnimatedBackground />
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
-              <div className="w-full h-[120%] relative -mt-[10%]">
+              <div className="w-full h-[140%] relative -mt-[20%]">
                 <img
                   src={currentBanner.imageUrl}
                   alt={`${currentBanner.mainTitle} - ${currentBanner.subTitle}`}
