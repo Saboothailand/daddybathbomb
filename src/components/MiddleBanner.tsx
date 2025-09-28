@@ -52,6 +52,7 @@ export default function MiddleBanner({ language = 'th' }) {
           src={banner.image_url}
           alt={banner.title}
           className="w-full h-full object-cover"
+          style={{ minHeight: '100%', maxHeight: '100%' }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"></div>
       </div>
