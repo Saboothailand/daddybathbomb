@@ -197,7 +197,7 @@ export default function HeroImageEditor({
           <img
             src={currentImageUrl}
             alt="Hero Character"
-            className="w-full h-full object-contain"
+            className="w-32 h-32 object-contain"
           />
         ) : (
           <div className="text-8xl animate-bounce" style={{ animationDuration: "2s" }}>
@@ -216,7 +216,7 @@ export default function HeroImageEditor({
             <img
               src={currentImageUrl}
               alt="Hero Character"
-              className="w-full h-full object-contain"
+              className="w-32 h-32 object-contain"
             />
           ) : (
             <div className="text-8xl animate-bounce" style={{ animationDuration: "2s" }}>
@@ -285,7 +285,7 @@ export default function HeroImageEditor({
                   <img
                     src={preview}
                     alt="Hero Image Preview"
-                    className="w-full h-full object-contain"
+                    className="w-32 h-32 object-contain"
                   />
                 </div>
                 <div className="text-xs text-gray-500">
