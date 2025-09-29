@@ -112,33 +112,33 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a3441] py-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-fredoka">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-fredoka">
             {t.title}
           </h1>
-          <p className="text-xl text-[#B8C4DB] max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             {t.subtitle}
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Form */}
-          <Card className="bg-[#11162A] border border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
-                <MessageSquare className="w-6 h-6 text-[#FF2D55]" />
+          <Card className="bg-white border border-gray-200 shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white rounded-t-lg">
+              <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                <MessageSquare className="w-6 h-6" />
                 {t.title}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                      {t.name} <span className="text-red-400">*</span>
+                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {t.name} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       type="text"
@@ -147,13 +147,13 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#FF2D55] focus:border-[#FF2D55]"
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[#FF2D55] focus:border-[#FF2D55] h-12"
                       placeholder={language === 'th' ? 'กรอกชื่อ-นามสกุล' : 'Enter your full name'}
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                      {t.email} <span className="text-red-400">*</span>
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {t.email} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       type="email"
@@ -162,15 +162,15 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#FF2D55] focus:border-[#FF2D55]"
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[#FF2D55] focus:border-[#FF2D55] h-12"
                       placeholder={language === 'th' ? 'กรอกอีเมล' : 'Enter your email'}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
                       {t.phone}
                     </label>
                     <Input
@@ -179,13 +179,13 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#FF2D55] focus:border-[#FF2D55]"
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[#FF2D55] focus:border-[#FF2D55] h-12"
                       placeholder={language === 'th' ? 'กรอกเบอร์โทรศัพท์' : 'Enter your phone number'}
                     />
                   </div>
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
-                      {t.subject} <span className="text-red-400">*</span>
+                    <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {t.subject} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       type="text"
@@ -194,15 +194,15 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
                       value={formData.subject}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#FF2D55] focus:border-[#FF2D55]"
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[#FF2D55] focus:border-[#FF2D55] h-12"
                       placeholder={language === 'th' ? 'หัวข้อข้อความ' : 'Message subject'}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
-                    {t.message} <span className="text-red-400">*</span>
+                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t.message} <span className="text-red-500">*</span>
                   </label>
                   <Textarea
                     id="message"
@@ -211,7 +211,7 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
                     onChange={handleInputChange}
                     required
                     rows={6}
-                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#FF2D55] focus:border-[#FF2D55] resize-none"
+                    className="bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[#FF2D55] focus:border-[#FF2D55] resize-none"
                     placeholder={language === 'th' ? 'กรอกข้อความที่ต้องการติดต่อ' : 'Enter your message'}
                   />
                 </div>
@@ -251,74 +251,83 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
 
           {/* Contact Information */}
           <div className="space-y-8">
-            <Card className="bg-[#11162A] border border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
-                  <Mail className="w-6 h-6 text-[#007AFF]" />
+            <Card className="bg-white border border-gray-200 shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-[#007AFF] to-[#00C2FF] text-white rounded-t-lg">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <Mail className="w-6 h-6" />
                   {t.contactInfo}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg">
+              <CardContent className="p-6 space-y-6">
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="w-12 h-12 bg-[#FF2D55] rounded-full flex items-center justify-center">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold text-lg">Email</h3>
-                    <p className="text-gray-300">admin@daddybathbomb.com</p>
+                    <h3 className="text-gray-900 font-semibold text-lg">Email</h3>
+                    <p className="text-gray-600">admin@daddybathbomb.com</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold text-lg">LINE</h3>
-                    <p className="text-gray-300">@daddybathbomb</p>
+                    <h3 className="text-gray-900 font-semibold text-lg">LINE</h3>
+                    <p className="text-gray-600">@daddybathbomb</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="w-12 h-12 bg-[#007AFF] rounded-full flex items-center justify-center">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold text-lg">{t.phone}</h3>
-                    <p className="text-gray-300">+66 123-456-7890</p>
+                    <h3 className="text-gray-900 font-semibold text-lg">{t.phone}</h3>
+                    <p className="text-gray-600">+66 123-456-7890</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#11162A] border border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
-                  <Clock className="w-6 h-6 text-[#FFD700]" />
+            <Card className="bg-white border border-gray-200 shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-[#FFD700] to-[#FF9F1C] text-white rounded-t-lg">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <Clock className="w-6 h-6" />
                   {t.businessHours}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-gray-300">
-                  <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                  <p>Saturday: 10:00 AM - 4:00 PM</p>
-                  <p>Sunday: Closed</p>
+              <CardContent className="p-6">
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span className="font-semibold">Monday - Friday</span>
+                    <span className="text-gray-600">9:00 AM - 6:00 PM</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span className="font-semibold">Saturday</span>
+                    <span className="text-gray-600">10:00 AM - 4:00 PM</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="font-semibold">Sunday</span>
+                    <span className="text-red-500">Closed</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#11162A] border border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
-                  <MapPin className="w-6 h-6 text-[#00FF88]" />
+            <Card className="bg-white border border-gray-200 shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-[#00FF88] to-[#00C2FF] text-white rounded-t-lg">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <MapPin className="w-6 h-6" />
                   {t.address}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-300">
-                  Bangkok, Thailand<br />
-                  We deliver nationwide!
-                </p>
+              <CardContent className="p-6">
+                <div className="text-gray-700">
+                  <p className="text-lg font-semibold mb-2">Bangkok, Thailand</p>
+                  <p className="text-gray-600">We deliver nationwide!</p>
+                </div>
               </CardContent>
             </Card>
           </div>
