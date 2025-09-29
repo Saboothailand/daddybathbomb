@@ -350,7 +350,7 @@ export class AdminService {
   static async getBanners(): Promise<Banner[]> {
     try {
       const { data, error } = await supabase
-        .from('banners')
+        .from('banner_images')
         .select('*')
         .order('display_order', { ascending: true });
 
@@ -374,7 +374,7 @@ export class AdminService {
   static async createBanner(banner: Omit<Banner, 'id' | 'created_at' | 'updated_at'>): Promise<Banner | null> {
     try {
       const { data, error } = await supabase
-        .from('banners')
+        .from('banner_images')
         .insert(banner)
         .select()
         .single();
@@ -390,7 +390,7 @@ export class AdminService {
   static async updateBanner(id: string, updates: Partial<Banner>): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('banners')
+        .from('banner_images')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id);
 
@@ -405,7 +405,7 @@ export class AdminService {
   static async deleteBanner(id: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from('banners')
+        .from('banner_images')
         .delete()
         .eq('id', id);
 
@@ -423,7 +423,7 @@ export class AdminService {
   static async getDashboardStats(): Promise<any> {
     try {
       const [bannersResult, heroBannersResult, galleryResult, featuresResult] = await Promise.all([
-        supabase.from('banners').select('id', { count: 'exact' }),
+        supabase.from('banner_images').select('id', { count: 'exact' }),
         supabase.from('hero_banners').select('id', { count: 'exact' }),
         supabase.from('gallery').select('id', { count: 'exact' }),
         supabase.from('features').select('id', { count: 'exact' })
@@ -737,6 +737,8 @@ export class AdminService {
       const { data, error } = await supabase
         .from('hero_banners')
         .insert({
+          title: bannerData.mainTitle,
+          subtitle: bannerData.subTitle,
           main_title: bannerData.mainTitle,
           sub_title: bannerData.subTitle,
           description: bannerData.description,
@@ -807,8 +809,14 @@ export class AdminService {
       }
 
       const updateData: any = {};
-      if (bannerData.mainTitle !== undefined) updateData.main_title = bannerData.mainTitle;
-      if (bannerData.subTitle !== undefined) updateData.sub_title = bannerData.subTitle;
+      if (bannerData.mainTitle !== undefined) {
+        updateData.main_title = bannerData.mainTitle;
+        updateData.title = bannerData.mainTitle;
+      }
+      if (bannerData.subTitle !== undefined) {
+        updateData.sub_title = bannerData.subTitle;
+        updateData.subtitle = bannerData.subTitle;
+      }
       if (bannerData.description !== undefined) updateData.description = bannerData.description;
       if (bannerData.tagline !== undefined) updateData.tagline = bannerData.tagline;
       if (bannerData.primaryButtonText !== undefined) updateData.primary_button_text = bannerData.primaryButtonText;

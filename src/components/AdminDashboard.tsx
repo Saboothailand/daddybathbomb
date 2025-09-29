@@ -26,11 +26,12 @@ import UnifiedBannerManagement from "./admin/UnifiedBannerManagement";
 import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 import SEOManagement from "./admin/SEOManagement";
+import ContactBannerManagement from "./admin/ContactBannerManagement";
 
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
-type DashboardTab = "overview" | "banners" | "features" | "gallery" | "branding" | "seo" | "settings";
+type DashboardTab = "overview" | "banners" | "features" | "gallery" | "branding" | "seo" | "contact-banners" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
@@ -83,6 +84,12 @@ const menuItems: MenuItem[] = [
     description: "Meta Tags, SEO Settings"
   },
   {
+    id: "contact-banners",
+    label: "Contact Banners",
+    icon: Image,
+    description: "Contact Page Banner Management"
+  },
+  {
     id: "settings",
     label: "Settings",
     icon: Settings,
@@ -125,6 +132,8 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
         return <ImprovedLogoManagement />;
       case "seo":
         return <SEOManagement />;
+      case "contact-banners":
+        return <ContactBannerManagement />;
       default:
         return <OverviewSection onSelectTab={setActiveTab} />;
     }

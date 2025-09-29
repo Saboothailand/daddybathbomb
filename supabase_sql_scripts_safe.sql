@@ -4,6 +4,8 @@
 -- 1. Hero Banners 테이블 생성 또는 수정
 CREATE TABLE IF NOT EXISTS public.hero_banners (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    main_title TEXT,
+    sub_title TEXT,
     title TEXT NOT NULL,
     subtitle TEXT NOT NULL,
     description TEXT,
@@ -26,6 +28,18 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                    WHERE table_name = 'hero_banners' AND column_name = 'tagline') THEN
         ALTER TABLE public.hero_banners ADD COLUMN tagline TEXT;
+    END IF;
+
+    -- main_title 컬럼 추가
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'hero_banners' AND column_name = 'main_title') THEN
+        ALTER TABLE public.hero_banners ADD COLUMN main_title TEXT;
+    END IF;
+
+    -- sub_title 컬럼 추가
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'hero_banners' AND column_name = 'sub_title') THEN
+        ALTER TABLE public.hero_banners ADD COLUMN sub_title TEXT;
     END IF;
     
     -- primary_button_text 컬럼 추가
@@ -76,6 +90,13 @@ BEGIN
         ALTER TABLE public.hero_banners ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
     END IF;
 END $$;
+
+-- 기존 데이터의 main/sub 타이틀 동기화
+UPDATE public.hero_banners
+SET
+    main_title = COALESCE(main_title, title),
+    sub_title = COALESCE(sub_title, subtitle)
+WHERE true;
 
 -- 2. Banner Images 테이블 생성
 CREATE TABLE IF NOT EXISTS public.banner_images (
@@ -160,11 +181,13 @@ CREATE TRIGGER update_banner_images_updated_at
 
 -- 6. 샘플 데이터 삽입
 INSERT INTO public.hero_banners (
-    title, subtitle, description, tagline, 
+    main_title, sub_title, title, subtitle, description, tagline, 
     primary_button_text, secondary_button_text, 
     image_url, icon_name, icon_color, is_active, display_order
 ) VALUES 
 (
+    'DADDY',
+    'BATH BOMB',
     'DADDY',
     'BATH BOMB',
     'ฮีโร่อ่างอาบน้ำ',
@@ -180,6 +203,8 @@ INSERT INTO public.hero_banners (
 (
     'FUN',
     'BATH TIME',
+    'FUN',
+    'BATH TIME',
     'Make every bath an adventure!',
     'Fun & Fizzy Adventures',
     'Shop Now',
@@ -191,6 +216,8 @@ INSERT INTO public.hero_banners (
     2
 ),
 (
+    'COLORS',
+    'GALORE',
     'COLORS',
     'GALORE',
     'Rainbow of fun awaits you!',

@@ -1219,19 +1219,19 @@ export const cmsService = {
 
     if (hasSupabaseCredentials) {
       try {
-        const rpcResult = await supabase.rpc('admin_list_banners');
+        const rpcResult = await supabase.rpc('admin_list_banner_images');
         let banners: any[] | null = null;
 
         if (!rpcResult.error) {
           banners = rpcResult.data || [];
-        } else if (!isMissingRpcFunction(rpcResult.error, 'admin_list_banners')) {
+        } else if (!isMissingRpcFunction(rpcResult.error, 'admin_list_banner_images')) {
           throw rpcResult.error;
         } else {
-          console.warn('Supabase function admin_list_banners not found. Falling back to direct query.');
+          console.warn('Supabase function admin_list_banner_images not found. Falling back to direct query.');
         }
 
         if (!banners) {
-          let query = supabase.from('banners').select('*');
+          let query = supabase.from('banner_images').select('*');
           if (activeOnly) {
             query = query.eq('is_active', true);
           }
@@ -1311,7 +1311,7 @@ export const cmsService = {
         if (bannerData.link_url !== undefined) insertPayload.link_url = bannerData.link_url;
 
         const { data: insertData, error: insertError } = await supabase
-          .from('banners')
+          .from('banner_images')
           .insert(insertPayload)
           .select()
           .single();
@@ -1377,7 +1377,7 @@ export const cmsService = {
         if (updateData.end_date !== undefined) updatePayload.end_date = updateData.end_date;
 
         const mutation = supabase
-          .from('banners')
+          .from('banner_images')
           .update(updatePayload)
           .eq('id', id)
           .select()
@@ -1427,7 +1427,7 @@ export const cmsService = {
         }
         console.warn('Supabase function admin_delete_banner_image not found. Falling back to direct delete.');
 
-        const { error: deleteError } = await supabase.from('banners').delete().eq('id', id);
+        const { error: deleteError } = await supabase.from('banner_images').delete().eq('id', id);
         if (deleteError) {
           throw deleteError;
         }
