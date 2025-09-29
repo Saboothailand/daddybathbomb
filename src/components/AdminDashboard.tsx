@@ -13,6 +13,7 @@ import { cn } from "./ui/utils";
 import { AdminService } from "../lib/adminService";
 import { supabase, galleryAdminService } from "../lib/supabase";
 import SupabaseStatus from "./SupabaseStatus";
+import SupabaseConnectionTest from "./SupabaseConnectionTest";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
@@ -291,6 +292,9 @@ function OverviewSection({
 
   return (
     <div className="space-y-8">
+      {/* Supabase 연결 상태 확인 */}
+      <SupabaseConnectionTest />
+      
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <Card className="border-gray-600 bg-[#11162A] text-white shadow-lg">
           <CardHeader>
