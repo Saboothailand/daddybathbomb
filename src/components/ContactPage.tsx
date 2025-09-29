@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Send, User, MessageSquare, Phone, MapPin, Clock, QrCode, CheckCircle, XCircle } from 'lucide-react';
 import type { LanguageKey, PageKey } from '../App';
 
@@ -7,7 +7,7 @@ type ContactPageProps = {
   navigateTo: (page: PageKey) => void;
 };
 
-export default function ContactPage({ language, navigateTo }: ContactPageProps) {
+export default function ContactPage({ language: propLanguage, navigateTo }: ContactPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,6 +17,7 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('idle');
+  const [language, setLanguage] = useState(propLanguage);
 
   const texts = {
     th: {
@@ -69,7 +70,12 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
 
   const t = texts[language];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // props에서 받은 language가 변경될 때 상태 업데이트
+  useEffect(() => {
+    setLanguage(propLanguage);
+  }, [propLanguage]);
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -77,7 +83,7 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
@@ -166,6 +172,29 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
         </div>
       </div>
 
+      {/* Middle Banner Section */}
+      <div className="py-16 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              {language === 'th' ? 'โปรโมชั่นพิเศษ!' : 'Special Promotion!'}
+            </h2>
+            <p className="text-xl md:text-2xl text-white/90 mb-8">
+              {language === 'th' 
+                ? 'ซื้อ 2 แพ็ค รับ 1 แพ็คฟรี - ข้อเสนอจำกัดเวลา' 
+                : 'Buy 2 Get 1 Free - Limited Time Offer'
+              }
+            </p>
+            <button 
+              onClick={() => navigateTo('products')}
+              className="bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              {language === 'th' ? 'ดูสินค้าตอนนี้' : 'Shop Now'}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-20">
         <div className="grid lg:grid-cols-3 gap-8">
@@ -181,7 +210,7 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
               </div>
 
               {/* Form Body */}
-              <div className="p-8 space-y-6">
+              <form onSubmit={handleSubmit} className="p-8 space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -286,7 +315,7 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
 
                 {/* Submit Button */}
                 <button
-                  onClick={handleSubmit}
+                  type="submit"
                   disabled={isSubmitting}
                   className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -302,7 +331,7 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
                     </>
                   )}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
 
@@ -393,6 +422,16 @@ export default function ContactPage({ language, navigateTo }: ContactPageProps) 
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Language Toggle (for demo) */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <button
+          onClick={() => setLanguage(prev => prev === 'th' ? 'en' : 'th')}
+          className="bg-white text-gray-700 px-6 py-3 rounded-full shadow-2xl hover:shadow-3xl transition-all font-bold border-2 border-gray-200 hover:border-gray-300"
+        >
+          {language === 'th' ? '🇹🇭 TH' : '🇬🇧 EN'}
+        </button>
       </div>
     </div>
   );

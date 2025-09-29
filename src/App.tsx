@@ -17,6 +17,7 @@ import EditableContent from "./components/EditableContent";
 import GalleryPage from "./components/GalleryPage";
 import TextWithBackground from "./components/TextWithBackground";
 import TextWithBackgroundDemo from "./components/TextWithBackgroundDemo";
+import ProductsPage from "./components/ProductsPage";
 import { authService } from "./utils/auth";
 
 const NAVIGATION_EVENT_NAME = "navigate";
@@ -24,6 +25,7 @@ const NAVIGATION_EVENT_NAME = "navigate";
 export type PageKey =
   | "home"
   | "about"
+  | "products"
   | "gallery"
   | "board"
   | "notice"
@@ -175,6 +177,10 @@ export default function App() {
 
           {currentPage === "about" && (
             <AboutPage navigateTo={navigateTo} language={language} />
+          )}
+
+          {currentPage === "products" && (
+            <ProductsPage navigateTo={navigateTo} language={language} />
           )}
 
 

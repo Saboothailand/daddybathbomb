@@ -4,7 +4,6 @@ import { Instagram, Heart, Star, Zap } from "lucide-react";
 import type { LanguageKey } from "../App";
 import { galleryService } from "../lib/supabase";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import ImageModal from "./ImageModal";
 
 type GalleryItem = {
   id: number | string;
@@ -29,8 +28,6 @@ const fallbackPosts: GalleryItem[] = [
 
 export default function InstagramGallery({ language }: InstagramGalleryProps) {
   const [posts, setPosts] = useState<GalleryItem[]>(fallbackPosts);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const loadGallery = async () => {
@@ -53,17 +50,8 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
     loadGallery();
   }, []);
 
-  const handleImageClick = (index: number) => {
-    setCurrentImageIndex(index);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleIndexChange = (index: number) => {
-    setCurrentImageIndex(index);
+  const handleImageClick = () => {
+    window.dispatchEvent(new CustomEvent("navigate", { detail: "gallery" }));
   };
 
   return (
@@ -99,10 +87,10 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          {posts.map((post, index) => (
+          {posts.map((post) => (
             <div
               key={post.id}
-              onClick={() => handleImageClick(index)}
+              onClick={handleImageClick}
               className="aspect-square bg-white/10 rounded-3xl comic-border border-4 border-white hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative overflow-hidden backdrop-blur-lg group cursor-pointer"
             >
               <ImageWithFallback
@@ -142,14 +130,6 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
         </div>
       </div>
 
-      {/* Image Modal */}
-      <ImageModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        images={posts}
-        currentIndex={currentImageIndex}
-        onIndexChange={handleIndexChange}
-      />
     </section>
   );
 }
