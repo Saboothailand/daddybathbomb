@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { AdminService } from '../lib/adminService';
 import { supabase } from '../lib/supabase';
+import { authService } from '../utils/auth';
 
 interface HeroImageEditorProps {
   currentImageUrl?: string;
@@ -21,29 +22,23 @@ export default function HeroImageEditor({
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(authService.isAdmin());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    // 관리자 모드 확인
-    const checkAdminMode = () => {
-      const adminMode = localStorage.getItem('adminMode') === 'true' || 
-                       window.location.hash === '#admin';
-      setIsAdminMode(adminMode);
+    let active = true;
+
+    const updateAdminState = () => {
+      if (!active) return;
+      setIsAdminMode(authService.isAdmin());
     };
 
-    checkAdminMode();
-    
-    const handleAdminModeChange = () => {
-      checkAdminMode();
-    };
+    authService.initialize().finally(updateAdminState);
+    const unsubscribe = authService.subscribe(updateAdminState);
 
-    window.addEventListener('adminModeChanged', handleAdminModeChange);
-    window.addEventListener('hashchange', handleAdminModeChange);
-    
     return () => {
-      window.removeEventListener('adminModeChanged', handleAdminModeChange);
-      window.removeEventListener('hashchange', handleAdminModeChange);
+      active = false;
+      unsubscribe?.();
     };
   }, []);
 

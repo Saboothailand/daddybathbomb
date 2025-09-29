@@ -14,6 +14,24 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  const translateErrorMessage = (message) => {
+    if (!message) {
+      return language === 'th' ? 'เข้าสู่ระบบล้มเหลว' : 'Login failed.';
+    }
+    const lowered = message.toLowerCase();
+    if (lowered.includes('invalid login credentials')) {
+      return language === 'th'
+        ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+        : 'Invalid email or password.';
+    }
+    if (lowered.includes('email not confirmed')) {
+      return language === 'th'
+        ? 'กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ'
+        : 'Please confirm your email before logging in.';
+    }
+    return message;
+  };
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -29,24 +47,29 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
 
     try {
       if (mode === 'login') {
-        // authService를 통한 로그인
         const result = await authService.login(formData.email, formData.password);
+
         if (result.success) {
-          if (authService.isAdmin(result.user)) {
-            setSuccess('관리자로 로그인되었습니다!');
-            setTimeout(() => {
-              onClose();
-              // 관리자 페이지로 이동하는 이벤트 발생
-              window.dispatchEvent(new CustomEvent('navigate', { detail: 'admin' }));
-            }, 1000);
-          } else {
-            setSuccess('로그인되었습니다!');
-            setTimeout(() => {
-              onClose();
-            }, 1000);
+          const isAdminUser = authService.isAdmin(result.user);
+          if (!isAdminUser) {
+            const adminOnlyText = language === 'th'
+              ? 'บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ'
+              : 'This account does not have admin access.';
+            setError(adminOnlyText);
+            await authService.logout();
+            return;
           }
+
+          const successText = language === 'th'
+            ? 'เข้าสู่ระบบผู้ดูแลระบบสำเร็จ!'
+            : 'Logged in as admin!';
+          setSuccess(successText);
+          setTimeout(() => {
+            onClose();
+            window.dispatchEvent(new CustomEvent('navigate', { detail: 'admin' }));
+          }, 800);
         } else {
-          setError(result.error || '로그인에 실패했습니다.');
+          setError(translateErrorMessage(result.error) || (language === 'th' ? 'เข้าสู่ระบบล้มเหลว' : 'Login failed.'));
         }
       } else {
         // 임시 회원가입 로직
@@ -61,7 +84,7 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
         }, 1000);
       }
     } catch (err) {
-      setError('오류가 발생했습니다. 다시 시도해주세요.');
+      setError(language === 'th' ? 'เกิดข้อผิดพลาด โปรดลองอีกครั้ง' : 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

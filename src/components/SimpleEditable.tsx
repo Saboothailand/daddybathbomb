@@ -3,6 +3,7 @@ import { Edit3, Save, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import { authService } from '../utils/auth';
 
 interface SimpleEditableProps {
   value: string;
@@ -24,32 +25,26 @@ export default function SimpleEditable({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const [saving, setSaving] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(authService.isAdmin());
 
   useEffect(() => {
     setEditValue(value);
   }, [value]);
 
   useEffect(() => {
-    // 관리자 모드 확인
-    const checkAdminMode = () => {
-      const adminMode = localStorage.getItem('adminMode') === 'true' || 
-                       window.location.hash === '#admin';
-      setIsAdminMode(adminMode);
+    let active = true;
+
+    const updateAdminState = () => {
+      if (!active) return;
+      setIsAdminMode(authService.isAdmin());
     };
 
-    checkAdminMode();
-    
-    const handleAdminModeChange = () => {
-      checkAdminMode();
-    };
+    authService.initialize().finally(updateAdminState);
+    const unsubscribe = authService.subscribe(updateAdminState);
 
-    window.addEventListener('adminModeChanged', handleAdminModeChange);
-    window.addEventListener('hashchange', handleAdminModeChange);
-    
     return () => {
-      window.removeEventListener('adminModeChanged', handleAdminModeChange);
-      window.removeEventListener('hashchange', handleAdminModeChange);
+      active = false;
+      unsubscribe?.();
     };
   }, []);
 

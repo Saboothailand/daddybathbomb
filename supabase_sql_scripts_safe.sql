@@ -108,7 +108,12 @@ CREATE POLICY "Allow read access to hero banners" ON public.hero_banners
     FOR SELECT USING (true);
 
 CREATE POLICY "Allow admin to manage hero banners" ON public.hero_banners
-    FOR ALL USING (true);
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
 
 -- Banner Images 정책 생성
 CREATE POLICY "Public read access for active banners" ON public.banner_images
@@ -119,7 +124,12 @@ CREATE POLICY "Public read access for active banners" ON public.banner_images
     );
 
 CREATE POLICY "Admin full access for banner_images" ON public.banner_images
-    FOR ALL USING (true);
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
 
 -- 4. 업데이트 트리거 함수 생성
 CREATE OR REPLACE FUNCTION update_updated_at_column()

@@ -121,10 +121,16 @@ export default function CMSHeader({
     window.addEventListener("logoChanged", handleLogoChange);
 
     return () => {
-      window.removeEventListener("brandingUpdated", handleBrandingUpdate);
-      window.removeEventListener("logoChanged", handleLogoChange);
-    };
-  }, [loadBranding]);
+    window.removeEventListener("brandingUpdated", handleBrandingUpdate);
+    window.removeEventListener("logoChanged", handleLogoChange);
+  };
+}, [loadBranding]);
+
+  useEffect(() => {
+    const openAuthModal = () => setShowAuth(true);
+    window.addEventListener('auth:open-modal', openAuthModal);
+    return () => window.removeEventListener('auth:open-modal', openAuthModal);
+  }, []);
 
   const navItems: NavItem[] = useMemo(
     () => [
