@@ -1,8 +1,12 @@
 -- Supabase 테이블 설정 SQL 스크립트
 -- 이 파일의 내용을 Supabase SQL Editor에서 실행하세요
 
+-- 0. 기존 테이블 삭제 (필요시)
+DROP TABLE IF EXISTS public.hero_banners CASCADE;
+DROP TABLE IF EXISTS public.banner_images CASCADE;
+
 -- 1. Hero Banners 테이블 생성
-CREATE TABLE IF NOT EXISTS public.hero_banners (
+CREATE TABLE public.hero_banners (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     subtitle TEXT NOT NULL,
@@ -116,7 +120,7 @@ INSERT INTO public.hero_banners (
 );
 
 -- 2. Banner Images 테이블 생성
-CREATE TABLE IF NOT EXISTS public.banner_images (
+CREATE TABLE public.banner_images (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,

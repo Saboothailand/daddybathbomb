@@ -546,13 +546,12 @@ export const galleryAdminService = {
         }
 
         if (!isMissingRpcFunction(error, 'admin_list_gallery')) {
-          throw error;
+          console.error('Supabase admin_list_gallery RPC error:', error);
         }
         console.warn('Supabase function admin_list_gallery not found. Falling back to direct query.');
       } catch (rpcError) {
         if (!isMissingRpcFunction(rpcError, 'admin_list_gallery')) {
           console.error('Error fetching admin gallery images via RPC:', rpcError);
-          throw rpcError;
         }
         console.warn('Supabase function admin_list_gallery not found. Falling back to direct query.');
       }
@@ -564,10 +563,10 @@ export const galleryAdminService = {
       const { data: directData, error: directError } = await query.order('display_order', { ascending: true });
       if (directError) {
         console.error('Error fetching admin gallery images via direct query:', directError);
-        throw directError;
+        console.warn('Falling back to local gallery storage.');
+      } else {
+        return directData || [];
       }
-
-      return directData || [];
     }
 
     const cached = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
@@ -598,13 +597,12 @@ export const galleryAdminService = {
         }
 
         if (!isMissingRpcFunction(error, 'admin_save_gallery_image')) {
-          throw error;
+          console.error('Supabase admin_save_gallery_image RPC error:', error);
         }
         console.warn('Supabase function admin_save_gallery_image not found. Falling back to direct mutation.');
       } catch (rpcError) {
         if (!isMissingRpcFunction(rpcError, 'admin_save_gallery_image')) {
           console.error('Error saving gallery image via RPC:', rpcError);
-          throw rpcError;
         }
         console.warn('Supabase function admin_save_gallery_image not found. Falling back to direct mutation.');
       }
@@ -634,13 +632,13 @@ export const galleryAdminService = {
             .single();
 
       const { data: directData, error: directError } = await mutation;
-      if (directError) {
-        console.error('Error saving gallery image via direct mutation:', directError);
-        throw directError;
+      if (!directError) {
+        emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
+        return directData;
       }
 
-      emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
-      return directData;
+      console.error('Error saving gallery image via direct mutation:', directError);
+      console.warn('Falling back to local gallery storage save operation.');
     }
 
     const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
@@ -681,25 +679,24 @@ export const galleryAdminService = {
         }
 
         if (!isMissingRpcFunction(error, 'admin_delete_gallery_image')) {
-          throw error;
+          console.error('Supabase admin_delete_gallery_image RPC error:', error);
         }
         console.warn('Supabase function admin_delete_gallery_image not found. Falling back to direct mutation.');
       } catch (rpcError) {
         if (!isMissingRpcFunction(rpcError, 'admin_delete_gallery_image')) {
           console.error('Error deleting gallery image via RPC:', rpcError);
-          throw rpcError;
         }
         console.warn('Supabase function admin_delete_gallery_image not found. Falling back to direct mutation.');
       }
 
       const { error: directError } = await supabase.from('gallery').delete().eq('id', id);
-      if (directError) {
-        console.error('Error deleting gallery image via direct mutation:', directError);
-        throw directError;
+      if (!directError) {
+        emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
+        return true;
       }
 
-      emitCmsEvent(CMS_GALLERY_UPDATED_EVENT);
-      return true;
+      console.error('Error deleting gallery image via direct mutation:', directError);
+      console.warn('Falling back to local gallery storage delete operation.');
     }
 
     const gallery = readCmsStorage<any[]>(CMS_GALLERY_STORAGE_KEY, getMockData('gallery'));
@@ -1259,8 +1256,8 @@ export const cmsService = {
 
         return filtered;
       } catch (error) {
-        console.error('Error fetching banners:', error);
-        throw error;
+        console.error('Error fetching banners from Supabase:', error);
+        console.warn('Falling back to local banner storage.');
       }
     }
 
@@ -1326,8 +1323,8 @@ export const cmsService = {
         emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return insertData;
       } catch (error) {
-        console.error('Error creating banner:', error);
-        throw error;
+        console.error('Error creating banner via Supabase:', error);
+        console.warn('Falling back to local banner storage create operation.');
       }
     }
 
@@ -1394,8 +1391,8 @@ export const cmsService = {
         emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return updated;
       } catch (error) {
-        console.error('Error updating banner:', error);
-        throw error;
+        console.error('Error updating banner via Supabase:', error);
+        console.warn('Falling back to local banner storage update operation.');
       }
     }
 
@@ -1438,8 +1435,8 @@ export const cmsService = {
         emitCmsEvent(CMS_BANNERS_UPDATED_EVENT);
         return true;
       } catch (error) {
-        console.error('Error deleting banner:', error);
-        throw error;
+        console.error('Error deleting banner via Supabase:', error);
+        console.warn('Falling back to local banner storage delete operation.');
       }
     }
 

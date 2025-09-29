@@ -4,6 +4,7 @@ import { validateImageFile, createImagePreview } from '../utils/imageUpload';
 import { supabase, hasSupabaseCredentials } from '../lib/supabase';
 
 const DEFAULT_LABEL = 'Upload Image';
+const CONFIGURED_BUCKET = import.meta.env.VITE_SUPABASE_STORAGE_BUCKET?.trim();
 
 type ImageUploadProps = {
   onImageUpload?: (url: string) => void;
@@ -35,7 +36,15 @@ export default function ImageUpload({
     const filePath = `${folder}/${uniqueId}.${fileExt}`;
 
     // 먼저 가능한 버킷들을 시도해봅니다
-    const bucketNames = ['images', 'uploads', 'public', 'storage'];
+    const bucketNames = Array.from(
+      new Set([
+        ...(CONFIGURED_BUCKET ? [CONFIGURED_BUCKET] : []),
+        'images',
+        'uploads',
+        'public',
+        'storage'
+      ])
+    );
     let uploadError: any = null;
     let successBucket: string | null = null;
 
@@ -62,7 +71,12 @@ export default function ImageUpload({
 
     if (!successBucket) {
       console.error('All bucket upload attempts failed:', uploadError);
-      throw new Error(`Upload failed: ${uploadError?.message || 'All storage buckets unavailable'}`);
+      const bucketHint = CONFIGURED_BUCKET
+        ? `Check that the "${CONFIGURED_BUCKET}" bucket exists and allows public uploads.`
+        : 'Set VITE_SUPABASE_STORAGE_BUCKET to target a specific bucket.';
+      throw new Error(
+        `Upload failed: ${uploadError?.message || 'All storage buckets unavailable'}. ${bucketHint}`
+      );
     }
 
     const { data: { publicUrl } } = supabase.storage

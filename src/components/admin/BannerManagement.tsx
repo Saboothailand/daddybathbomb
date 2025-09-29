@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Edit3, 
   Save, 
@@ -55,6 +55,7 @@ export default function BannerManagement({ embedded = false }: BannerManagementP
   const [loading, setLoading] = useState(true);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const formRef = useRef<HTMLDivElement | null>(null);
   const [formData, setFormData] = useState<BannerFormData>({
     title: '',
     description: '',
@@ -138,6 +139,12 @@ export default function BannerManagement({ embedded = false }: BannerManagementP
     }
   };
 
+  const focusForm = () => {
+    window.requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   const startEdit = (banner: Banner) => {
     setEditingBanner(banner);
     setFormData({
@@ -150,6 +157,7 @@ export default function BannerManagement({ embedded = false }: BannerManagementP
       position: banner.position
     });
     setShowForm(true);
+    focusForm();
   };
 
   const startCreate = (bannerPosition: BannerPosition) => {
@@ -168,6 +176,7 @@ export default function BannerManagement({ embedded = false }: BannerManagementP
       position: bannerPosition
     });
     setShowForm(true);
+    focusForm();
   };
 
   const resetForm = () => {
@@ -344,7 +353,7 @@ export default function BannerManagement({ embedded = false }: BannerManagementP
       {/* Right column: banner edit form */}
       <div className="w-96 flex-shrink-0">
         {showForm ? (
-          <Card className="bg-[#11162A] border-gray-600 h-full">
+          <Card ref={formRef} className="bg-[#11162A] border-gray-600 h-full">
             <CardHeader className="border-b border-gray-600 bg-gray-800/50">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-white text-lg font-bold drop-shadow-sm">
