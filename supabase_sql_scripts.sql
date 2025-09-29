@@ -1,23 +1,7 @@
-# Supabase 테이블 설정 가이드
+-- Supabase 테이블 설정 SQL 스크립트
+-- 이 파일의 내용을 Supabase SQL Editor에서 실행하세요
 
-## 문제 상황
-현재 Supabase 테이블에 데이터가 입력되지 않는 문제가 있습니다. 이는 테이블이 생성되지 않았거나 RLS(Row Level Security) 정책이 올바르게 설정되지 않았기 때문일 수 있습니다.
-
-## 해결 방법
-
-### 1. Supabase 웹 대시보드 접속
-1. [Supabase Dashboard](https://supabase.com/dashboard)에 로그인
-2. 프로젝트 선택
-3. 왼쪽 메뉴에서 "SQL Editor" 클릭
-
-### 2. SQL 스크립트 실행
-**중요**: `supabase_sql_scripts.sql` 파일의 전체 내용을 복사하여 SQL Editor에 붙여넣고 실행하세요.
-
-#### 또는 단계별로 실행:
-
-#### A. Hero Banners 테이블 생성
-```sql
--- Hero Banners table for managing main page banners
+-- 1. Hero Banners 테이블 생성
 CREATE TABLE IF NOT EXISTS public.hero_banners (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
@@ -35,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.hero_banners (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- RLS 정책 설정
+-- Hero Banners RLS 정책 설정
 ALTER TABLE public.hero_banners ENABLE ROW LEVEL SECURITY;
 
 -- 모든 사용자가 읽기 가능
@@ -46,7 +30,7 @@ CREATE POLICY "Allow read access to hero banners" ON public.hero_banners
 CREATE POLICY "Allow admin to manage hero banners" ON public.hero_banners
     FOR ALL USING (true);
 
--- 샘플 데이터 삽입
+-- Hero Banners 샘플 데이터 삽입
 INSERT INTO public.hero_banners (
     title, subtitle, description, tagline, 
     primary_button_text, secondary_button_text, 
@@ -90,12 +74,48 @@ INSERT INTO public.hero_banners (
     '#00FF88',
     true,
     3
+),
+(
+    'SPARKLE',
+    'MAGIC',
+    'Add sparkle to your day!',
+    'Magical Bath Moments',
+    'Discover',
+    'Stories',
+    'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=600&fit=crop',
+    'Sparkles',
+    '#FFD700',
+    true,
+    4
+),
+(
+    'RELAX',
+    'REVIVE',
+    'Perfect relaxation time!',
+    'Relaxing Bath Therapy',
+    'Shop',
+    'About',
+    'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1200&h=600&fit=crop',
+    'Wind',
+    '#AF52DE',
+    true,
+    5
+),
+(
+    'FAMILY',
+    'FUN',
+    'Fun for the whole family!',
+    'Family Bath Time',
+    'Products',
+    'Contact',
+    'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=600&fit=crop',
+    'Users',
+    '#FF9F1C',
+    true,
+    6
 );
-```
 
-#### B. Banner Images 테이블 생성
-```sql
--- 배너 이미지 테이블 (상단/중간/하단 배너 관리)
+-- 2. Banner Images 테이블 생성
 CREATE TABLE IF NOT EXISTS public.banner_images (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title TEXT NOT NULL,
@@ -111,7 +131,7 @@ CREATE TABLE IF NOT EXISTS public.banner_images (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- RLS 정책 설정
+-- Banner Images RLS 정책 설정
 ALTER TABLE public.banner_images ENABLE ROW LEVEL SECURITY;
 
 -- 모든 사용자가 활성 배너 읽기 가능
@@ -126,43 +146,52 @@ CREATE POLICY "Public read access for active banners" ON public.banner_images
 CREATE POLICY "Admin full access for banner_images" ON public.banner_images
     FOR ALL USING (true);
 
--- 샘플 배너 데이터 삽입
+-- Banner Images 샘플 데이터 삽입
 INSERT INTO public.banner_images (title, description, image_url, position, display_order) VALUES
 ('Welcome to Daddy Bath Bomb', 'Premium natural bath bombs for ultimate relaxation', 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', 'hero', 1),
 ('Special Promotion', 'Limited time offer - Buy 2 Get 1 Free', 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1200&h=400&fit=crop', 'middle', 1),
-('Follow Us on Social Media', 'Stay updated with our latest products and offers', 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', 'bottom', 1);
-```
+('Gift Sets Available', 'Perfect gifts for your loved ones', 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1200&h=400&fit=crop', 'middle', 2),
+('Follow Us on Social Media', 'Stay updated with our latest products and offers', 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=300&fit=crop', 'bottom', 1),
+('Newsletter Signup', 'Get exclusive deals and bath tips delivered to your inbox', 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1200&h=300&fit=crop&sig=newsletter', 'bottom', 2);
 
-### 3. 환경 변수 확인
-`.env` 파일에 다음이 설정되어 있는지 확인:
-```
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+-- 3. 인덱스 생성 (성능 향상)
+CREATE INDEX IF NOT EXISTS idx_hero_banners_display_order ON public.hero_banners(display_order);
+CREATE INDEX IF NOT EXISTS idx_hero_banners_is_active ON public.hero_banners(is_active);
+CREATE INDEX IF NOT EXISTS idx_banner_images_position_active ON public.banner_images(position, is_active, display_order);
+CREATE INDEX IF NOT EXISTS idx_banner_images_dates ON public.banner_images(start_date, end_date);
 
-### 4. 테이블 생성 확인
-SQL Editor에서 다음 쿼리로 테이블이 생성되었는지 확인:
-```sql
+-- 4. 업데이트 트리거 함수 생성
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Hero Banners 업데이트 트리거
+CREATE TRIGGER update_hero_banners_updated_at
+    BEFORE UPDATE ON public.hero_banners
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Banner Images 업데이트 트리거
+CREATE TRIGGER update_banner_images_updated_at
+    BEFORE UPDATE ON public.banner_images
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- 5. 테이블 생성 확인 쿼리
+SELECT 'Tables created successfully' as status;
+
 -- 테이블 목록 확인
 SELECT table_name 
 FROM information_schema.tables 
 WHERE table_schema = 'public' 
-AND table_name IN ('hero_banners', 'banner_images');
+AND table_name IN ('hero_banners', 'banner_images')
+ORDER BY table_name;
 
--- 데이터 확인
-SELECT * FROM public.hero_banners LIMIT 5;
-SELECT * FROM public.banner_images LIMIT 5;
-```
-
-### 5. 애플리케이션에서 테스트
-1. 관리자 페이지 접속
-2. Banner Management 섹션에서 데이터가 표시되는지 확인
-3. 새 배너 추가/수정 기능 테스트
-
-## 문제 해결 체크리스트
-- [ ] Supabase 프로젝트가 활성화되어 있는가?
-- [ ] 환경 변수가 올바르게 설정되어 있는가?
-- [ ] 테이블이 생성되었는가?
-- [ ] RLS 정책이 올바르게 설정되어 있는가?
-- [ ] 샘플 데이터가 삽입되었는가?
-- [ ] 애플리케이션에서 데이터를 읽을 수 있는가?
+-- 데이터 개수 확인
+SELECT 'hero_banners' as table_name, COUNT(*) as record_count FROM public.hero_banners
+UNION ALL
+SELECT 'banner_images' as table_name, COUNT(*) as record_count FROM public.banner_images;
