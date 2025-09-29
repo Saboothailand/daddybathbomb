@@ -45,7 +45,7 @@ export default function MiddleBanner({ language = 'th' }) {
   const banner = banners[currentBanner];
 
   return (
-    <section className="py-16 relative overflow-hidden">
+    <section className="relative overflow-hidden h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px]">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
@@ -58,7 +58,7 @@ export default function MiddleBanner({ language = 'th' }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 animate-fade-in-up">
             {banner.title}
@@ -84,7 +84,7 @@ export default function MiddleBanner({ language = 'th' }) {
 
       {/* Banner Indicators */}
       {banners.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 flex space-x-3">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex space-x-3">
           {banners.map((_, index) => (
             <button
               key={index}

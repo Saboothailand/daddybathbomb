@@ -232,8 +232,8 @@ export default function Hero({ language, navigateTo }: HeroProps) {
 
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
-        {/* 메인 배너 영역 - 이미지 비율에 맞춘 크기 */}
-        <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[500px] relative mb-0 sm:mb-0 lg:mb-1">
+        {/* 메인 배너 영역 - 미들 배너와 동일한 비율로 통일 */}
+        <div className="w-full h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px] relative mb-0 sm:mb-0 lg:mb-1">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
