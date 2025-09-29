@@ -100,6 +100,14 @@ export default function Header({
     };
   }, [loadBranding]);
 
+  useEffect(() => {
+    const openAuthModal = () => setShowAuth(true);
+    window.addEventListener('auth:open-modal', openAuthModal);
+    return () => {
+      window.removeEventListener('auth:open-modal', openAuthModal);
+    };
+  }, []);
+
   const navItems: NavItem[] = useMemo(
     () => [
       {
@@ -208,8 +216,8 @@ export default function Header({
             ))}
           </nav>
 
-          <div className="flex items-center space-x-3">
-            <div className="hidden xl:flex items-center space-x-4 mr-4">
+          <div className="flex items-center space-x-4">
+            <div className="hidden xl:flex items-center space-x-4 mr-6">
               {utilityItems.map((item) => (
                 <button
                   key={item.key}
@@ -231,12 +239,11 @@ export default function Header({
             <select
               value={language}
               onChange={(event) => changeLanguage(event.target.value as LanguageKey)}
-              className="hidden md:block bg-[#151B2E] border border-[#334155] text-[#B8C4DB] text-sm font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF2D55]"
+              className="hidden md:block bg-[#151B2E] border border-[#334155] text-[#B8C4DB] text-sm font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF2D55] mr-2"
             >
               <option value="th">🇹🇭 ไทย</option>
               <option value="en">🇺🇸 English</option>
             </select>
-
 
             <Button
               variant="ghost"
@@ -246,7 +253,6 @@ export default function Header({
             >
               <User className="h-6 w-6" />
             </Button>
-
 
             <Button
               variant="ghost"

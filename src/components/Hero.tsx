@@ -223,13 +223,6 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       {/* 관리자 토글 버튼 */}
       <AdminToggle />
 
-      <div className="absolute top-4 right-4 z-20 hidden lg:block">
-        <div className="bg-white rounded-full px-4 py-2 comic-border relative">
-          <span className="font-fredoka text-black font-bold">POW!</span>
-          <div className="absolute -bottom-2 left-6 w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-white" />
-        </div>
-      </div>
-
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
         {/* 메인 배너 영역 - 미들 배너와 동일한 비율로 통일 */}

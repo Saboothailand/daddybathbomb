@@ -17,6 +17,7 @@ import EditableContent from "./components/EditableContent";
 import GalleryPage from "./components/GalleryPage";
 import TextWithBackground from "./components/TextWithBackground";
 import TextWithBackgroundDemo from "./components/TextWithBackgroundDemo";
+import { authService } from "./utils/auth";
 
 const NAVIGATION_EVENT_NAME = "navigate";
 
@@ -45,9 +46,16 @@ declare global {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageKey>("home");
   const [language, setLanguage] = useState<LanguageKey>("th");
+  const [isAdmin, setIsAdmin] = useState(authService.isAdmin());
 
   const navigateTo = useCallback((page: PageKey) => {
+    if (page === "admin" && !authService.isAdmin()) {
+      window.dispatchEvent(new CustomEvent('auth:open-modal'));
+      return;
+    }
+
     setCurrentPage(page);
+
     if (page === "admin") {
       window.location.hash = "#admin";
     } else if (window.location.hash) {
@@ -78,6 +86,18 @@ export default function App() {
   }, [navigateTo, changeLanguage, currentPage, language]);
 
   useEffect(() => {
+    authService.initialize();
+
+    const unsubscribe = authService.subscribe(() => {
+      setIsAdmin(authService.isAdmin());
+    });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, []);
+
+  useEffect(() => {
     const handleNavigation = (event: Event) => {
       const customEvent = event as CustomEvent<PageKey>;
       if (customEvent.detail) {
@@ -87,12 +107,20 @@ export default function App() {
 
     const handleHashNavigation = () => {
       if (window.location.hash === "#admin") {
-        navigateTo("admin");
-        // 관리자 모드 활성화
-        localStorage.setItem('admin_mode', 'true');
+        if (authService.isAdmin()) {
+          setCurrentPage("admin");
+        } else {
+          window.dispatchEvent(new CustomEvent('auth:open-modal'));
+          window.history.replaceState(
+            null,
+            "",
+            window.location.pathname + window.location.search,
+          );
+        }
       } else {
-        // 관리자 모드 비활성화
-        localStorage.setItem('admin_mode', 'false');
+        if (currentPage === "admin") {
+          setCurrentPage("home");
+        }
       }
     };
 
@@ -105,7 +133,18 @@ export default function App() {
       window.removeEventListener(NAVIGATION_EVENT_NAME, handleNavigation as EventListener);
       window.removeEventListener("hashchange", handleHashNavigation);
     };
-  }, [navigateTo]);
+  }, [navigateTo, currentPage]);
+
+  useEffect(() => {
+    if (!isAdmin && currentPage === "admin") {
+      setCurrentPage("home");
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+  }, [isAdmin, currentPage]);
 
 
   return (
@@ -127,9 +166,9 @@ export default function App() {
           {currentPage === "home" && (
             <main>
               <Hero navigateTo={navigateTo} language={language} />
+              <InstagramGallery language={language} />
               <FunFeatures language={language} />
               <MiddleBanner language={language} navigateTo={navigateTo} />
-              <InstagramGallery language={language} />
               <HowToUse language={language} />
             </main>
           )}
