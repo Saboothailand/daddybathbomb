@@ -45,7 +45,7 @@ export default function MiddleBanner({ language = 'th' }) {
   const banner = banners[currentBanner];
 
   return (
-    <section className="relative overflow-hidden h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px]">
+    <section className="relative overflow-hidden h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px] group">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
@@ -82,20 +82,45 @@ export default function MiddleBanner({ language = 'th' }) {
         </div>
       </div>
 
-      {/* Banner Indicators */}
+      {/* 좌우 화살표 네비게이션 - 호버 시에만 표시 */}
       {banners.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex space-x-3">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentBanner ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'
-              }`}
-              onClick={() => setCurrentBanner(index)}
-              aria-label={`Go to banner ${index + 1}`}
-            />
-          ))}
-        </div>
+        <>
+          {/* 이전 버튼 */}
+          <button
+            onClick={() => setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length)}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 sm:w-16 sm:h-16 bg-black/30 hover:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100"
+            aria-label="Previous banner"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          {/* 다음 버튼 */}
+          <button
+            onClick={() => setCurrentBanner((prev) => (prev + 1) % banners.length)}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 sm:w-16 sm:h-16 bg-black/30 hover:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100"
+            aria-label="Next banner"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          
+          {/* 하단 인디케이터 */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex space-x-2">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                  index === currentBanner ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'
+                }`}
+                onClick={() => setCurrentBanner(index)}
+                aria-label={`Go to banner ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {/* Decorative Elements */}

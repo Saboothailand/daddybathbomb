@@ -233,7 +233,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
       {/* 컨테이너 - 100% 너비로 완전 반응형 */}
       <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10 pt-1 sm:pt-2 lg:pt-3">
         {/* 메인 배너 영역 - 미들 배너와 동일한 비율로 통일 */}
-        <div className="w-full h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px] relative mb-0 sm:mb-0 lg:mb-1">
+        <div className="w-full h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px] relative mb-0 sm:mb-0 lg:mb-1 group">
           <div className={BANNER_CLASSES.container}>
             {currentBanner.imageUrl ? (
               <div className="w-full h-full relative">
@@ -297,25 +297,34 @@ export default function Hero({ language, navigateTo }: HeroProps) {
             )}
           </div>
           
-          {/* 배너 네비게이션 - 배너 하단에 위치 */}
+          {/* 좌우 화살표 네비게이션 - 호버 시에만 표시 */}
           {banners.length > 1 && (
-            <div className="absolute -bottom-8 sm:-bottom-10 left-1/2 transform -translate-x-1/2 flex items-center space-x-3 sm:space-x-4 bg-black/70 backdrop-blur-lg rounded-full px-4 sm:px-6 py-2 sm:py-3 border-2 border-white/20">
-              <Button
-                variant="outline"
-                size="sm"
+            <>
+              {/* 이전 버튼 */}
+              <button
                 onClick={goToPrevBanner}
-                className="border-gray-300 bg-white text-black hover:bg-gray-100 w-7 h-7 sm:w-8 sm:h-8 p-0"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 sm:w-16 sm:h-16 bg-black/30 hover:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100"
                 aria-label="Previous banner"
               >
-                <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
-              </Button>
+                <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+              </button>
               
-              <div className="flex space-x-1 sm:space-x-2" role="tablist" aria-label="Banner navigation">
+              {/* 다음 버튼 */}
+              <button
+                onClick={goToNextBanner}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 sm:w-16 sm:h-16 bg-black/30 hover:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100"
+                aria-label="Next banner"
+              >
+                <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+              </button>
+              
+              {/* 하단 인디케이터 */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex space-x-2">
                 {banners.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentBannerIndex(index)}
-                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                       index === currentBannerIndex
                         ? "bg-[#FF2D55] scale-125"
                         : "bg-white/70 hover:bg-white/90"
@@ -326,17 +335,7 @@ export default function Hero({ language, navigateTo }: HeroProps) {
                   />
                 ))}
               </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextBanner}
-                className="border-gray-300 bg-white text-black hover:bg-gray-100 w-7 h-7 sm:w-8 sm:h-8 p-0"
-                aria-label="Next banner"
-              >
-                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
-              </Button>
-            </div>
+            </>
           )}
         </div>
 
