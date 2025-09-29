@@ -4,6 +4,7 @@ import { Instagram, Heart, Star, Zap } from "lucide-react";
 import type { LanguageKey } from "../App";
 import { galleryService } from "../lib/supabase";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import ImageModal from "./ImageModal";
 
 type GalleryItem = {
   id: number | string;
@@ -28,6 +29,8 @@ const fallbackPosts: GalleryItem[] = [
 
 export default function InstagramGallery({ language }: InstagramGalleryProps) {
   const [posts, setPosts] = useState<GalleryItem[]>(fallbackPosts);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const loadGallery = async () => {
@@ -49,6 +52,19 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
 
     loadGallery();
   }, []);
+
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleIndexChange = (index: number) => {
+    setCurrentImageIndex(index);
+  };
 
   return (
     <section id="gallery" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#FF2D55] to-[#007AFF] relative overflow-hidden">
@@ -83,10 +99,11 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          {posts.map((post) => (
+          {posts.map((post, index) => (
             <div
               key={post.id}
-              className="aspect-square bg-white/10 rounded-3xl comic-border border-4 border-white hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative overflow-hidden backdrop-blur-lg group"
+              onClick={() => handleImageClick(index)}
+              className="aspect-square bg-white/10 rounded-3xl comic-border border-4 border-white hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 comic-button relative overflow-hidden backdrop-blur-lg group cursor-pointer"
             >
               <ImageWithFallback
                 src={post.image_url}
@@ -124,6 +141,15 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
           </div>
         </div>
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        images={posts}
+        currentIndex={currentImageIndex}
+        onIndexChange={handleIndexChange}
+      />
     </section>
   );
 }

@@ -129,10 +129,10 @@ export default function Header({
         action: () => navigateTo("about"),
       },
       {
-        key: "gallery",
-        label: "Gallery",
-        highlightColor: navHighlightMap.gallery,
-        action: () => document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth" }),
+        key: "contact",
+        label: language === "th" ? "ติดต่อเรา" : "Contact Us",
+        highlightColor: navHighlightMap.contact,
+        action: () => navigateTo("contact"),
       },
     ],
     [language, navigateTo],
@@ -140,6 +140,12 @@ export default function Header({
 
   const utilityItems: NavItem[] = useMemo(
     () => [
+      {
+        key: "products",
+        label: t("products", language),
+        highlightColor: navHighlightMap.products,
+        action: () => document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth" }),
+      },
       {
         key: "notice",
         label: t("notice", language),
@@ -151,12 +157,6 @@ export default function Header({
         label: t("faq", language),
         highlightColor: navHighlightMap.faq,
         action: () => navigateTo("faq"),
-      },
-      {
-        key: "contact",
-        label: t("contact", language),
-        highlightColor: navHighlightMap.contact,
-        action: () => navigateTo("contact"),
       },
       {
         key: "textbg",

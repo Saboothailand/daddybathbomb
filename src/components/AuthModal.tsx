@@ -129,38 +129,38 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-theme border border-white/20 rounded-2xl max-w-md w-full p-6 relative backdrop-blur-md">
+      <div className="bg-white border border-gray-200 rounded-2xl max-w-md w-full p-8 relative shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl cursor-pointer"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer"
         >
           ×
         </button>
 
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">
             {mode === 'login' ? t.loginTitle : t.signupTitle}
           </h2>
-          <p className="text-gray-300">
+          <p className="text-gray-600">
             {mode === 'login' ? t.loginSubtitle : t.signupSubtitle}
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-500/20 border border-green-500/50 text-green-200 px-4 py-3 rounded mb-4">
+          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4">
             {success}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               {t.email}
             </label>
             <input
@@ -170,13 +170,13 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
               value={formData.email}
               onChange={handleInputChange}
               required
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF2D55] focus:border-transparent transition-all"
               placeholder={language === 'th' ? 'อีเมลของคุณ' : 'Your email'}
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               {t.password}
             </label>
             <input
@@ -187,7 +187,7 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
               onChange={handleInputChange}
               required
               minLength={6}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF2D55] focus:border-transparent transition-all"
               placeholder={language === 'th' ? 'รหัสผ่าน (อย่างน้อย 6 ตัว)' : 'Password (min 6 chars)'}
             />
           </div>
@@ -195,7 +195,7 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
           {mode === 'signup' && (
             <>
               <div>
-                <label htmlFor="nickname" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 mb-2">
                   {t.nickname}
                 </label>
                 <input
@@ -205,13 +205,13 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
                   value={formData.nickname}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF2D55] focus:border-transparent transition-all"
                   placeholder={language === 'th' ? 'ชื่อเล่นของคุณ' : 'Your nickname'}
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                   {t.phone} ({language === 'th' ? 'ไม่บังคับ' : 'Optional'})
                 </label>
                 <input
@@ -220,7 +220,7 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF2D55] focus:border-transparent transition-all"
                   placeholder={language === 'th' ? 'เบอร์โทรศัพท์' : 'Phone number'}
                 />
               </div>
