@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, MessageCircle, Calendar, User, ThumbsUp, Image as ImageIcon, Search, Plus, ArrowLeft } from 'lucide-react';
+import { Eye, MessageCircle, Calendar, User, ThumbsUp, Image as ImageIcon, Search, Plus, ArrowLeft, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { authService } from '../utils/auth';
 import type { PageKey, LanguageKey } from '../App';
 
 type GalleryItem = {
@@ -15,7 +16,16 @@ type GalleryItem = {
   like_count: number;
   comment_count: number;
   is_notice: boolean;
+  category_id?: string;
   created_at: string;
+};
+
+type GalleryCategory = {
+  id: string;
+  name: string;
+  name_th: string;
+  color: string;
+  icon: string;
 };
 
 type GalleryPageProps = {
@@ -23,158 +33,231 @@ type GalleryPageProps = {
   language: LanguageKey;
 };
 
+const ITEMS_PER_PAGE = 20;
+
 export default function GalleryPage({ navigateTo, language }: GalleryPageProps) {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [categories, setCategories] = useState<GalleryCategory[]>([]);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    setIsAdmin(authService.isAdmin());
+    loadCategories();
     loadGalleryItems();
   }, []);
 
-  const loadGalleryItems = async () => {
+  useEffect(() => {
+    loadGalleryItems();
+  }, [selectedCategory, currentPage, searchTerm]);
+
+  const loadCategories = async () => {
     try {
       const { data, error } = await supabase
-        .from('gallery')
+        .from('gallery_categories')
         .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error loading categories:', error);
+        setCategories(getFallbackCategories());
+      } else {
+        setCategories(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      setCategories(getFallbackCategories());
+    }
+  };
+
+  const loadGalleryItems = async () => {
+    try {
+      setLoading(true);
+      
+      let query = supabase
+        .from('gallery')
+        .select('*', { count: 'exact' })
         .eq('is_active', true);
+
+      // 카테고리 필터
+      if (selectedCategory !== 'all') {
+        query = query.eq('category_id', selectedCategory);
+      }
+
+      // 검색 필터
+      if (searchTerm) {
+        query = query.or(`title.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%`);
+      }
+
+      // 페이지네이션
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+      
+      query = query
+        .order('is_notice', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      const { data, error, count } = await query;
 
       if (error) {
         console.error('Error loading gallery items:', error);
         setGalleryItems(getFallbackData());
+        setTotalPages(1);
       } else {
-        // 클라이언트 사이드에서 정렬
-        const sortedData = (data || []).sort((a, b) => {
-          // is_notice가 true인 항목을 먼저 표시
-          if (a.is_notice && !b.is_notice) return -1;
-          if (!a.is_notice && b.is_notice) return 1;
-          // 그 다음 created_at으로 정렬
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        });
-        setGalleryItems(sortedData);
+        setGalleryItems(data || []);
+        setTotalPages(Math.ceil((count || 0) / ITEMS_PER_PAGE));
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error loading gallery items:', error);
       setGalleryItems(getFallbackData());
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
 
+  const getFallbackCategories = (): GalleryCategory[] => [
+    { id: 'all', name: 'All', name_th: 'ทั้งหมด', color: '#6B7280', icon: '📷' },
+    { id: '1', name: 'Products', name_th: 'สินค้า', color: '#3B82F6', icon: '🛍️' },
+    { id: '2', name: 'Lifestyle', name_th: 'ไลฟ์สไตล์', color: '#10B981', icon: '✨' },
+    { id: '3', name: 'Reviews', name_th: 'รีวิว', color: '#F59E0B', icon: '⭐' },
+  ];
+
   const getFallbackData = (): GalleryItem[] => [
     {
       id: '1',
-      title: '프리미엄 바스밤 컬렉션',
-      content: '자연 재료로 만든 프리미엄 바스밤들을 소개합니다!',
-      image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
-      thumbnail_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
-      author_name: '관리자',
-      view_count: 156,
-      like_count: 23,
+      title: 'Perfect Gift for Special Occasions',
+      content: 'Our bath bombs make the perfect gift for any special occasion.',
+      image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop',
+      author_name: 'Admin',
+      view_count: 150,
+      like_count: 25,
       comment_count: 8,
       is_notice: true,
       created_at: new Date().toISOString(),
     },
     {
       id: '2',
-      title: '아로마 테라피 바스밤',
-      content: '편안한 라벤더 향의 바스밤으로 스트레스를 날려보세요',
-      image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800&h=600&fit=crop',
-      thumbnail_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=300&fit=crop',
-      author_name: '김바스밤',
-      view_count: 89,
-      like_count: 15,
-      comment_count: 4,
+      title: 'Luxury Spa Experience',
+      content: 'Transform your home into a luxury spa with our premium bath bombs.',
+      image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=400&fit=crop',
+      author_name: 'Admin',
+      view_count: 120,
+      like_count: 18,
+      comment_count: 5,
       is_notice: false,
-      created_at: new Date(Date.now() - 86400000).toISOString(),
+      created_at: new Date().toISOString(),
     },
     {
       id: '3',
-      title: '자연스러운 색감의 바스밤',
-      content: '화학 색소 없는 자연스러운 색감으로 만든 바스밤',
-      image_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=800&h=600&fit=crop',
-      thumbnail_url: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=300&fit=crop',
-      author_name: '이자연',
-      view_count: 67,
+      title: 'Natural Ingredients',
+      content: '100% natural and safe for the whole family.',
+      image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=400&fit=crop',
+      author_name: 'Admin',
+      view_count: 95,
       like_count: 12,
-      comment_count: 2,
+      comment_count: 3,
       is_notice: false,
-      created_at: new Date(Date.now() - 172800000).toISOString(),
+      created_at: new Date().toISOString(),
     },
     {
       id: '4',
-      title: '가족 모두가 즐기는 바스밤',
-      content: '아이부터 어른까지 모두 안전하게 사용할 수 있는 바스밤',
-      image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&sig=family',
-      thumbnail_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&sig=family',
-      author_name: '박가족',
-      view_count: 134,
-      like_count: 28,
-      comment_count: 6,
+      title: 'Customer Review',
+      content: 'Amazing product! Highly recommended.',
+      image_url: 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=400&h=400&fit=crop',
+      author_name: 'Customer',
+      view_count: 80,
+      like_count: 15,
+      comment_count: 7,
       is_notice: false,
-      created_at: new Date(Date.now() - 259200000).toISOString(),
+      created_at: new Date().toISOString(),
     },
   ];
 
-  const handleLike = async (itemId: string) => {
-    try {
-      const userIp = 'anonymous';
-      
-      const { error } = await supabase
-        .from('likes')
-        .insert({
-          gallery_id: itemId,
-          user_ip: userIp
-        });
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    loadGalleryItems();
+  };
 
-      if (!error) {
-        setGalleryItems(prev => prev.map(item => 
-          item.id === itemId 
-            ? { ...item, like_count: item.like_count + 1 }
-            : item
-        ));
-      }
-    } catch (error) {
-      console.error('Error liking item:', error);
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return language === 'th' ? category?.name_th : category?.name;
+  };
+
+  const getCategoryIcon = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category?.icon || '📷';
+  };
+
+  const getCategoryColor = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category?.color || '#6B7280';
+  };
+
+  const t = {
+    th: {
+      title: 'แกลเลอรี่',
+      subtitle: 'แชร์รูปภาพสวยๆ ของคุณ!',
+      searchPlaceholder: 'ค้นหาตามชื่อเรื่องหรือผู้เขียน...',
+      uploadImage: 'อัปโหลดรูปภาพ',
+      allCategories: 'ทั้งหมด',
+      viewDetails: 'ดูรายละเอียด',
+      backToGallery: 'กลับไปยังแกลเลอรี่',
+      noItems: 'ไม่พบรายการ',
+      loading: 'กำลังโหลด...',
+      page: 'หน้า',
+      of: 'จาก',
+      previous: 'ก่อนหน้า',
+      next: 'ถัดไป',
+    },
+    en: {
+      title: 'Gallery',
+      subtitle: 'Share your beautiful photos!',
+      searchPlaceholder: 'Search by title or author...',
+      uploadImage: 'Upload Image',
+      allCategories: 'All',
+      viewDetails: 'View Details',
+      backToGallery: 'Back to Gallery',
+      noItems: 'No items found',
+      loading: 'Loading...',
+      page: 'Page',
+      of: 'of',
+      previous: 'Previous',
+      next: 'Next',
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const filteredItems = galleryItems.filter(item => 
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.author_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   if (selectedItem) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] to-[#1A1F3A] py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="min-h-screen bg-[#0B0F1A] text-white">
+        <div className="max-w-4xl mx-auto px-4 py-8">
           <button
             onClick={() => setSelectedItem(null)}
-            className="flex items-center text-[#B8C4DB] hover:text-white mb-6 transition-colors"
+            className="flex items-center gap-2 mb-6 text-[#FF2D55] hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            목록으로 돌아가기
+            <ArrowLeft className="w-5 h-5" />
+            {t[language].backToGallery}
           </button>
 
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden comic-border border-4 border-white/20">
-            {selectedItem.is_notice && (
-              <div className="bg-[#FF2D55] text-white text-sm px-3 py-1 rounded-full inline-block m-6">
-                공지사항
-              </div>
-            )}
-            
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden">
             <div className="aspect-video relative">
               <ImageWithFallback
                 src={selectedItem.image_url}
@@ -182,163 +265,223 @@ export default function GalleryPage({ navigateTo, language }: GalleryPageProps) 
                 className="w-full h-full object-cover"
               />
             </div>
-
-            <div className="p-8">
-              <h1 className="text-3xl font-bold text-white mb-6">
-                {selectedItem.title}
-              </h1>
+            
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-3 py-1 bg-[#FF2D55] text-white text-sm rounded-full">
+                  {selectedItem.is_notice ? '공지' : getCategoryIcon(selectedItem.category_id || 'all')}
+                </span>
+                <span className="text-sm text-gray-300">
+                  {new Date(selectedItem.created_at).toLocaleDateString()}
+                </span>
+              </div>
               
-              <div className="flex items-center justify-between text-[#B8C4DB] mb-8 pb-4 border-b border-white/20">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 mr-2" />
-                    {selectedItem.author_name}
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {formatDate(selectedItem.created_at)}
-                  </div>
+              <h1 className="text-3xl font-bold mb-4">{selectedItem.title}</h1>
+              
+              {selectedItem.content && (
+                <p className="text-gray-300 mb-6 leading-relaxed">{selectedItem.content}</p>
+              )}
+              
+              <div className="flex items-center gap-6 text-sm text-gray-400">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  {selectedItem.author_name}
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
-                    <Eye className="w-4 h-4 mr-2" />
-                    {selectedItem.view_count}
-                  </div>
-                  <button 
-                    onClick={() => handleLike(selectedItem.id)}
-                    className="flex items-center hover:text-[#FFD700] transition-colors"
-                  >
-                    <ThumbsUp className="w-4 h-4 mr-2" />
-                    {selectedItem.like_count}
-                  </button>
-                  <div className="flex items-center">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    {selectedItem.comment_count}
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4" />
+                  {selectedItem.view_count}
+                </div>
+                <div className="flex items-center gap-2">
+                  <ThumbsUp className="w-4 h-4" />
+                  {selectedItem.like_count}
+                </div>
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  {selectedItem.comment_count}
                 </div>
               </div>
-
-              {selectedItem.content && (
-                <div className="prose prose-invert max-w-none text-[#B8C4DB] leading-relaxed">
-                  <p>{selectedItem.content}</p>
-                </div>
-              )}
             </div>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] to-[#1A1F3A] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#FF2D55] mx-auto mb-4"></div>
-          <p className="text-[#B8C4DB]">로딩 중...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] to-[#1A1F3A] py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* 헤더 */}
+    <div className="min-h-screen bg-[#0B0F1A] text-white">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="font-fredoka text-5xl font-bold text-white mb-6 comic-shadow">
-            {language === "th" ? "แกลเลอรี่" : "Gallery"}
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] bg-clip-text text-transparent">
+            {t[language].title}
           </h1>
-          <p className="text-[#B8C4DB] text-xl">
-            {language === "th" 
-              ? "แชร์ภาพสวย ๆ ของคุณ!" 
-              : "Share your beautiful photos!"}
-          </p>
+          <p className="text-xl text-gray-300">{t[language].subtitle}</p>
         </div>
 
-        {/* 검색 및 업로드 */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 comic-border border-4 border-white/20 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B8C4DB] w-5 h-5" />
+        {/* Search and Upload */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <form onSubmit={handleSearch} className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder={language === "th" ? "ค้นหาตามชื่อหรือผู้เขียน..." : "Search by title or author..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#151B2E] border border-[#334155] rounded-xl text-white placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#FF2D55]"
+                placeholder={t[language].searchPlaceholder}
+                className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF2D55]"
               />
             </div>
-            <button className="bg-[#FF2D55] hover:bg-[#FF1744] text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center">
-              <Plus className="w-5 h-5 mr-2" />
-              {language === "th" ? "อัปโหลดรูป" : "Upload Image"}
+          </form>
+          
+          {isAdmin && (
+            <button
+              onClick={() => navigateTo('admin')}
+              className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#FF2D55]/80 hover:to-[#007AFF]/80 transition-all duration-300 flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              {t[language].uploadImage}
             </button>
-          </div>
+          )}
         </div>
 
-        {/* 갤러리 그리드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden comic-border border-4 border-white/20 hover:border-[#FFD700] transition-all duration-300 transform hover:scale-105 cursor-pointer group"
-              onClick={() => setSelectedItem(item)}
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <button
+            onClick={() => handleCategoryChange('all')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              selectedCategory === 'all'
+                ? 'bg-[#FF2D55] text-white'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            {t[language].allCategories}
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => handleCategoryChange(category.id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                selectedCategory === category.id
+                  ? 'text-white'
+                  : 'text-gray-300 hover:bg-white/20'
+              }`}
+              style={{
+                backgroundColor: selectedCategory === category.id ? category.color : 'rgba(255, 255, 255, 0.1)',
+              }}
             >
-              <div className="aspect-square relative">
-                <ImageWithFallback
-                  src={item.thumbnail_url || item.image_url}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                
-                {item.is_notice && (
-                  <div className="absolute top-3 left-3 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded-full">
-                    공지
-                  </div>
-                )}
-                
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <h3 className="text-white font-bold text-sm mb-2 line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <div className="flex items-center justify-between text-xs text-gray-300">
-                    <div className="flex items-center">
-                      <User className="w-3 h-3 mr-1" />
-                      {item.author_name}
+              <span>{category.icon}</span>
+              {language === 'th' ? category.name_th : category.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Gallery Grid */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF2D55] mx-auto mb-4"></div>
+            <p className="text-gray-400">{t[language].loading}</p>
+          </div>
+        ) : galleryItems.length === 0 ? (
+          <div className="text-center py-12">
+            <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-400 text-lg">{t[language].noItems}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {galleryItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setSelectedItem(item)}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group"
+              >
+                <div className="aspect-square relative">
+                  <ImageWithFallback
+                    src={item.thumbnail_url || item.image_url}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {item.is_notice && (
+                    <div className="absolute top-2 left-2 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded-full">
+                      공지
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center">
-                        <Eye className="w-3 h-3 mr-1" />
+                  )}
+                  {item.category_id && (
+                    <div
+                      className="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded-full"
+                      style={{ backgroundColor: getCategoryColor(item.category_id) }}
+                    >
+                      {getCategoryIcon(item.category_id)}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="p-4">
+                  <h3 className="font-semibold mb-2 line-clamp-2">{item.title}</h3>
+                  <div className="flex items-center justify-between text-sm text-gray-400">
+                    <span>{item.author_name}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-4 h-4" />
                         {item.view_count}
                       </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleLike(item.id);
-                        }}
-                        className="flex items-center hover:text-[#FFD700] transition-colors"
-                      >
-                        <ThumbsUp className="w-3 h-3 mr-1" />
+                      <div className="flex items-center gap-1">
+                        <ThumbsUp className="w-4 h-4" />
                         {item.like_count}
-                      </button>
-                      <div className="flex items-center">
-                        <MessageCircle className="w-3 h-3 mr-1" />
-                        {item.comment_count}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {filteredItems.length === 0 && (
-          <div className="text-center py-12">
-            <ImageIcon className="w-16 h-16 text-[#B8C4DB] mx-auto mb-4" />
-            <p className="text-[#B8C4DB]">등록된 갤러리가 없습니다.</p>
+            ))}
           </div>
         )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-white/10 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {t[language].previous}
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const page = i + 1;
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                      currentPage === page
+                        ? 'bg-[#FF2D55] text-white'
+                        : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-white/10 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+            >
+              {t[language].next}
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Page Info */}
+        <div className="text-center mt-4 text-gray-400 text-sm">
+          {t[language].page} {currentPage} {t[language].of} {totalPages}
+        </div>
       </div>
     </div>
   );

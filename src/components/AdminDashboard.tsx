@@ -27,6 +27,7 @@ import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 import SEOManagement from "./admin/SEOManagement";
 import ContactBannerManagement from "./admin/ContactBannerManagement";
+import GalleryManagement from "./admin/GalleryManagement";
 
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
@@ -69,7 +70,7 @@ const menuItems: MenuItem[] = [
     id: "gallery",
     label: "Gallery Management",
     icon: Camera,
-    description: "Instagram Gallery"
+    description: "Manage gallery images, categories, and content"
   },
   {
     id: "branding",
