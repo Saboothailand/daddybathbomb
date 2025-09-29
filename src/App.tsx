@@ -96,24 +96,14 @@ export default function App() {
       }
     };
 
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
-        navigateTo("admin");
-        window.location.hash = "#admin";
-        localStorage.setItem('admin_mode', 'true');
-      }
-    };
-
     window.addEventListener(NAVIGATION_EVENT_NAME, handleNavigation as EventListener);
     window.addEventListener("hashchange", handleHashNavigation);
-    window.addEventListener("keydown", handleKeyPress);
 
     handleHashNavigation();
 
     return () => {
       window.removeEventListener(NAVIGATION_EVENT_NAME, handleNavigation as EventListener);
       window.removeEventListener("hashchange", handleHashNavigation);
-      window.removeEventListener("keydown", handleKeyPress);
     };
   }, [navigateTo]);
 

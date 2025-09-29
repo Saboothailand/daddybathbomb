@@ -1,3 +1,5 @@
+import { ADMIN_EMAIL_DISPLAY } from './auth';
+
 // 다국어 번역 데이터
 export const translations = {
   th: {
@@ -52,7 +54,7 @@ export const translations = {
     signupButton: 'สมัครสมาชิก',
     noAccount: 'ยังไม่มีบัญชี?',
     hasAccount: 'มีบัญชีแล้ว?',
-    adminHint: 'ใช้ admin@daddybathbomb.com สำหรับการเข้าถึงผู้ดูแลระบบ'
+    adminHint: `ใช้ ${ADMIN_EMAIL_DISPLAY} สำหรับการเข้าถึงผู้ดูแลระบบ`
   },
   
   en: {
@@ -107,7 +109,7 @@ export const translations = {
     signupButton: 'Sign Up',
     noAccount: "Don't have an account?",
     hasAccount: 'Already have an account?',
-    adminHint: 'Use admin@daddybathbomb.com for admin access'
+    adminHint: `Use ${ADMIN_EMAIL_DISPLAY} for admin access`
   }
 };
 

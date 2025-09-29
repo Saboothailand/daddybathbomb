@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { authService } from '../utils/auth';
+import { authService, ADMIN_EMAIL_DISPLAY } from '../utils/auth';
 
 export default function AuthModal({ isOpen, onClose, language = 'th' }) {
   const [mode, setMode] = useState('login'); // 'login' or 'signup'
@@ -233,7 +233,9 @@ export default function AuthModal({ isOpen, onClose, language = 'th' }) {
         {/* Admin hint */}
         {mode === 'login' && (
           <div className="mt-4 text-center text-xs text-gray-500">
-            {language === 'th' ? 'เคล็ดลับ: ใช้ admin@daddybathbomb.com เพื่อเข้าสู่ระบบผู้ดูแล' : 'Tip: Use admin@daddybathbomb.com for admin access'}
+            {language === 'th'
+              ? `เคล็ดลับ: ใช้ ${ADMIN_EMAIL_DISPLAY} เพื่อเข้าสู่ระบบผู้ดูแล`
+              : `Tip: Use ${ADMIN_EMAIL_DISPLAY} for admin access`}
           </div>
         )}
       </div>

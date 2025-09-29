@@ -171,7 +171,7 @@ export default function SEOManagement() {
                   size="sm"
                   variant="outline"
                   onClick={() => copyToClipboard(seoSettings.siteTitle)}
-                  className="border-gray-600 text-white hover:bg-gray-700 hover:text-white px-3"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white px-3"
                 >
                   <Edit3 className="w-4 h-4" />
                 </Button>
@@ -205,7 +205,7 @@ export default function SEOManagement() {
                     size="sm"
                     variant="outline"
                     onClick={() => copyToClipboard(seoSettings.siteDescription)}
-                    className="border-gray-600 text-white hover:bg-gray-700 hover:text-white px-3"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white px-3"
                   >
                     <Edit3 className="w-4 h-4" />
                   </Button>

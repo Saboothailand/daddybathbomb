@@ -56,7 +56,6 @@ export default function Header({
   changeLanguage,
 }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [adminClicks, setAdminClicks] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
   const [branding, setBranding] = useState<BrandingState>({
     logo_url: "",
@@ -161,21 +160,6 @@ export default function Header({
     [language, navigateTo],
   );
 
-  const handleLogoClick = () => {
-    setAdminClicks((prev) => {
-      const next = prev + 1;
-      if (next >= 5) {
-        alert("관리자 페이지로 이동합니다!");
-        navigateTo("admin");
-        setTimeout(() => setAdminClicks(0), 0);
-        return 0;
-      }
-
-      window.setTimeout(() => setAdminClicks(0), 3000);
-      return next;
-    });
-  };
-
   return (
     <header className="w-full bg-[#0B0F1A] border-b-4 border-[#FF2D55] relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
@@ -188,8 +172,8 @@ export default function Header({
         <div className="flex items-center justify-between h-20">
           <div
             className="flex items-center space-x-3 cursor-pointer"
-            onClick={handleLogoClick}
-            title={adminClicks > 0 ? `관리자 접근: ${adminClicks}/5` : "홈으로 이동"}
+            onClick={() => navigateTo("home")}
+            title="홈으로 이동"
           >
             <LogoEditor
               currentLogoUrl={branding.logo_url}
@@ -206,11 +190,6 @@ export default function Header({
                 <span>{branding.site_title || "DADDY BATH BOMB"}</span>
               </h1>
             </SimpleEditable>
-            {adminClicks > 0 && (
-              <span className="bg-[#FF2D55] text-white text-xs font-bold px-2 py-1 rounded-full comic-border border-2 border-black">
-                {adminClicks}
-              </span>
-            )}
           </div>
 
           <nav className="hidden lg:flex items-center space-x-8">

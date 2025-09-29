@@ -64,12 +64,13 @@ export default function TextWithBackground({
       : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat'
+    backgroundRepeat: 'no-repeat',
+    aspectRatio: '16/9' // 배너와 같은 비율로 설정
   };
 
   return (
     <div 
-      className={`relative min-h-[400px] rounded-2xl overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[500px] rounded-2xl overflow-hidden flex items-center justify-center ${className}`}
       style={defaultBackgroundStyle}
     >
       {/* 텍스트 오버레이 */}

@@ -6,11 +6,15 @@
 const isPublicMode = import.meta.env.VITE_PUBLIC_MODE === 'true';
 const isDevelopment = import.meta.env.DEV;
 
-// 관리자 이메일 목록
-const ADMIN_EMAILS = [
-  'admin@daddybathbomb.com',
-  'owner@daddybathbomb.com'
-];
+const configuredAdminEmail = import.meta.env.VITE_ADMIN_EMAIL?.trim();
+const configuredAdminPassword = import.meta.env.VITE_ADMIN_PASSWORD ?? '';
+
+export const ADMIN_EMAIL = (configuredAdminEmail || 'admin@daddybathbomb.com').toLowerCase();
+export const ADMIN_EMAIL_DISPLAY = configuredAdminEmail || 'admin@daddybathbomb.com';
+const ADMIN_PASSWORD = configuredAdminPassword || 'admin123';
+
+// 관리자 이메일 목록 (추후 확장 대비 배열 유지)
+const ADMIN_EMAILS = [ADMIN_EMAIL];
 
 // 현재 사용자 정보 (임시)
 let currentUser = null;
@@ -48,14 +52,23 @@ export const authService = {
     // 공개 모드에서는 관리자 기능 비활성화
     if (isPublicMode) return false;
     
-    return ADMIN_EMAILS.includes(checkUser.email);
+    const email = (checkUser.email || '').toLowerCase();
+    return ADMIN_EMAILS.includes(email);
   },
 
   // 로그인 (임시)
   async login(email, password) {
     try {
       // 실제로는 Supabase auth 사용
-      if (email === 'admin@daddybathbomb.com' && password === 'admin123') {
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      if (!normalizedEmail || !password) {
+        return { success: false, error: '이메일과 비밀번호를 입력해주세요.' };
+      }
+
+      const isConfiguredAdmin = normalizedEmail === ADMIN_EMAIL && password === ADMIN_PASSWORD;
+      const isDevBypass = isDevelopment && normalizedEmail === 'admin@daddybathbomb.com' && password === 'admin123';
+
+      if (isConfiguredAdmin || isDevBypass) {
         const user = {
           id: '1',
           email: email,

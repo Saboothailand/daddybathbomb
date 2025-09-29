@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { cn } from "./ui/utils";
 
 // CMS 관리 컴포넌트들
-import BannerManagement from "./admin/BannerManagement";
+import UnifiedBannerManagement from "./admin/UnifiedBannerManagement";
 import SimpleBrandManagement from "./admin/SimpleBrandManagement";
 
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800";
@@ -85,7 +85,7 @@ export default function CMSAdminDashboard({ navigateTo }: CMSAdminProps) {
       case "overview":
         return <CMSOverviewSection onSelectTab={setActiveTab} />;
       case "banners":
-        return <BannerManagement />;
+        return <UnifiedBannerManagement />;
       case "gallery":
         return <CMSGalleryManagement />;
       case "notices":
@@ -390,4 +390,3 @@ function CMSPageManagement() {
     </div>
   );
 }
-

@@ -75,7 +75,7 @@ export default function TextWithBackgroundDemo({ language, navigateTo }: TextWit
               ? "색상과 향기로 가득한 특별한 경험 🌈" 
               : "Special Experience Full of Colors and Scents 🌈"
             }
-            initialImageUrl="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2053&q=80"
+            initialImageUrl="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&h=1200&fit=crop"
             className="mb-8 shadow-2xl"
             textClassName="font-fredoka text-yellow-300"
             overlayClassName="bg-gradient-to-b from-transparent via-black/30 to-black/70"

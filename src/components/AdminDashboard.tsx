@@ -21,8 +21,7 @@ import ImageUpload from "./ImageUpload";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
 // Import actual admin modules
-import BannerManagement from "./admin/BannerManagement";
-import HeroBannerManagement from "./admin/HeroBannerManagement";
+import UnifiedBannerManagement from "./admin/UnifiedBannerManagement";
 import LogoManagement from "./admin/LogoManagement";
 import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 import SEOManagement from "./admin/SEOManagement";
@@ -30,7 +29,7 @@ import SEOManagement from "./admin/SEOManagement";
 const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
 const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
 
-type DashboardTab = "overview" | "banners" | "hero-banners" | "features" | "gallery" | "branding" | "seo" | "settings";
+type DashboardTab = "overview" | "banners" | "features" | "gallery" | "branding" | "seo" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
@@ -56,13 +55,7 @@ const menuItems: MenuItem[] = [
     id: "banners",
     label: "Banner Management",
     icon: Image,
-    description: "Middle, Bottom Banners"
-  },
-  {
-    id: "hero-banners",
-    label: "Hero Banners",
-    icon: Star,
-    description: "Main Page Hero Banners"
+    description: "Hero & Promotional Banners"
   },
   {
     id: "features",
@@ -100,6 +93,7 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
+  const [bannerTab, setBannerTab] = useState<'hero' | 'general'>('hero');
 
   const toggleMenu = (menuId: string) => {
     const newExpanded = new Set(expandedMenus);
@@ -114,11 +108,14 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
-        return <OverviewSection onSelectTab={setActiveTab} />;
+        return (
+          <OverviewSection
+            onSelectTab={setActiveTab}
+            onSelectBannerView={setBannerTab}
+          />
+        );
       case "banners":
-        return <BannerManagement />;
-      case "hero-banners":
-        return <HeroBannerManagement />;
+        return <UnifiedBannerManagement key={bannerTab} defaultTab={bannerTab} />;
       case "features":
         return <FeaturesManagement />;
       case "gallery":
@@ -257,7 +254,13 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
 
 
 // Overview section
-function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => void }) {
+function OverviewSection({
+  onSelectTab,
+  onSelectBannerView,
+}: {
+  onSelectTab: (tab: DashboardTab) => void;
+  onSelectBannerView: (view: 'hero' | 'general') => void;
+}) {
   const [stats, setStats] = useState({
     totalBanners: 0,
     totalHeroBanners: 0,
@@ -340,14 +343,20 @@ function OverviewSection({ onSelectTab }: { onSelectTab: (tab: DashboardTab) => 
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
           <Button 
-            onClick={() => onSelectTab("hero-banners")}
+            onClick={() => {
+              onSelectBannerView('hero');
+              onSelectTab("banners");
+            }}
             className="bg-[#FFD700] hover:bg-[#FFC107] text-black p-6 h-auto flex flex-col items-center gap-2"
           >
             <span className="text-2xl">🌟</span>
             <span>Hero Banners</span>
           </Button>
           <Button 
-            onClick={() => onSelectTab("banners")}
+            onClick={() => {
+              onSelectBannerView('general');
+              onSelectTab("banners");
+            }}
             className="bg-[#00FF88] hover:bg-[#00CC6A] text-black p-6 h-auto flex flex-col items-center gap-2"
           >
             <span className="text-2xl">🖼️</span>

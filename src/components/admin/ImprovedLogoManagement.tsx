@@ -367,7 +367,7 @@ export default function ImprovedLogoManagement({ onSave }: ImprovedLogoManagemen
             <Badge variant="outline" className="text-xs">
               v{branding.logo_cache_version}
             </Badge>
-            <Button variant="outline" onClick={handleReset} className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleReset} className="flex items-center gap-2 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white">
               <RotateCcw className="w-4 h-4" />
               초기화
             </Button>

@@ -36,6 +36,10 @@ interface Banner {
   updated_at: string;
 }
 
+type BannerManagementProps = {
+  embedded?: boolean;
+};
+
 interface BannerFormData {
   title: string;
   description: string;
@@ -46,7 +50,7 @@ interface BannerFormData {
   position: BannerPosition;
 }
 
-export default function BannerManagement() {
+export default function BannerManagement({ embedded = false }: BannerManagementProps) {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
@@ -196,9 +200,9 @@ export default function BannerManagement() {
   }
 
   return (
-    <div className="flex gap-6 h-screen">
+    <div className={`flex w-full flex-col gap-6 lg:flex-row ${embedded ? '' : 'lg:min-h-[720px]'}`}>
       {/* Left column: banner list */}
-      <div className="flex-1 overflow-y-auto space-y-6 pr-4">
+      <div className={`flex-1 space-y-6 pr-4 ${embedded ? '' : 'lg:overflow-y-auto'}`}>
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <h1 className="text-2xl lg:text-3xl font-bold text-white font-fredoka drop-shadow-lg">
             🎨 Banner Management
@@ -357,7 +361,9 @@ export default function BannerManagement() {
               </div>
             </CardHeader>
             
-            <CardContent className="p-6 space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
+            <CardContent
+              className={`p-6 space-y-4 overflow-y-auto ${embedded ? 'max-h-[70vh]' : 'max-h-[calc(100vh-8rem)]'}`}
+            >
               {/* Banner position selector */}
               <div>
                 <Label className="text-white text-sm font-semibold mb-3 block">📍 Banner Position</Label>
