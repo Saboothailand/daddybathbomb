@@ -17,7 +17,17 @@ type GalleryItem = {
   is_notice: boolean;
   is_active: boolean;
   category_id?: string;
+  product_category_id?: string;
   created_at: string;
+};
+
+type ProductCategory = {
+  id: string;
+  name: string;
+  name_th: string;
+  name_en: string;
+  icon: string;
+  color: string;
 };
 
 type GalleryCategory = {
@@ -31,6 +41,7 @@ type GalleryCategory = {
 export default function GalleryManagement() {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [categories, setCategories] = useState<GalleryCategory[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -47,6 +58,7 @@ export default function GalleryManagement() {
     author_name: 'Admin',
     is_notice: false,
     category_id: '',
+    product_category_id: '',
   });
 
   const [categoryFormData, setCategoryFormData] = useState({
@@ -61,8 +73,27 @@ export default function GalleryManagement() {
 
   useEffect(() => {
     loadCategories();
+    loadProductCategories();
     loadGalleryItems();
   }, []);
+
+  const loadProductCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('product_categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error loading product categories:', error);
+      } else {
+        setProductCategories(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading product categories:', error);
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -140,6 +171,7 @@ export default function GalleryManagement() {
         author_name: 'Admin',
         is_notice: false,
         category_id: '',
+        product_category_id: '',
       });
       loadGalleryItems();
     } catch (error) {
@@ -238,8 +270,14 @@ export default function GalleryManagement() {
       author_name: item.author_name,
       is_notice: item.is_notice,
       category_id: item.category_id || '',
+      product_category_id: item.product_category_id || '',
     });
     setShowForm(true);
+  };
+
+  const getProductCategoryName = (productCategoryId: string) => {
+    const category = productCategories.find(cat => cat.id === productCategoryId);
+    return category?.name || 'No Category';
   };
 
   const handleEditCategory = (category: GalleryCategory) => {
@@ -486,7 +524,7 @@ export default function GalleryManagement() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Gallery Category</label>
                   <select
                     value={formData.category_id}
                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
@@ -496,6 +534,22 @@ export default function GalleryManagement() {
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Product Category</label>
+                  <select
+                    value={formData.product_category_id}
+                    onChange={(e) => setFormData({ ...formData, product_category_id: e.target.value })}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Product Category</option>
+                    {productCategories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.icon} {category.name}
                       </option>
                     ))}
                   </select>

@@ -1,9 +1,21 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { 
-  Home, ExternalLink, Menu, X, 
-  BarChart3, Image, 
-  Star, Camera, Palette, Settings, Users, Search,
-  ChevronRight, ChevronDown, Plus, Edit3, Trash2, RefreshCw
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  Home,
+  Menu,
+  X,
+  BarChart3,
+  Image,
+  Star,
+  Camera,
+  Palette,
+  Settings,
+  Search,
+  ArrowUpRight,
+  Plus,
+  Edit3,
+  Trash2,
+  RefreshCw,
+  LayoutDashboard,
 } from "lucide-react";
 import type { PageKey } from "../App";
 import { Badge } from "./ui/badge";
@@ -19,7 +31,13 @@ import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 import { Textarea } from "./ui/textarea";
 import ImageUpload from "./ImageUpload";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 // Import actual admin modules
 import UnifiedBannerManagement from "./admin/UnifiedBannerManagement";
@@ -28,11 +46,11 @@ import ImprovedLogoManagement from "./admin/ImprovedLogoManagement";
 import SEOManagement from "./admin/SEOManagement";
 import ContactBannerManagement from "./admin/ContactBannerManagement";
 import GalleryManagement from "./admin/GalleryManagement";
+import ProductCategoryManagement from "./admin/ProductCategoryManagement";
 
-const DASHBOARD_BACKGROUND = "bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#2a2f3e]";
-const GRADIENT_BUTTON = "bg-gradient-to-r from-[#FF2D55] via-[#AF52DE] to-[#5C4BFF] text-white";
+const DASHBOARD_SHELL = "bg-slate-100";
 
-type DashboardTab = "overview" | "banners" | "features" | "gallery" | "branding" | "seo" | "contact-banners" | "settings";
+type DashboardTab = "overview" | "banners" | "features" | "gallery" | "product-categories" | "branding" | "seo" | "contact-banners" | "settings";
 
 type AdminDashboardProps = {
   navigateTo?: (page: PageKey) => void;
@@ -71,6 +89,12 @@ const menuItems: MenuItem[] = [
     label: "Gallery Management",
     icon: Camera,
     description: "Manage gallery images, categories, and content"
+  },
+  {
+    id: "product-categories",
+    label: "Product Categories",
+    icon: LayoutDashboard,
+    description: "Daddy Bath Bomb, Daddy Bath Gel, etc."
   },
   {
     id: "branding",
@@ -129,6 +153,8 @@ export default function AdminDashboard({ navigateTo }: AdminDashboardProps) {
         return <FeaturesManagement />;
       case "gallery":
         return <GalleryManagement />;
+      case "product-categories":
+        return <ProductCategoryManagement />;
       case "branding":
         return <ImprovedLogoManagement />;
       case "seo":

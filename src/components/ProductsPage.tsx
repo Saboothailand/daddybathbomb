@@ -1,16 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
-import { galleryService } from "../lib/supabase";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import type { PageKey, LanguageKey } from "../App";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { t } from "../utils/translations";
-import { ChevronLeft, ChevronRight, Sparkles, ArrowLeft, X, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, X, Edit, Trash2, Eye, Search, Filter } from "lucide-react";
 import { authService } from "../utils/auth";
+
+type ProductCategory = {
+  id: string;
+  name: string;
+  name_th: string;
+  name_en: string;
+  icon: string;
+  color: string;
+  display_order: number;
+};
 
 type GalleryItem = {
   id: string | number;
+  title: string;
+  content?: string;
   image_url: string;
-  caption?: string | null;
-  display_order?: number | null;
+  thumbnail_url?: string;
+  author_name: string;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  is_notice: boolean;
+  product_category_id?: string;
+  created_at: string;
 };
 
 type ProductsPageProps = {
@@ -18,106 +36,84 @@ type ProductsPageProps = {
   language: LanguageKey;
 };
 
-const fallbackItems: GalleryItem[] = [
-  {
-    id: "fallback-1",
-    image_url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=800&fit=crop",
-    caption: "Vibrant fizzy bath bombs"
-  },
-  {
-    id: "fallback-2",
-    image_url: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800&h=800&fit=crop",
-    caption: "Natural ingredients"
-  },
-  {
-    id: "fallback-3",
-    image_url: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=800&h=800&fit=crop",
-    caption: "Rainbow bubbles"
-  },
-  {
-    id: "fallback-4",
-    image_url: "https://images.unsplash.com/photo-1629150098631-4d99ad4a53a4?w=800&h=800&fit=crop",
-    caption: "Family bath time"
-  },
-  {
-    id: "fallback-5",
-    image_url: "https://images.unsplash.com/photo-1576773689115-5cd2b0223523?w=800&h=800&fit=crop",
-    caption: "Gift-ready packs"
-  },
-  {
-    id: "fallback-6",
-    image_url: "https://images.unsplash.com/photo-1540553016722-983e48a3eaffe?w=800&h=800&fit=crop",
-    caption: "Relaxing aroma"
-  },
-  {
-    id: "fallback-7",
-    image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop",
-    caption: "Limited editions"
-  },
-  {
-    id: "fallback-8",
-    image_url: "https://images.unsplash.com/photo-1522335789205-0012b9b2f1a6?w=800&h=800&fit=crop",
-    caption: "Hand crafted"
-  }
-];
-
-function chunkItems<T>(items: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-  for (let index = 0; index < items.length; index += size) {
-    chunks.push(items.slice(index, index + size));
-  }
-  return chunks;
-}
+const ITEMS_PER_PAGE = 20;
 
 export default function ProductsPage({ navigateTo, language }: ProductsPageProps) {
-  const [items, setItems] = useState<GalleryItem[]>(fallbackItems);
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeSetIndex, setActiveSetIndex] = useState(0);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     // 페이지 로드 시 최상단으로 스크롤
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     setIsAdmin(authService.isAdmin());
-    
-    const load = async () => {
-      try {
-        const data = await galleryService.getActiveGalleryImages();
-        if (Array.isArray(data) && data.length > 0) {
-          const normalized = data.map<GalleryItem>((item, idx) => ({
-            id: item.id ?? `gallery-${idx}`,
-            image_url: item.image_url ?? fallbackItems[idx % fallbackItems.length].image_url,
-            caption: item.caption ?? null,
-            display_order: item.display_order ?? idx
-          }));
-          setItems(normalized);
-        }
-      } catch (error) {
-        console.error("Failed to load gallery images for products page", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
+    loadProductCategories();
+    loadProducts();
   }, []);
 
-  const groupedItems = useMemo(() => chunkItems(items, 4), [items]);
-  const currentGroup = groupedItems[activeSetIndex] ?? [];
-  const canGoPrev = activeSetIndex > 0;
-  const canGoNext = activeSetIndex < groupedItems.length - 1;
+  useEffect(() => {
+    loadProducts();
+  }, [selectedCategory, searchTerm]);
 
-  const handlePrev = () => {
-    if (canGoPrev) {
-      setActiveSetIndex((prev) => prev - 1);
+  const loadProductCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('product_categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error loading product categories:', error);
+      } else {
+        setProductCategories(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading product categories:', error);
     }
   };
 
-  const handleNext = () => {
-    if (canGoNext) {
-      setActiveSetIndex((prev) => prev + 1);
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      
+      let query = supabase
+        .from('gallery')
+        .select('*')
+        .eq('is_active', true);
+
+      // 카테고리 필터
+      if (selectedCategory !== 'all') {
+        query = query.eq('product_category_id', selectedCategory);
+      }
+
+      // 검색 필터
+      if (searchTerm) {
+        query = query.or(`title.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%`);
+      }
+
+      query = query
+        .order('is_notice', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error loading products:', error);
+        setItems([]);
+      } else {
+        setItems(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setItems([]);
+    } finally {
+      setLoading(false);
     }
   };
 
