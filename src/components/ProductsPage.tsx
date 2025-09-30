@@ -220,7 +220,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                   </div>
                 )}
 
-                <div className="max-w-none mb-10">
+                <div className="max-w-none mb-16">
                   <p className="text-white text-base leading-relaxed">
                     {language === "th"
                       ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
@@ -247,13 +247,13 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             </div>
           </div>
 
-          {/* 나머지 갤러리 아이템 20개 - 가로 200px, 4개씩 */}
+          {/* 나머지 갤러리 아이템 20개 - 가로 200px, 4개씩, 왼쪽 정렬 */}
           {otherItems.length > 0 && (
             <div className="mt-12">
               <h3 className="text-2xl font-bold text-white mb-6">
                 {language === "th" ? "สินค้าอื่นๆ" : "Other Products"}
               </h3>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="flex flex-wrap gap-4">
                 {otherItems.map((item) => (
                   <div
                     key={item.id}
