@@ -126,6 +126,30 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
     setSelectedItem(null);
   };
 
+  const getProductCategoryName = (productCategoryId: string) => {
+    const category = productCategories.find(cat => cat.id === productCategoryId);
+    return language === 'th' ? category?.name_th : category?.name_en;
+  };
+
+  const getProductCategoryColor = (productCategoryId: string) => {
+    const category = productCategories.find(cat => cat.id === productCategoryId);
+    return category?.color || '#6B7280';
+  };
+
+  const getProductCategoryIcon = (productCategoryId: string) => {
+    const category = productCategories.find(cat => cat.id === productCategoryId);
+    return category?.icon || '🛁';
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    loadProducts();
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+  };
+
   const handleEdit = () => {
     // 관리자 페이지로 이동
     navigateTo("admin");
@@ -282,92 +306,152 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
 
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
-      <div className="max-w-6xl mx-auto">
-        <header className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 text-[#FF2D55] mb-4">
-            <Sparkles className="w-8 h-8" />
-            <h1 className="font-fredoka text-4xl sm:text-5xl font-bold text-white">
-              {t("products", language)}
-            </h1>
-            <Sparkles className="w-8 h-8" />
-          </div>
-          <p className="text-lg text-[#B8C4DB] max-w-2xl mx-auto">
-            {language === "th"
-              ? "เลือกชมสินค้า Daddy Bath Bomb ผ่านแกลเลอรี่ 4 ภาพต่อชุด"
-              : "Explore the Daddy Bath Bomb collection in curated sets of four."}
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] bg-clip-text text-transparent">
+            {language === "th" ? "สินค้า" : "Products"}
+          </h1>
+          <p className="text-xl text-gray-300">
+            {language === "th" ? "Daddy Bath Bomb และ Daddy Bath Gel 제품을 만나보세요" : "Discover Daddy Bath Bomb and Daddy Bath Gel"}
           </p>
-        </header>
-
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={handlePrev}
-            disabled={!canGoPrev}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-white transition ${
-              canGoPrev ? "bg-white/10 hover:bg-white/20" : "bg-white/5 opacity-40 cursor-not-allowed"
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4" />
-            {language === "th" ? "ก่อนหน้า" : "Previous"}
-          </button>
-
-          <div className="text-sm text-[#B8C4DB] font-semibold">
-            {groupedItems.length > 0
-              ? `${activeSetIndex + 1} / ${groupedItems.length}`
-              : language === "th" ? "ไม่มีข้อมูล" : "No data"}
-          </div>
-
-          <button
-            onClick={handleNext}
-            disabled={!canGoNext}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-white transition ${
-              canGoNext ? "bg-white/10 hover:bg-white/20" : "bg-white/5 opacity-40 cursor-not-allowed"
-            }`}
-          >
-            {language === "th" ? "ถัดไป" : "Next"}
-            <ChevronRight className="w-4 h-4" />
-          </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {(loading && groupedItems.length === 0 ? fallbackItems.slice(0, 4) : currentGroup).map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleItemClick(item)}
-              className="relative flex flex-col overflow-hidden rounded-3xl border-4 border-white/10 bg-white/5 backdrop-blur-lg shadow-xl hover:shadow-2xl hover:border-[#FF2D55]/30 transition-all duration-300 cursor-pointer group"
-            >
-              {/* 이미지 컨테이너 */}
-              <div className="relative w-full aspect-square overflow-hidden">
-                <ImageWithFallback
-                  src={item.image_url}
-                  alt={item.caption || "Product gallery"}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                {/* 호버 오버레이 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#FF2D55]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    {language === "th" ? "ดูรายละเอียด" : "View Details"}
-                  </span>
-                </div>
-              </div>
-              
-              {/* 캡션 */}
-              {item.caption && (
-                <div className="p-4 text-center text-white text-sm bg-gradient-to-t from-black/80 to-black/60 backdrop-blur-sm">
-                  {item.caption}
-                </div>
-              )}
+        {/* Search and Admin */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <form onSubmit={handleSearch} className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={language === "th" ? "ค้นหาตามชื่อเรื่องหรือผู้เขียน..." : "Search by title or author..."}
+                className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF2D55]"
+              />
             </div>
+          </form>
+          
+          {isAdmin && (
+            <button
+              onClick={() => navigateTo('admin')}
+              className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#FF2D55]/80 hover:to-[#007AFF]/80 transition-all duration-300"
+            >
+              {language === "th" ? "แก้ไข" : "Admin"}
+            </button>
+          )}
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <button
+            onClick={() => handleCategoryChange('all')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              selectedCategory === 'all'
+                ? 'bg-[#FF2D55] text-white'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            {language === "th" ? "ทั้งหมด" : "All"}
+          </button>
+          {productCategories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => handleCategoryChange(category.id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                selectedCategory === category.id
+                  ? 'text-white'
+                  : 'text-gray-300 hover:bg-white/20'
+              }`}
+              style={{
+                backgroundColor: selectedCategory === category.id ? category.color : 'rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <span>{category.icon}</span>
+              {language === 'th' ? category.name_th : category.name_en}
+            </button>
           ))}
         </div>
 
-        <div className="text-center mt-10">
-          <button
-            onClick={() => navigateTo("gallery")}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#FF2D55] hover:bg-[#ff4d72] text-white font-semibold transition shadow-lg"
-          >
-            {language === "th" ? "ดูแกลเลอรี่ทั้งหมด" : "See full gallery"}
-          </button>
-        </div>
+        {/* Products Grid */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF2D55] mx-auto mb-4"></div>
+            <p className="text-gray-400">{language === "th" ? "กำลังโหลด..." : "Loading..."}</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-12">
+            <Filter className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-400 text-lg">{language === "th" ? "ไม่พบรายการ" : "No items found"}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleItemClick(item)}
+                className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group border border-white/10 hover:border-[#FF2D55]/50"
+                style={{ maxHeight: '360px' }}
+              >
+                {/* 이미지 섹션 */}
+                <div className="relative overflow-hidden" style={{ height: '200px' }}>
+                  <ImageWithFallback
+                    src={item.thumbnail_url || item.image_url}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {item.is_notice && (
+                    <div className="absolute top-2 left-2 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded font-semibold shadow-lg">
+                      {language === "th" ? "공지" : "Notice"}
+                    </div>
+                  )}
+                  
+                  {item.product_category_id && (
+                    <div
+                      className="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded shadow-lg backdrop-blur-sm"
+                      style={{ backgroundColor: getProductCategoryColor(item.product_category_id) + 'CC' }}
+                    >
+                      {getProductCategoryIcon(item.product_category_id)}
+                    </div>
+                  )}
+                </div>
+                
+                {/* 정보 섹션 */}
+                <div className="p-3">
+                  <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px] text-white">
+                    {item.title}
+                  </h3>
+                  
+                  <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                    <span className="truncate flex-1 mr-2">{item.author_name}</span>
+                    <span className="text-gray-500">
+                      {new Date(item.created_at).toLocaleDateString('ko-KR', { 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                      })}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        <span>{item.view_count}</span>
+                      </div>
+                    </div>
+                    {item.product_category_id && (
+                      <span className="text-[#FF2D55] font-medium text-xs">
+                        {getProductCategoryName(item.product_category_id)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
