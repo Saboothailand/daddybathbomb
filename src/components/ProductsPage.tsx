@@ -187,14 +187,13 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           </div>
 
           {/* 상세 페이지 카드 */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl mb-12">
+          <div className="inline-block bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl mb-12 max-w-full">
             {/* 이미지 섹션 - 원본 비율 유지, 가로 1000px */}
-            <div className="relative w-full overflow-hidden bg-black/20">
+            <div className="relative overflow-hidden bg-black/20" style={{ maxWidth: '1000px' }}>
               <ImageWithFallback
                 src={selectedItem.image_url}
                 alt={selectedItem.caption || "Product detail"}
                 className="w-full h-auto object-contain"
-                style={{ maxWidth: '1000px' }}
               />
               {/* 닫기 버튼 */}
               <button
@@ -206,18 +205,18 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             </div>
 
             {/* 정보 섹션 */}
-            <div className="p-8">
+            <div className="p-6">
               {selectedItem.caption && (
-                <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-white mb-4">
+                <div className="mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-3">
                     {selectedItem.caption}
                   </h2>
-                  <div className="h-1 w-20 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] rounded-full"></div>
+                  <div className="h-1 w-16 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] rounded-full"></div>
                 </div>
               )}
 
               <div className="max-w-none">
-                <p className="text-white text-lg leading-relaxed">
+                <p className="text-white text-base leading-relaxed">
                   {language === "th"
                     ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
                     : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience."}
@@ -225,16 +224,16 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
               </div>
 
               {/* 액션 버튼 */}
-              <div className="mt-8 flex gap-4">
+              <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => navigateTo("contact")}
-                  className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                  className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-3 rounded-full font-bold text-base hover:shadow-2xl hover:scale-105 transition-all duration-300"
                 >
                   {language === "th" ? "สั่งซื้อเลย" : "Order Now"}
                 </button>
                 <button
                   onClick={handleCloseDetail}
-                  className="px-6 py-4 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
+                  className="px-5 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
                 >
                   {language === "th" ? "ดูสินค้าอื่น" : "View More"}
                 </button>
