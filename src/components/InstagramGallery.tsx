@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Instagram, Heart, Star, Zap } from "lucide-react";
 
 import type { LanguageKey } from "../App";
-import { galleryService } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 type GalleryItem = {
@@ -32,12 +32,20 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
   useEffect(() => {
     const loadGallery = async () => {
       try {
-        const data = await galleryService.getActiveGalleryImages();
-        if (Array.isArray(data) && data.length > 0) {
-          // 최신 8개만 표시
-          const latest8 = data.slice(0, 8);
+        // 제품 카테고리가 있는 항목만 가져오기 (제품만)
+        const { data, error } = await supabase
+          .from('gallery')
+          .select('*')
+          .eq('is_active', true)
+          .not('product_category_id', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(8);
+
+        if (error) {
+          console.error("Error loading products for Instagram gallery:", error);
+        } else if (Array.isArray(data) && data.length > 0) {
           setPosts(
-            latest8.map((item, index) => ({
+            data.map((item, index) => ({
               id: item.id ?? index,
               image_url: item.image_url ?? fallbackPosts[index % fallbackPosts.length].image_url,
               caption: item.caption,

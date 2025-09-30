@@ -85,7 +85,8 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
       let query = supabase
         .from('gallery')
         .select('*')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .not('product_category_id', 'is', null); // 제품 카테고리가 있는 것만
 
       // 카테고리 필터
       if (selectedCategory !== 'all') {
