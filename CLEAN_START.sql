@@ -217,35 +217,229 @@ SELECT 'Jasmine Night Gel', '<p>มะลิ 🌙</p>',
   'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=1000', 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400',
   'Admin', 181, 34, id FROM public.product_categories WHERE name = 'Daddy Bath Gel' LIMIT 1;
 
--- PART 11: 슬라이더 이미지 (Lavender Dream - 4장)
+-- PART 11: 모든 제품에 슬라이더 이미지 3개씩 추가
+
+-- Lavender Dream Bath Bomb (3장)
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
-SELECT id, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000', 1, 'Main', true
+SELECT id, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000', 1, 'Main View', true
 FROM public.gallery WHERE title = 'Lavender Dream Bath Bomb' LIMIT 1;
-
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
-SELECT id, 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1000', 2, 'Detail'
+SELECT id, 'https://images.unsplash.com/photo-1600461187344-4f5d9c02cd4c?w=1000', 2, 'Close-up'
 FROM public.gallery WHERE title = 'Lavender Dream Bath Bomb' LIMIT 1;
-
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
-SELECT id, 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1000', 3, 'Effect'
+SELECT id, 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1000', 3, 'In Water'
 FROM public.gallery WHERE title = 'Lavender Dream Bath Bomb' LIMIT 1;
 
+-- Rose Garden Bath Bomb (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Rose Garden Bath Bomb' LIMIT 1;
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
-SELECT id, 'https://images.unsplash.com/photo-1629150098631-4d99ad4a53a4?w=1000', 4, 'Package'
-FROM public.gallery WHERE title = 'Lavender Dream Bath Bomb' LIMIT 1;
+SELECT id, 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1000', 2, 'Detail'
+FROM public.gallery WHERE title = 'Rose Garden Bath Bomb' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=1000', 3, 'Effect'
+FROM public.gallery WHERE title = 'Rose Garden Bath Bomb' LIMIT 1;
 
--- 슬라이더 이미지 (Aloe Vera - 3장)
+-- Ocean Breeze (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Ocean Breeze' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=1000', 2, 'Detail'
+FROM public.gallery WHERE title = 'Ocean Breeze' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000', 3, 'Effect'
+FROM public.gallery WHERE title = 'Ocean Breeze' LIMIT 1;
+
+-- Citrus Burst (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1629150098631-4d99ad4a53a4?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Citrus Burst' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1600428687810-5e888a5d9f85?w=1000', 2, 'Detail'
+FROM public.gallery WHERE title = 'Citrus Burst' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=1000', 3, 'Packaging'
+FROM public.gallery WHERE title = 'Citrus Burst' LIMIT 1;
+
+-- Mint Fresh (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1576773689115-5cd2b0223523?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Mint Fresh' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1617897903246-719242758050?w=1000', 2, 'Detail'
+FROM public.gallery WHERE title = 'Mint Fresh' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=1000', 3, 'Fresh'
+FROM public.gallery WHERE title = 'Mint Fresh' LIMIT 1;
+
+-- Vanilla Honey (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1540553016722-983e48a3eaffe?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Vanilla Honey' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1000', 2, 'Texture'
+FROM public.gallery WHERE title = 'Vanilla Honey' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1000', 3, 'Effect'
+FROM public.gallery WHERE title = 'Vanilla Honey' LIMIT 1;
+
+-- Cherry Blossom (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Cherry Blossom' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1000', 2, 'Blossom'
+FROM public.gallery WHERE title = 'Cherry Blossom' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1000', 3, 'Detail'
+FROM public.gallery WHERE title = 'Cherry Blossom' LIMIT 1;
+
+-- Coconut Paradise (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1522335789205-0012b9b2f1a6?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Coconut Paradise' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000', 2, 'Coconut'
+FROM public.gallery WHERE title = 'Coconut Paradise' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1000', 3, 'Paradise'
+FROM public.gallery WHERE title = 'Coconut Paradise' LIMIT 1;
+
+-- Eucalyptus Refresh (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Eucalyptus Refresh' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1000', 2, 'Fresh'
+FROM public.gallery WHERE title = 'Eucalyptus Refresh' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1629150098631-4d99ad4a53a4?w=1000', 3, 'Refresh'
+FROM public.gallery WHERE title = 'Eucalyptus Refresh' LIMIT 1;
+
+-- Strawberry Delight (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Strawberry Delight' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1576773689115-5cd2b0223523?w=1000', 2, 'Sweet'
+FROM public.gallery WHERE title = 'Strawberry Delight' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1540553016722-983e48a3eaffe?w=1000', 3, 'Delight'
+FROM public.gallery WHERE title = 'Strawberry Delight' LIMIT 1;
+
+-- Bath Gel 제품들도 슬라이더 이미지 3개씩 추가
+
+-- Aloe Vera Soothing Gel (3장)
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
 SELECT id, 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000', 1, 'Main', true
 FROM public.gallery WHERE title = 'Aloe Vera Soothing Gel' LIMIT 1;
-
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
 SELECT id, 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1000', 2, 'Texture'
 FROM public.gallery WHERE title = 'Aloe Vera Soothing Gel' LIMIT 1;
-
 INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
-SELECT id, 'https://images.unsplash.com/photo-1600428687810-5e888a5d9f85?w=1000', 3, 'Application'
+SELECT id, 'https://images.unsplash.com/photo-1600428687810-5e888a5d9f85?w=1000', 3, 'Soothing'
 FROM public.gallery WHERE title = 'Aloe Vera Soothing Gel' LIMIT 1;
+
+-- Milk & Honey Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Milk & Honey Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1000', 2, 'Honey'
+FROM public.gallery WHERE title = 'Milk & Honey Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=1000', 3, 'Milk'
+FROM public.gallery WHERE title = 'Milk & Honey Gel' LIMIT 1;
+
+-- Green Tea Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1600428687810-5e888a5d9f85?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Green Tea Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1617897903246-719242758050?w=1000', 2, 'Tea Leaves'
+FROM public.gallery WHERE title = 'Green Tea Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=1000', 3, 'Antioxidant'
+FROM public.gallery WHERE title = 'Green Tea Gel' LIMIT 1;
+
+-- Cucumber Fresh Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Cucumber Fresh Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1000', 2, 'Fresh'
+FROM public.gallery WHERE title = 'Cucumber Fresh Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=1000', 3, 'Cucumber'
+FROM public.gallery WHERE title = 'Cucumber Fresh Gel' LIMIT 1;
+
+-- Chamomile Calm Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Chamomile Calm Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=1000', 2, 'Calm'
+FROM public.gallery WHERE title = 'Chamomile Calm Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1617897903246-719242758050?w=1000', 3, 'Flower'
+FROM public.gallery WHERE title = 'Chamomile Calm Gel' LIMIT 1;
+
+-- Shea Butter Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1617897903246-719242758050?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Shea Butter Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=1000', 2, 'Butter'
+FROM public.gallery WHERE title = 'Shea Butter Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1000', 3, 'Luxury'
+FROM public.gallery WHERE title = 'Shea Butter Gel' LIMIT 1;
+
+-- Collagen Boost Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Collagen Boost Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=1000', 2, 'Boost'
+FROM public.gallery WHERE title = 'Collagen Boost Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000', 3, 'Collagen'
+FROM public.gallery WHERE title = 'Collagen Boost Gel' LIMIT 1;
+
+-- Vitamin C Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Vitamin C Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1600428687810-5e888a5d9f85?w=1000', 2, 'Vitamin'
+FROM public.gallery WHERE title = 'Vitamin C Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1000', 3, 'Brightening'
+FROM public.gallery WHERE title = 'Vitamin C Gel' LIMIT 1;
+
+-- Argan Oil Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Argan Oil Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1617897903246-719242758050?w=1000', 2, 'Oil Drop'
+FROM public.gallery WHERE title = 'Argan Oil Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=1000', 3, 'Moisture'
+FROM public.gallery WHERE title = 'Argan Oil Gel' LIMIT 1;
+
+-- Jasmine Night Gel (3장)
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption, is_primary)
+SELECT id, 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=1000', 1, 'Main', true
+FROM public.gallery WHERE title = 'Jasmine Night Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=1000', 2, 'Jasmine'
+FROM public.gallery WHERE title = 'Jasmine Night Gel' LIMIT 1;
+INSERT INTO public.gallery_images (gallery_id, image_url, display_order, caption)
+SELECT id, 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1000', 3, 'Night'
+FROM public.gallery WHERE title = 'Jasmine Night Gel' LIMIT 1;
 
 -- 완료!
 SELECT 
