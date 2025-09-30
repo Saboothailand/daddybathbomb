@@ -152,11 +152,12 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
         .eq('gallery_id', item.id)
         .order('display_order', { ascending: true });
 
-      if (!error && data && data.length > 0) {
-        console.log('Loaded slider images:', data.length);
+              if (!error && data && data.length > 0) {
+        console.log('✅ Loaded slider images:', data.length, data);
         setSelectedImages(data);
       } else {
-        console.log('No slider images found, using default');
+        console.log('⚠️ No slider images found in DB, using default image');
+        if (error) console.error('Error:', error);
       }
     } catch (error) {
       console.error('Error loading gallery images:', error);
@@ -227,20 +228,38 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
 
   // 상세 페이지 렌더링
   if (selectedItem) {
+    console.log('🎨 Detail page rendering');
+    console.log('  - Selected images count:', selectedImages.length);
+    console.log('  - Current image index:', currentImageIndex);
+    console.log('  - Show arrows?', selectedImages.length > 1);
+    
     return (
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
         <div className="max-w-[1000px] mx-auto">
-          {/* 뒤로가기 버튼 */}
+          {/* 뒤로가기 & 카테고리 정보 */}
           <div className="flex items-center justify-between mb-8">
-            <button
-              onClick={handleCloseDetail}
-              className="flex items-center gap-2 text-white hover:text-[#FF2D55] transition-colors group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-semibold">
-                {language === "th" ? "กลับ" : "Back"}
-              </span>
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleCloseDetail}
+                className="flex items-center gap-2 text-white hover:text-[#FF2D55] transition-colors group"
+              >
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                <span className="font-semibold">
+                  {language === "th" ? "กลับ" : "Back"}
+                </span>
+              </button>
+              
+              {/* 현재 제품 카테고리 표시 */}
+              {selectedItem.product_category_id && (
+                <div 
+                  className="px-4 py-2 rounded-full font-bold text-white border-3 comic-border flex items-center gap-2"
+                  style={{ backgroundColor: getProductCategoryColor(selectedItem.product_category_id) }}
+                >
+                  <span className="text-xl">{getProductCategoryIcon(selectedItem.product_category_id)}</span>
+                  <span>{getProductCategoryName(selectedItem.product_category_id)}</span>
+                </div>
+              )}
+            </div>
             
             {/* Admin Buttons */}
             {isAdmin && (
