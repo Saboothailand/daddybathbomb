@@ -309,71 +309,81 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   }
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
-      <div className="max-w-7xl mx-auto">
+    <section className="min-h-screen bg-gradient-to-br from-[#0B0F1A] via-[#1a1f3a] to-[#0B0F1A] py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] bg-clip-text text-transparent">
-            {language === "th" ? "สินค้า" : "Products"}
-          </h1>
-          <p className="text-xl text-gray-300">
-            {language === "th" ? "ผลิตภัณฑ์ Daddy Bath Bomb และ Daddy Bath Gel" : "Discover Daddy Bath Bomb and Daddy Bath Gel"}
+        <div className="text-center mb-16 relative">
+          <div className="inline-block relative">
+            <h1 className="font-fredoka text-6xl sm:text-7xl font-bold mb-6 relative z-10">
+              <span className="bg-gradient-to-r from-[#FF2D55] via-[#FF6B9D] to-[#007AFF] bg-clip-text text-transparent drop-shadow-2xl">
+                {language === "th" ? "สินค้า" : "Products"}
+              </span>
+            </h1>
+            <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#FF2D55]/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-3xl"></div>
+          </div>
+          <p className="text-lg sm:text-xl text-[#B8C4DB] font-light max-w-2xl mx-auto">
+            {language === "th" 
+              ? "ค้นพบผลิตภัณฑ์คุณภาพพรีเมี่ยมของเรา" 
+              : "Discover our premium collection"}
           </p>
         </div>
 
-        {/* Search and Admin */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <form onSubmit={handleSearch} className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        {/* Search Bar - Modern Design */}
+        <div className="max-w-3xl mx-auto mb-12">
+          <form onSubmit={handleSearch}>
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] rounded-2xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
+              <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={language === "th" ? "ค้นหาตามชื่อเรื่องหรือผู้เขียน..." : "Search by title or author..."}
-                className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF2D55]"
+                placeholder={language === "th" ? "🔍 ค้นหาสินค้า..." : "🔍 Search products..."}
+                className="w-full pl-14 pr-6 py-4 bg-white/5 backdrop-blur-xl border-2 border-white/10 rounded-2xl text-white text-lg placeholder-gray-400 focus:outline-none focus:border-[#FF2D55]/50 focus:bg-white/10 transition-all duration-300 relative z-10"
               />
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => navigateTo('admin')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#FF2D55]/50 transition-all duration-300 flex items-center gap-2 text-sm z-10"
+                >
+                  <Edit className="w-4 h-4" />
+                  {language === "th" ? "จัดการ" : "Manage"}
+                </button>
+              )}
             </div>
           </form>
-          
-          {isAdmin && (
-            <button
-              onClick={() => navigateTo('admin')}
-              className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#FF2D55]/80 hover:to-[#007AFF]/80 transition-all duration-300 flex items-center gap-2"
-            >
-              <Edit className="w-4 h-4" />
-              {language === "th" ? "จัดการ" : "Manage"}
-            </button>
-          )}
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        {/* Category Filter - Elegant Pills */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           <button
             onClick={() => handleCategoryChange('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 ${
               selectedCategory === 'all'
-                ? 'bg-[#FF2D55] text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                ? 'bg-gradient-to-r from-[#FF2D55] to-[#FF6B9D] text-white shadow-lg shadow-[#FF2D55]/50'
+                : 'bg-white/5 backdrop-blur-sm text-gray-300 hover:bg-white/10 border border-white/10'
             }`}
           >
-            {language === "th" ? "ทั้งหมด" : "All"}
+            ✨ {language === "th" ? "ทั้งหมด" : "All Products"}
           </button>
           {productCategories.map((category) => (
             <button
               key={category.id}
               onClick={() => handleCategoryChange(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 border ${
                 selectedCategory === category.id
-                  ? 'text-white'
-                  : 'text-gray-300 hover:bg-white/20'
+                  ? 'text-white shadow-xl'
+                  : 'text-gray-300 hover:bg-white/10 bg-white/5 backdrop-blur-sm border-white/10'
               }`}
               style={{
-                backgroundColor: selectedCategory === category.id ? category.color : 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: selectedCategory === category.id ? category.color : undefined,
+                boxShadow: selectedCategory === category.id ? `0 10px 40px ${category.color}40` : undefined,
               }}
             >
-              <span>{category.icon}</span>
-              {language === 'th' ? category.name_th : category.name_en}
+              <span className="text-xl">{category.icon}</span>
+              <span>{language === 'th' ? category.name_th : category.name_en}</span>
             </button>
           ))}
         </div>
@@ -390,67 +400,72 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             <p className="text-gray-400 text-lg">{language === "th" ? "ไม่พบรายการ" : "No items found"}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
             {items.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
-                className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group border border-white/10 hover:border-[#FF2D55]/50"
-                style={{ maxHeight: '360px' }}
+                className="group relative"
               >
-                {/* Image */}
-                <div className="relative overflow-hidden" style={{ height: '200px' }}>
-                  <ImageWithFallback
-                    src={item.thumbnail_url || item.image_url}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
-                  {item.is_notice && (
-                    <div className="absolute top-2 left-2 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded font-semibold shadow-lg">
-                      {language === "th" ? "ประกาศ" : "Notice"}
+                <div className="relative bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-500 cursor-pointer hover:shadow-2xl hover:shadow-[#FF2D55]/20 hover:-translate-y-2">
+                  {/* Image */}
+                  <div className="relative overflow-hidden aspect-square">
+                    <ImageWithFallback
+                      src={item.thumbnail_url || item.image_url}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
+                    
+                    {/* Notice Badge */}
+                    {item.is_notice && (
+                      <div className="absolute top-3 left-3 bg-gradient-to-r from-[#FF2D55] to-[#FF6B9D] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl backdrop-blur-sm">
+                        ⭐ {language === "th" ? "ใหม่" : "NEW"}
+                      </div>
+                    )}
+                    
+                    {/* Category Badge */}
+                    {item.product_category_id && (
+                      <div
+                        className="absolute top-3 right-3 text-white text-lg px-3 py-1.5 rounded-full shadow-xl backdrop-blur-md"
+                        style={{ backgroundColor: getProductCategoryColor(item.product_category_id) + 'DD' }}
+                      >
+                        {getProductCategoryIcon(item.product_category_id)}
+                      </div>
+                    )}
+
+                    {/* Title Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <h3 className="font-bold text-white text-sm line-clamp-2 mb-1">
+                        {item.title}
+                      </h3>
+                      {item.product_category_id && (
+                        <p className="text-xs font-semibold opacity-90" style={{ color: getProductCategoryColor(item.product_category_id) }}>
+                          {getProductCategoryName(item.product_category_id)}
+                        </p>
+                      )}
                     </div>
-                  )}
-                  
-                  {item.product_category_id && (
-                    <div
-                      className="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded shadow-lg backdrop-blur-sm"
-                      style={{ backgroundColor: getProductCategoryColor(item.product_category_id) + 'CC' }}
-                    >
-                      {getProductCategoryIcon(item.product_category_id)}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Info */}
-                <div className="p-3">
-                  <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px] text-white">
-                    {item.title}
-                  </h3>
-                  
-                  <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                    <span className="truncate flex-1 mr-2">{item.author_name}</span>
-                    <span className="text-gray-500">
-                      {new Date(item.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', { 
-                        month: '2-digit', 
-                        day: '2-digit' 
-                      })}
-                    </span>
                   </div>
                   
-                  <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/10">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
-                        <span>{item.view_count}</span>
+                  {/* Stats Bar */}
+                  <div className="px-4 py-3 bg-black/40 backdrop-blur-md">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-3 text-gray-300">
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5" />
+                          <span className="font-medium">{item.view_count}</span>
+                        </div>
+                        <span className="text-gray-500">•</span>
+                        <span className="text-gray-400 truncate">{item.author_name}</span>
                       </div>
-                    </div>
-                    {item.product_category_id && (
-                      <span className="text-[#FF2D55] font-medium text-xs">
-                        {getProductCategoryName(item.product_category_id)}
+                      <span className="text-gray-500 text-xs">
+                        {new Date(item.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
                       </span>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
