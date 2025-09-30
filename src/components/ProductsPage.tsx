@@ -3,7 +3,8 @@ import { galleryService } from "../lib/supabase";
 import type { PageKey, LanguageKey } from "../App";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { t } from "../utils/translations";
-import { ChevronLeft, ChevronRight, Sparkles, ArrowLeft, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowLeft, X, Edit, Trash2 } from "lucide-react";
+import { authService } from "../utils/auth";
 
 type GalleryItem = {
   id: string | number;
@@ -73,8 +74,11 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   const [loading, setLoading] = useState(true);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    setIsAdmin(authService.isAdmin());
+    
     const load = async () => {
       try {
         const data = await galleryService.getActiveGalleryImages();
@@ -122,31 +126,75 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
     setSelectedItem(null);
   };
 
+  const handleEdit = () => {
+    // 관리자 페이지로 이동
+    navigateTo("admin");
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItem) return;
+    
+    if (confirm(language === "th" ? "ลบรายการนี้หรือไม่?" : "Delete this item?")) {
+      try {
+        // 삭제 로직 추가 필요
+        alert(language === "th" ? "กรุณาใช้หน้าผู้ดูแลระบบเพื่อลบ" : "Please use admin dashboard to delete");
+        navigateTo("admin");
+      } catch (error) {
+        console.error("Delete error:", error);
+      }
+    }
+  };
+
+  // 현재 선택된 아이템 제외한 나머지 아이템들 (최대 20개)
+  const otherItems = items.filter(item => item.id !== selectedItem?.id).slice(0, 20);
+
   // 상세 페이지 렌더링
   if (selectedItem) {
     return (
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
         <div className="max-w-[1000px] mx-auto">
           {/* 뒤로가기 버튼 */}
-          <button
-            onClick={handleCloseDetail}
-            className="flex items-center gap-2 mb-8 text-white hover:text-[#FF2D55] transition-colors group"
-          >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-semibold">
-              {language === "th" ? "กลับไปยังสินค้า" : "Back to Products"}
-            </span>
-          </button>
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={handleCloseDetail}
+              className="flex items-center gap-2 text-white hover:text-[#FF2D55] transition-colors group"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-semibold">
+                {language === "th" ? "กลับไปยังสินค้า" : "Back to Products"}
+              </span>
+            </button>
+            
+            {/* 관리자 버튼 */}
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                  {language === "th" ? "แก้ไข" : "Edit"}
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {language === "th" ? "ลบ" : "Delete"}
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* 상세 페이지 카드 */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl">
-            {/* 이미지 섹션 */}
-            <div className="relative w-full overflow-hidden bg-black/20" style={{ maxHeight: '600px' }}>
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl mb-12">
+            {/* 이미지 섹션 - 원본 비율 유지, 가로 1000px */}
+            <div className="relative w-full overflow-hidden bg-black/20">
               <ImageWithFallback
                 src={selectedItem.image_url}
                 alt={selectedItem.caption || "Product detail"}
-                className="w-full h-full object-contain"
-                style={{ maxHeight: '600px' }}
+                className="w-full h-auto object-contain"
+                style={{ maxWidth: '1000px' }}
               />
               {/* 닫기 버튼 */}
               <button
@@ -193,6 +241,38 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
               </div>
             </div>
           </div>
+
+          {/* 나머지 갤러리 아이템 20개 */}
+          {otherItems.length > 0 && (
+            <div className="mt-12">
+              <h3 className="text-2xl font-bold text-white mb-6">
+                {language === "th" ? "สินค้าอื่นๆ" : "Other Products"}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {otherItems.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => handleItemClick(item)}
+                    className="relative flex flex-col overflow-hidden rounded-2xl border-2 border-white/10 bg-white/5 backdrop-blur-lg shadow-lg hover:shadow-xl hover:border-[#FF2D55]/30 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="relative w-full aspect-square overflow-hidden">
+                      <ImageWithFallback
+                        src={item.image_url}
+                        alt={item.caption || "Product"}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    {item.caption && (
+                      <div className="p-2 text-center text-white text-xs bg-gradient-to-t from-black/80 to-black/60 backdrop-blur-sm line-clamp-2">
+                        {item.caption}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     );
