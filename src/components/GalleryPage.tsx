@@ -375,7 +375,7 @@ export default function GalleryPage({ navigateTo, language }: GalleryPageProps) 
           ))}
         </div>
 
-        {/* Gallery Grid */}
+        {/* Gallery Grid - Gnuboard Style */}
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF2D55] mx-auto mb-4"></div>
@@ -387,47 +387,75 @@ export default function GalleryPage({ navigateTo, language }: GalleryPageProps) 
             <p className="text-gray-400 text-lg">{t[language].noItems}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             {galleryItems.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setSelectedItem(item)}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group"
+                className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group border border-white/10 hover:border-[#FF2D55]/50"
+                style={{ maxHeight: '360px' }}
               >
-                <div className="aspect-square relative">
+                {/* 이미지 섹션 - 고정 높이 */}
+                <div className="relative overflow-hidden" style={{ height: '200px' }}>
                   <ImageWithFallback
                     src={item.thumbnail_url || item.image_url}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
+                  {/* 오버레이 효과 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* 공지사항 배지 */}
                   {item.is_notice && (
-                    <div className="absolute top-2 left-2 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded-full">
+                    <div className="absolute top-2 left-2 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded font-semibold shadow-lg">
                       공지
                     </div>
                   )}
+                  
+                  {/* 카테고리 배지 */}
                   {item.category_id && (
                     <div
-                      className="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded-full"
-                      style={{ backgroundColor: getCategoryColor(item.category_id) }}
+                      className="absolute top-2 right-2 text-white text-xs px-2 py-1 rounded shadow-lg backdrop-blur-sm"
+                      style={{ backgroundColor: getCategoryColor(item.category_id) + 'CC' }}
                     >
                       {getCategoryIcon(item.category_id)}
                     </div>
                   )}
                 </div>
                 
-                <div className="p-4">
-                  <h3 className="font-semibold mb-2 line-clamp-2">{item.title}</h3>
-                  <div className="flex items-center justify-between text-sm text-gray-400">
-                    <span>{item.author_name}</span>
-                    <div className="flex items-center gap-3">
+                {/* 정보 섹션 - 컴팩트 */}
+                <div className="p-3">
+                  {/* 제목 */}
+                  <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px] text-white">
+                    {item.title}
+                  </h3>
+                  
+                  {/* 메타 정보 */}
+                  <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                    <span className="truncate flex-1 mr-2">{item.author_name}</span>
+                    <span className="text-gray-500">
+                      {new Date(item.created_at).toLocaleDateString('ko-KR', { 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                      })}
+                    </span>
+                  </div>
+                  
+                  {/* 통계 정보 */}
+                  <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/10">
+                    <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {item.view_count}
+                        <Eye className="w-3 h-3" />
+                        <span>{item.view_count}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ThumbsUp className="w-4 h-4" />
-                        {item.like_count}
+                        <ThumbsUp className="w-3 h-3" />
+                        <span>{item.like_count}</span>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-[#FF2D55]">
+                      <MessageCircle className="w-3 h-3" />
+                      <span>{item.comment_count}</span>
                     </div>
                   </div>
                 </div>
