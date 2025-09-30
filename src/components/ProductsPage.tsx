@@ -274,10 +274,10 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           {/* Other Products */}
           {otherItems.length > 0 && (
             <div className="mt-12">
-              <h3 className="text-2xl font-bold text-white mb-6">
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">
                 {language === "th" ? "สินค้าที่เกี่ยวข้อง" : "Related Products"}
               </h3>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap justify-center gap-4">
                 {otherItems.map((item) => (
                   <div
                     key={item.id}
@@ -336,15 +336,17 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
         <div className="max-w-3xl mx-auto mb-12">
           <form onSubmit={handleSearch} className="relative">
             <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-2 comic-border border-4 border-white">
-              <div className="relative flex items-center gap-2">
+              <div className="relative flex items-center gap-3">
                 <div className="flex items-center flex-1 relative">
-                  <Search className="absolute left-5 text-white w-5 h-5" />
+                  <div className="absolute left-4 flex items-center justify-center w-8">
+                    <Search className="text-white w-5 h-5" />
+                  </div>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder={language === "th" ? "ค้นหาสินค้า..." : "Search products..."}
-                    className="w-full pl-14 pr-4 py-3 bg-transparent text-white text-lg placeholder-white/60 focus:outline-none font-nunito"
+                    className="w-full pl-16 pr-4 py-3 bg-transparent text-white text-lg placeholder-white/60 focus:outline-none font-nunito font-bold"
                   />
                 </div>
                 {isAdmin && (
