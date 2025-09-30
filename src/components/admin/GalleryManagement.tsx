@@ -18,6 +18,7 @@ type GalleryItem = {
   is_active: boolean;
   category_id?: string;
   product_category_id?: string;
+  buy_link?: string;
   created_at: string;
 };
 
@@ -59,6 +60,7 @@ export default function GalleryManagement() {
     is_notice: false,
     category_id: '',
     product_category_id: '',
+    buy_link: '',
   });
 
   const [categoryFormData, setCategoryFormData] = useState({
@@ -172,6 +174,7 @@ export default function GalleryManagement() {
         is_notice: false,
         category_id: '',
         product_category_id: '',
+        buy_link: '',
       });
       loadGalleryItems();
     } catch (error) {
@@ -271,6 +274,7 @@ export default function GalleryManagement() {
       is_notice: item.is_notice,
       category_id: item.category_id || '',
       product_category_id: item.product_category_id || '',
+      buy_link: item.buy_link || '',
     });
     setShowForm(true);
   };
@@ -553,6 +557,22 @@ export default function GalleryManagement() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Buy Link (구매 링크) 🛒
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.buy_link}
+                    onChange={(e) => setFormData({ ...formData, buy_link: e.target.value })}
+                    placeholder="https://line.me/... or https://shopee.co.th/..."
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Line, Shopee, Lazada 등 구매 페이지 링크를 입력하세요
+                  </p>
                 </div>
 
                 <div className="flex items-center">

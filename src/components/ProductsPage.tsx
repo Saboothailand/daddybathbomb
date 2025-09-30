@@ -36,6 +36,7 @@ type GalleryItem = {
   comment_count: number;
   is_notice: boolean;
   product_category_id?: string;
+  buy_link?: string;
   created_at: string;
 };
 
@@ -359,15 +360,26 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <button
-                  onClick={() => navigateTo("contact")}
-                  className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-3 rounded-full font-bold text-base hover:shadow-2xl hover:scale-105 transition-all duration-300"
-                >
-                  {language === "th" ? "สั่งซื้อ" : "Order Now"}
-                </button>
+                  {selectedItem.buy_link ? (
+                    <a
+                      href={selectedItem.buy_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 text-center comic-button border-3 border-white flex items-center justify-center gap-2"
+                    >
+                      🛒 {language === "th" ? "ซื้อเลย" : "Buy Now"}
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => navigateTo("contact")}
+                      className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 comic-button border-3 border-white"
+                    >
+                      {language === "th" ? "สั่งซื้อ" : "Order Now"}
+                    </button>
+                  )}
                   <button
                     onClick={handleCloseDetail}
-                    className="px-5 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
+                    className="px-5 py-4 bg-white/20 backdrop-blur-lg text-white rounded-full font-bold hover:bg-white/30 transition-all duration-300 border-3 border-white comic-button"
                   >
                     {language === "th" ? "ดูสินค้าอื่น" : "View More"}
                   </button>
