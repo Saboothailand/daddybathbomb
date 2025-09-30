@@ -77,6 +77,9 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // 페이지 로드 시 최상단으로 스크롤
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     setIsAdmin(authService.isAdmin());
     
     const load = async () => {
@@ -120,6 +123,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
 
   const handleItemClick = (item: GalleryItem) => {
     setSelectedItem(item);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCloseDetail = () => {

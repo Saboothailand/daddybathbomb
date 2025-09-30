@@ -47,6 +47,9 @@ export default function GalleryPage({ navigateTo, language }: GalleryPageProps) 
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // 페이지 로드 시 최상단으로 스크롤
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     setIsAdmin(authService.isAdmin());
     loadCategories();
     loadGalleryItems();
