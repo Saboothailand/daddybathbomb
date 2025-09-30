@@ -95,10 +95,19 @@ ALTER TABLE public.gallery_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gallery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "view_product_categories" ON public.product_categories;
 CREATE POLICY "view_product_categories" ON public.product_categories FOR SELECT USING (is_active = true);
+
+DROP POLICY IF EXISTS "view_gallery_categories" ON public.gallery_categories;
 CREATE POLICY "view_gallery_categories" ON public.gallery_categories FOR SELECT USING (is_active = true);
+
+DROP POLICY IF EXISTS "view_gallery" ON public.gallery;
 CREATE POLICY "view_gallery" ON public.gallery FOR SELECT USING (is_active = true);
+
+DROP POLICY IF EXISTS "insert_gallery" ON public.gallery;
 CREATE POLICY "insert_gallery" ON public.gallery FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "view_gallery_images" ON public.gallery_images;
 CREATE POLICY "view_gallery_images" ON public.gallery_images FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.gallery WHERE id = gallery_id AND is_active = true)
 );
