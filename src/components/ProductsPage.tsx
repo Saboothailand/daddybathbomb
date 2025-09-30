@@ -80,12 +80,13 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
         .order('display_order', { ascending: true });
 
       if (error) {
-        console.error('Error loading product categories:', error);
+        console.error('❌ Error loading product categories:', error);
       } else {
+        console.log('✅ Product categories loaded:', data);
         setProductCategories(data || []);
       }
     } catch (error) {
-      console.error('Error loading product categories:', error);
+      console.error('❌ Exception loading product categories:', error);
     }
   };
 
@@ -116,13 +117,14 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error loading products:', error);
+        console.error('❌ Error loading products:', error);
         setItems([]);
       } else {
+        console.log(`✅ Products loaded: ${data?.length || 0} items`);
         setItems(data || []);
       }
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('❌ Exception loading products:', error);
       setItems([]);
     } finally {
       setLoading(false);
@@ -279,22 +281,22 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                   </div>
                 )}
 
-                {/* Navigation Arrows - Transparent on hover */}
+                {/* Navigation Arrows - Always Visible */}
                 {selectedImages.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-white/30 hover:border-white z-20"
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-white/20 hover:bg-white/40 backdrop-blur-lg rounded-full flex items-center justify-center transition-all duration-300 border-3 border-white shadow-2xl comic-button z-20"
                       aria-label="Previous image"
                     >
-                      <ChevronLeft className="w-8 h-8 text-white" strokeWidth={3} />
+                      <ChevronLeft className="w-10 h-10 text-white" strokeWidth={4} />
                     </button>
                     <button
                       onClick={handleNextImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-white/30 hover:border-white z-20"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-white/20 hover:bg-white/40 backdrop-blur-lg rounded-full flex items-center justify-center transition-all duration-300 border-3 border-white shadow-2xl comic-button z-20"
                       aria-label="Next image"
                     >
-                      <ChevronRight className="w-8 h-8 text-white" strokeWidth={3} />
+                      <ChevronRight className="w-10 h-10 text-white" strokeWidth={4} />
                     </button>
                   </>
                 )}
@@ -309,15 +311,15 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
 
                 {/* Thumbnail Navigation */}
                 {selectedImages.length > 1 && (
-                  <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                  <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2 px-4 z-20">
                     {selectedImages.map((img, idx) => (
                       <button
                         key={img.id}
                         onClick={() => setCurrentImageIndex(idx)}
-                        className={`w-16 h-16 rounded-xl overflow-hidden border-3 transition-all duration-300 ${
+                        className={`w-20 h-20 rounded-2xl overflow-hidden comic-border transition-all duration-300 ${
                           idx === currentImageIndex 
-                            ? 'border-[#FF2D55] scale-110 shadow-lg shadow-[#FF2D55]/50' 
-                            : 'border-white/40 hover:border-white/80 hover:scale-105'
+                            ? 'border-4 border-[#FF2D55] scale-110 shadow-2xl' 
+                            : 'border-3 border-white/60 hover:border-white hover:scale-105'
                         }`}
                       >
                         <img 
