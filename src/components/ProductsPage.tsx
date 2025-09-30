@@ -3,7 +3,7 @@ import { galleryService } from "../lib/supabase";
 import type { PageKey, LanguageKey } from "../App";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { t } from "../utils/translations";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowLeft, X } from "lucide-react";
 
 type GalleryItem = {
   id: string | number;
@@ -72,6 +72,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   const [items, setItems] = useState<GalleryItem[]>(fallbackItems);
   const [loading, setLoading] = useState(true);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -112,6 +113,89 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
       setActiveSetIndex((prev) => prev + 1);
     }
   };
+
+  const handleItemClick = (item: GalleryItem) => {
+    setSelectedItem(item);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedItem(null);
+  };
+
+  // 상세 페이지 렌더링
+  if (selectedItem) {
+    return (
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
+        <div className="max-w-4xl mx-auto">
+          {/* 뒤로가기 버튼 */}
+          <button
+            onClick={handleCloseDetail}
+            className="flex items-center gap-2 mb-8 text-[#FF2D55] hover:text-white transition-colors group"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-semibold">
+              {language === "th" ? "กลับไปยังสินค้า" : "Back to Products"}
+            </span>
+          </button>
+
+          {/* 상세 페이지 카드 */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl">
+            {/* 이미지 섹션 */}
+            <div className="relative w-full aspect-square overflow-hidden bg-black/20">
+              <ImageWithFallback
+                src={selectedItem.image_url}
+                alt={selectedItem.caption || "Product detail"}
+                className="w-full h-full object-contain"
+              />
+              {/* 닫기 버튼 */}
+              <button
+                onClick={handleCloseDetail}
+                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-[#FF2D55] text-white rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* 정보 섹션 */}
+            <div className="p-8">
+              {selectedItem.caption && (
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-white mb-4">
+                    {selectedItem.caption}
+                  </h2>
+                  <div className="h-1 w-20 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] rounded-full"></div>
+                </div>
+              )}
+
+              <div className="prose prose-invert max-w-none">
+                <p className="text-gray-300 text-lg leading-relaxed">
+                  {language === "th"
+                    ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
+                    : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience."}
+                </p>
+              </div>
+
+              {/* 액션 버튼 */}
+              <div className="mt-8 flex gap-4">
+                <button
+                  onClick={() => navigateTo("contact")}
+                  className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  {language === "th" ? "สั่งซื้อเลย" : "Order Now"}
+                </button>
+                <button
+                  onClick={handleCloseDetail}
+                  className="px-6 py-4 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
+                >
+                  {language === "th" ? "ดูสินค้าอื่น" : "View More"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
@@ -165,15 +249,22 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           {(loading && groupedItems.length === 0 ? fallbackItems.slice(0, 4) : currentGroup).map((item) => (
             <div
               key={item.id}
-              className="relative flex flex-col overflow-hidden rounded-3xl border-4 border-white/10 bg-white/5 backdrop-blur-lg shadow-xl hover:shadow-2xl hover:border-[#FF2D55]/30 transition-all duration-300"
+              onClick={() => handleItemClick(item)}
+              className="relative flex flex-col overflow-hidden rounded-3xl border-4 border-white/10 bg-white/5 backdrop-blur-lg shadow-xl hover:shadow-2xl hover:border-[#FF2D55]/30 transition-all duration-300 cursor-pointer group"
             >
               {/* 이미지 컨테이너 */}
               <div className="relative w-full aspect-square overflow-hidden">
                 <ImageWithFallback
                   src={item.image_url}
                   alt={item.caption || "Product gallery"}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
+                {/* 호버 오버레이 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#FF2D55]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    {language === "th" ? "ดูรายละเอียด" : "View Details"}
+                  </span>
+                </div>
               </div>
               
               {/* 캡션 */}
