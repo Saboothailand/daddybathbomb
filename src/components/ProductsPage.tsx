@@ -185,11 +185,11 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
               <span className="font-semibold">
-                {language === "th" ? "กลับไปยังสินค้า" : "Back to Products"}
+                {language === "th" ? "กลับ" : "Back"}
               </span>
             </button>
             
-            {/* 관리자 버튼 */}
+            {/* Admin Buttons */}
             {isAdmin && (
               <div className="flex gap-2">
                 <button
@@ -210,7 +210,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             )}
           </div>
 
-          {/* 상세 페이지 카드 - 중앙 정렬 */}
+          {/* Product Detail Card */}
           <div className="flex justify-center mb-12">
             <div className="inline-block bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl max-w-full">
               {/* 이미지 섹션 - 원본 비율 유지, 가로 1000px */}
@@ -220,7 +220,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                   alt={selectedItem.caption || "Product detail"}
                   className="w-full h-auto object-contain"
                 />
-                {/* 닫기 버튼 */}
+                {/* Close Button */}
                 <button
                   onClick={handleCloseDetail}
                   className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-[#FF2D55] text-white rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
@@ -229,7 +229,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                 </button>
               </div>
 
-              {/* 정보 섹션 */}
+              {/* Info Section */}
               <div className="p-6">
                 {selectedItem.caption && (
                   <div className="mb-4">
@@ -241,21 +241,24 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                 )}
 
                 <div className="max-w-none mb-16">
-                  <p className="text-white text-base leading-relaxed">
-                    {language === "th"
+                <div 
+                  className="text-white text-base leading-relaxed prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ 
+                    __html: selectedItem.content || (language === "th"
                       ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
-                      : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience."}
-                  </p>
+                      : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience.")
+                  }}
+                />
                 </div>
 
-                {/* 액션 버튼 */}
+                {/* Action Buttons */}
                 <div className="flex gap-3">
                   <button
-                    onClick={() => navigateTo("contact")}
-                    className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-3 rounded-full font-bold text-base hover:shadow-2xl hover:scale-105 transition-all duration-300"
-                  >
-                    {language === "th" ? "สั่งซื้อเลย" : "Order Now"}
-                  </button>
+                  onClick={() => navigateTo("contact")}
+                  className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-3 rounded-full font-bold text-base hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  {language === "th" ? "สั่งซื้อ" : "Order Now"}
+                </button>
                   <button
                     onClick={handleCloseDetail}
                     className="px-5 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
@@ -267,11 +270,11 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             </div>
           </div>
 
-          {/* 나머지 갤러리 아이템 20개 - 가로 200px, 4개씩, 왼쪽 정렬 */}
+          {/* Other Products */}
           {otherItems.length > 0 && (
             <div className="mt-12">
               <h3 className="text-2xl font-bold text-white mb-6">
-                {language === "th" ? "สินค้าอื่นๆ" : "Other Products"}
+                {language === "th" ? "สินค้าที่เกี่ยวข้อง" : "Related Products"}
               </h3>
               <div className="flex flex-wrap gap-4">
                 {otherItems.map((item) => (
@@ -313,7 +316,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             {language === "th" ? "สินค้า" : "Products"}
           </h1>
           <p className="text-xl text-gray-300">
-            {language === "th" ? "Daddy Bath Bomb และ Daddy Bath Gel 제품을 만나보세요" : "Discover Daddy Bath Bomb and Daddy Bath Gel"}
+            {language === "th" ? "ผลิตภัณฑ์ Daddy Bath Bomb และ Daddy Bath Gel" : "Discover Daddy Bath Bomb and Daddy Bath Gel"}
           </p>
         </div>
 
@@ -335,9 +338,10 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           {isAdmin && (
             <button
               onClick={() => navigateTo('admin')}
-              className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#FF2D55]/80 hover:to-[#007AFF]/80 transition-all duration-300"
+              className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#FF2D55]/80 hover:to-[#007AFF]/80 transition-all duration-300 flex items-center gap-2"
             >
-              {language === "th" ? "แก้ไข" : "Admin"}
+              <Edit className="w-4 h-4" />
+              {language === "th" ? "จัดการ" : "Manage"}
             </button>
           )}
         </div>
@@ -393,7 +397,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                 className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group border border-white/10 hover:border-[#FF2D55]/50"
                 style={{ maxHeight: '360px' }}
               >
-                {/* 이미지 섹션 */}
+                {/* Image */}
                 <div className="relative overflow-hidden" style={{ height: '200px' }}>
                   <ImageWithFallback
                     src={item.thumbnail_url || item.image_url}
@@ -404,7 +408,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                   
                   {item.is_notice && (
                     <div className="absolute top-2 left-2 bg-[#FF2D55] text-white text-xs px-2 py-1 rounded font-semibold shadow-lg">
-                      {language === "th" ? "공지" : "Notice"}
+                      {language === "th" ? "ประกาศ" : "Notice"}
                     </div>
                   )}
                   
@@ -418,7 +422,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                   )}
                 </div>
                 
-                {/* 정보 섹션 */}
+                {/* Info */}
                 <div className="p-3">
                   <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px] text-white">
                     {item.title}
@@ -427,7 +431,7 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                   <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
                     <span className="truncate flex-1 mr-2">{item.author_name}</span>
                     <span className="text-gray-500">
-                      {new Date(item.created_at).toLocaleDateString('ko-KR', { 
+                      {new Date(item.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', { 
                         month: '2-digit', 
                         day: '2-digit' 
                       })}
