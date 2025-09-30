@@ -133,7 +133,16 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
     setSelectedItem(item);
     setCurrentImageIndex(0);
     
-    // 해당 아이템의 모든 이미지 가져오기
+    // 기본 이미지를 먼저 설정
+    const defaultImage: GalleryImage = {
+      id: 'default',
+      image_url: item.image_url,
+      display_order: 1,
+      is_primary: true
+    };
+    setSelectedImages([defaultImage]);
+    
+    // 해당 아이템의 추가 이미지 가져오기 시도
     try {
       const { data, error } = await supabase
         .from('gallery_images')
@@ -141,28 +150,14 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
         .eq('gallery_id', item.id)
         .order('display_order', { ascending: true });
 
-      if (error) {
-        console.error('Error loading gallery images:', error);
-        setSelectedImages([]);
-      } else if (data && data.length > 0) {
+      if (!error && data && data.length > 0) {
+        console.log('Loaded slider images:', data.length);
         setSelectedImages(data);
       } else {
-        // 이미지가 없으면 기본 이미지 사용
-        setSelectedImages([{
-          id: 'default',
-          image_url: item.image_url,
-          display_order: 1,
-          is_primary: true
-        }]);
+        console.log('No slider images found, using default');
       }
     } catch (error) {
       console.error('Error loading gallery images:', error);
-      setSelectedImages([{
-        id: 'default',
-        image_url: item.image_url,
-        display_order: 1,
-        is_primary: true
-      }]);
     }
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
