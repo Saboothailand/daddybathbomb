@@ -34,8 +34,10 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
       try {
         const data = await galleryService.getActiveGalleryImages();
         if (Array.isArray(data) && data.length > 0) {
+          // 최신 8개만 표시
+          const latest8 = data.slice(0, 8);
           setPosts(
-            data.map((item, index) => ({
+            latest8.map((item, index) => ({
               id: item.id ?? index,
               image_url: item.image_url ?? fallbackPosts[index % fallbackPosts.length].image_url,
               caption: item.caption,
@@ -51,7 +53,8 @@ export default function InstagramGallery({ language }: InstagramGalleryProps) {
   }, []);
 
   const handleImageClick = () => {
-    window.dispatchEvent(new CustomEvent("navigate", { detail: "gallery" }));
+    // 제품 페이지로 이동
+    window.dispatchEvent(new CustomEvent("navigate", { detail: "products" }));
   };
 
   return (

@@ -161,19 +161,24 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {(loading && groupedItems.length === 0 ? fallbackItems.slice(0, 4) : currentGroup).map((item) => (
             <div
               key={item.id}
-              className="relative overflow-hidden rounded-3xl border-4 border-white/10 bg-white/5 backdrop-blur-lg shadow-xl"
+              className="relative flex flex-col overflow-hidden rounded-3xl border-4 border-white/10 bg-white/5 backdrop-blur-lg shadow-xl hover:shadow-2xl hover:border-[#FF2D55]/30 transition-all duration-300"
             >
-              <ImageWithFallback
-                src={item.image_url}
-                alt={item.caption || "Product gallery"}
-                className="w-full h-64 object-cover"
-              />
+              {/* 이미지 컨테이너 */}
+              <div className="relative w-full aspect-square overflow-hidden">
+                <ImageWithFallback
+                  src={item.image_url}
+                  alt={item.caption || "Product gallery"}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              
+              {/* 캡션 */}
               {item.caption && (
-                <div className="p-4 text-center text-white text-sm bg-gray-900/60">
+                <div className="p-4 text-center text-white text-sm bg-gradient-to-t from-black/80 to-black/60 backdrop-blur-sm">
                   {item.caption}
                 </div>
               )}
