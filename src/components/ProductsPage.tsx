@@ -186,75 +186,78 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             )}
           </div>
 
-          {/* 상세 페이지 카드 */}
-          <div className="inline-block bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl mb-12 max-w-full">
-            {/* 이미지 섹션 - 원본 비율 유지, 가로 1000px */}
-            <div className="relative overflow-hidden bg-black/20" style={{ maxWidth: '1000px' }}>
-              <ImageWithFallback
-                src={selectedItem.image_url}
-                alt={selectedItem.caption || "Product detail"}
-                className="w-full h-auto object-contain"
-              />
-              {/* 닫기 버튼 */}
-              <button
-                onClick={handleCloseDetail}
-                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-[#FF2D55] text-white rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* 정보 섹션 */}
-            <div className="p-6">
-              {selectedItem.caption && (
-                <div className="mb-4">
-                  <h2 className="text-2xl font-bold text-white mb-3">
-                    {selectedItem.caption}
-                  </h2>
-                  <div className="h-1 w-16 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] rounded-full"></div>
-                </div>
-              )}
-
-              <div className="max-w-none">
-                <p className="text-white text-base leading-relaxed">
-                  {language === "th"
-                    ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
-                    : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience."}
-                </p>
-              </div>
-
-              {/* 액션 버튼 */}
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => navigateTo("contact")}
-                  className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-3 rounded-full font-bold text-base hover:shadow-2xl hover:scale-105 transition-all duration-300"
-                >
-                  {language === "th" ? "สั่งซื้อเลย" : "Order Now"}
-                </button>
+          {/* 상세 페이지 카드 - 중앙 정렬 */}
+          <div className="flex justify-center mb-12">
+            <div className="inline-block bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl max-w-full">
+              {/* 이미지 섹션 - 원본 비율 유지, 가로 1000px */}
+              <div className="relative overflow-hidden bg-black/20" style={{ maxWidth: '1000px' }}>
+                <ImageWithFallback
+                  src={selectedItem.image_url}
+                  alt={selectedItem.caption || "Product detail"}
+                  className="w-full h-auto object-contain"
+                />
+                {/* 닫기 버튼 */}
                 <button
                   onClick={handleCloseDetail}
-                  className="px-5 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
+                  className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-[#FF2D55] text-white rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
                 >
-                  {language === "th" ? "ดูสินค้าอื่น" : "View More"}
+                  <X className="w-6 h-6" />
                 </button>
+              </div>
+
+              {/* 정보 섹션 */}
+              <div className="p-6">
+                {selectedItem.caption && (
+                  <div className="mb-4">
+                    <h2 className="text-2xl font-bold text-white mb-3">
+                      {selectedItem.caption}
+                    </h2>
+                    <div className="h-1 w-16 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] rounded-full"></div>
+                  </div>
+                )}
+
+                <div className="max-w-none mb-10">
+                  <p className="text-white text-base leading-relaxed">
+                    {language === "th"
+                      ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
+                      : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience."}
+                  </p>
+                </div>
+
+                {/* 액션 버튼 */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigateTo("contact")}
+                    className="flex-1 bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-3 rounded-full font-bold text-base hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                  >
+                    {language === "th" ? "สั่งซื้อเลย" : "Order Now"}
+                  </button>
+                  <button
+                    onClick={handleCloseDetail}
+                    className="px-5 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/20"
+                  >
+                    {language === "th" ? "ดูสินค้าอื่น" : "View More"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 나머지 갤러리 아이템 20개 */}
+          {/* 나머지 갤러리 아이템 20개 - 가로 200px, 4개씩 */}
           {otherItems.length > 0 && (
             <div className="mt-12">
               <h3 className="text-2xl font-bold text-white mb-6">
                 {language === "th" ? "สินค้าอื่นๆ" : "Other Products"}
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 {otherItems.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => handleItemClick(item)}
                     className="relative flex flex-col overflow-hidden rounded-2xl border-2 border-white/10 bg-white/5 backdrop-blur-lg shadow-lg hover:shadow-xl hover:border-[#FF2D55]/30 transition-all duration-300 cursor-pointer group"
+                    style={{ width: '200px' }}
                   >
-                    <div className="relative w-full aspect-square overflow-hidden">
+                    <div className="relative overflow-hidden" style={{ width: '200px', height: '200px' }}>
                       <ImageWithFallback
                         src={item.image_url}
                         alt={item.caption || "Product"}
