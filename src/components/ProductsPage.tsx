@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 import type { PageKey, LanguageKey } from "../App";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { t } from "../utils/translations";
-import { ArrowLeft, X, Edit, Trash2, Eye, Search, Filter } from "lucide-react";
+import { ArrowLeft, X, Edit, Trash2, Eye, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { authService } from "../utils/auth";
 
 type ProductCategory = {
@@ -14,6 +14,14 @@ type ProductCategory = {
   icon: string;
   color: string;
   display_order: number;
+};
+
+type GalleryImage = {
+  id: string;
+  image_url: string;
+  caption?: string;
+  display_order: number;
+  is_primary: boolean;
 };
 
 type GalleryItem = {
@@ -43,6 +51,8 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const [selectedImages, setSelectedImages] = useState<GalleryImage[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -118,13 +128,57 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
     }
   };
 
-  const handleItemClick = (item: GalleryItem) => {
+  const handleItemClick = async (item: GalleryItem) => {
     setSelectedItem(item);
+    setCurrentImageIndex(0);
+    
+    // 해당 아이템의 모든 이미지 가져오기
+    try {
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select('*')
+        .eq('gallery_id', item.id)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error loading gallery images:', error);
+        setSelectedImages([]);
+      } else if (data && data.length > 0) {
+        setSelectedImages(data);
+      } else {
+        // 이미지가 없으면 기본 이미지 사용
+        setSelectedImages([{
+          id: 'default',
+          image_url: item.image_url,
+          display_order: 1,
+          is_primary: true
+        }]);
+      }
+    } catch (error) {
+      console.error('Error loading gallery images:', error);
+      setSelectedImages([{
+        id: 'default',
+        image_url: item.image_url,
+        display_order: 1,
+        is_primary: true
+      }]);
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCloseDetail = () => {
     setSelectedItem(null);
+    setSelectedImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : selectedImages.length - 1));
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev < selectedImages.length - 1 ? prev + 1 : 0));
   };
 
   const getProductCategoryName = (productCategoryId: string) => {
@@ -214,20 +268,71 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           {/* Product Detail Card */}
           <div className="flex justify-center mb-12">
             <div className="inline-block bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl max-w-full">
-              {/* 이미지 섹션 - 원본 비율 유지, 가로 1000px */}
-              <div className="relative overflow-hidden bg-black/20" style={{ maxWidth: '1000px' }}>
+              {/* Image Slider Section */}
+              <div className="relative overflow-hidden bg-black/20 group" style={{ maxWidth: '1000px' }}>
                 <ImageWithFallback
-                  src={selectedItem.image_url}
-                  alt={selectedItem.caption || "Product detail"}
-                  className="w-full h-auto object-contain"
+                  src={selectedImages[currentImageIndex]?.image_url || selectedItem.image_url}
+                  alt={selectedImages[currentImageIndex]?.caption || selectedItem.title}
+                  className="w-full h-auto object-contain transition-opacity duration-300"
                 />
+                
+                {/* Image Counter */}
+                {selectedImages.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full text-white font-bold text-sm z-20">
+                    {currentImageIndex + 1} / {selectedImages.length}
+                  </div>
+                )}
+
+                {/* Navigation Arrows - Transparent on hover */}
+                {selectedImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevImage}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-white/30 hover:border-white z-20"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-8 h-8 text-white" strokeWidth={3} />
+                    </button>
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-white/30 hover:border-white z-20"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-8 h-8 text-white" strokeWidth={3} />
+                    </button>
+                  </>
+                )}
+
                 {/* Close Button */}
                 <button
                   onClick={handleCloseDetail}
-                  className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-[#FF2D55] text-white rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
+                  className="absolute top-4 right-4 w-10 h-10 bg-black/70 hover:bg-[#FF2D55] text-white rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm z-30 border-2 border-white/50"
                 >
                   <X className="w-6 h-6" />
                 </button>
+
+                {/* Thumbnail Navigation */}
+                {selectedImages.length > 1 && (
+                  <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                    {selectedImages.map((img, idx) => (
+                      <button
+                        key={img.id}
+                        onClick={() => setCurrentImageIndex(idx)}
+                        className={`w-16 h-16 rounded-xl overflow-hidden border-3 transition-all duration-300 ${
+                          idx === currentImageIndex 
+                            ? 'border-[#FF2D55] scale-110 shadow-lg shadow-[#FF2D55]/50' 
+                            : 'border-white/40 hover:border-white/80 hover:scale-105'
+                        }`}
+                      >
+                        <img 
+                          src={img.image_url} 
+                          alt={img.caption || `Image ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Info Section */}
