@@ -336,20 +336,22 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
         <div className="max-w-3xl mx-auto mb-12">
           <form onSubmit={handleSearch} className="relative">
             <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-2 comic-border border-4 border-white">
-              <div className="relative flex items-center">
-                <Search className="absolute left-4 text-white w-5 h-5" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder={language === "th" ? "ค้นหาสินค้า..." : "Search products..."}
-                  className="flex-1 pl-12 pr-4 py-3 bg-transparent text-white text-lg placeholder-white/60 focus:outline-none font-nunito"
-                />
+              <div className="relative flex items-center gap-2">
+                <div className="flex items-center flex-1 relative">
+                  <Search className="absolute left-5 text-white w-5 h-5" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder={language === "th" ? "ค้นหาสินค้า..." : "Search products..."}
+                    className="w-full pl-14 pr-4 py-3 bg-transparent text-white text-lg placeholder-white/60 focus:outline-none font-nunito"
+                  />
+                </div>
                 {isAdmin && (
                   <button
                     type="button"
                     onClick={() => navigateTo('admin')}
-                    className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-2.5 rounded-2xl font-bold hover:scale-105 transition-transform duration-300 flex items-center gap-2 comic-button border-2 border-white"
+                    className="bg-gradient-to-r from-[#FF2D55] to-[#007AFF] text-white px-5 py-2.5 rounded-2xl font-bold hover:scale-105 transition-transform duration-300 flex items-center gap-2 comic-button border-2 border-white whitespace-nowrap"
                   >
                     <Edit className="w-4 h-4" />
                     {language === "th" ? "จัดการ" : "Manage"}
