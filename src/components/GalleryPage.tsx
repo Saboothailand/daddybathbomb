@@ -279,7 +279,10 @@ export default function GalleryPage({ navigateTo, language }: GalleryPageProps) 
               <h1 className="text-3xl font-bold mb-4">{selectedItem.title}</h1>
               
               {selectedItem.content && (
-                <p className="text-gray-300 mb-6 leading-relaxed">{selectedItem.content}</p>
+                <div 
+                  className="text-gray-300 mb-6 leading-relaxed prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedItem.content }}
+                />
               )}
               
               <div className="flex items-center gap-6 text-sm text-gray-400">

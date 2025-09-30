@@ -126,11 +126,11 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   if (selectedItem) {
     return (
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B0F1A] via-[#131735] to-[#1E1F3F] min-h-screen">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[1000px] mx-auto">
           {/* 뒤로가기 버튼 */}
           <button
             onClick={handleCloseDetail}
-            className="flex items-center gap-2 mb-8 text-[#FF2D55] hover:text-white transition-colors group"
+            className="flex items-center gap-2 mb-8 text-white hover:text-[#FF2D55] transition-colors group"
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="font-semibold">
@@ -141,11 +141,12 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
           {/* 상세 페이지 카드 */}
           <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl">
             {/* 이미지 섹션 */}
-            <div className="relative w-full aspect-square overflow-hidden bg-black/20">
+            <div className="relative w-full overflow-hidden bg-black/20" style={{ maxHeight: '600px' }}>
               <ImageWithFallback
                 src={selectedItem.image_url}
                 alt={selectedItem.caption || "Product detail"}
                 className="w-full h-full object-contain"
+                style={{ maxHeight: '600px' }}
               />
               {/* 닫기 버튼 */}
               <button
@@ -167,8 +168,8 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
                 </div>
               )}
 
-              <div className="prose prose-invert max-w-none">
-                <p className="text-gray-300 text-lg leading-relaxed">
+              <div className="max-w-none">
+                <p className="text-white text-lg leading-relaxed">
                   {language === "th"
                     ? "แช่ตัวกับบาธบอมพ์พรีเมี่ยมที่ทำจากส่วนผสมธรรมชาติ ปลอดภัยสำหรับทุกคนในครอบครัว พร้อมมอบประสบการณ์ผ่อนคลายที่ไม่เหมือนใคร"
                     : "Indulge in our premium bath bombs made from natural ingredients. Safe for the whole family, delivering a unique relaxing experience."}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye, EyeOff, Search, Filter, Upload, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ImageUpload } from '../ImageUpload';
+import RichTextEditor from '../RichTextEditor';
 
 type GalleryItem = {
   id: string;
@@ -456,11 +457,10 @@ export default function GalleryManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Content</label>
-                  <textarea
+                  <RichTextEditor
                     value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    rows={3}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(content) => setFormData({ ...formData, content })}
+                    placeholder="Enter detailed content with rich formatting..."
                   />
                 </div>
 
