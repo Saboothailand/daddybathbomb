@@ -9,7 +9,7 @@ export default function Values() {
       title: "SAFETY FIRST",
       subtitle: "PROTECTION POWER",
       icon: <Shield className="w-16 h-16" />,
-      description: "Every ingredient is superhero-approved and kid-tested for maximum safety!",
+      description: "Every ingredient is kid-approved and safe",
       details: "We use only natural, non-toxic ingredients that are gentle on sensitive skin. Every batch is tested by independent labs and meets the highest safety standards for children's bath products.",
       color: "#FF2D55",
       emoji: "🛡️",
@@ -71,7 +71,7 @@ export default function Values() {
           
           <div className="bg-[#007AFF] rounded-2xl px-8 py-4 comic-border border-4 border-black inline-block">
             <p className="font-nunito text-white text-xl font-bold">
-              💪 The powers that drive our superhero mission! ⚡
+              ⚡ The powers behind Daddy Bath Bomb ⚡
             </p>
           </div>
         </div>

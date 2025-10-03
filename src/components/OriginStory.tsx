@@ -5,7 +5,7 @@ export default function OriginStory() {
     {
       title: "THE DISCOVERY",
       icon: <Baby className="w-12 h-12" />,
-      content: "One chaotic Tuesday, Super Dad realized bath time was becoming a BATTLE! 😤",
+      content: "One chaotic Tuesday, Dad realized bath time was turning into a BATTLE! 😤",
       image: "👶",
       bgColor: "from-[#FF2D55] to-[#FF6B8A]",
       borderColor: "border-[#FF2D55]"
@@ -21,7 +21,7 @@ export default function OriginStory() {
     {
       title: "THE BREAKTHROUGH",
       icon: <Zap className="w-12 h-12" />,
-      content: "EUREKA! The first Daddy Bath Bomb was born - and it was EXPLOSIVE! 💥",
+      content: "EUREKA! The very first Daddy Bath Bomb was born – explosive fun guaranteed! 💥",
       image: "💣",
       bgColor: "from-[#FFD700] to-[#FFE55C]",
       borderColor: "border-[#FFD700]"
@@ -29,7 +29,7 @@ export default function OriginStory() {
     {
       title: "THE MISSION",
       icon: <Rocket className="w-12 h-12" />,
-      content: "Now every dad can be a SUPERHERO, making bath time super fun! 🚀",
+      content: "Now every dad can be a superhero, turning ordinary baths into extraordinary adventures! 🚀",
       image: "🦸‍♂️",
       bgColor: "from-[#00FF88] to-[#5CFFAC]",
       borderColor: "border-[#00FF88]"

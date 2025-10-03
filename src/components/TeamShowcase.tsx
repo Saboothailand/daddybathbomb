@@ -260,7 +260,7 @@ export default function TeamShowcase() {
               TOGETHER WE'RE UNSTOPPABLE!
             </h3>
             <p className="font-nunito text-white text-xl font-bold mb-2">
-              🚀 Every superhero needs their team! 🚀
+              👉 Together, we're unstoppable!
             </p>
             <p className="font-nunito text-white/80 text-lg">
               We're always looking for more heroes to join our mission! 💪

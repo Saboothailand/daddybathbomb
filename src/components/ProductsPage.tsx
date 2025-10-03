@@ -3,7 +3,8 @@ import { supabase } from "../lib/supabase";
 import type { PageKey, LanguageKey } from "../App";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { t } from "../utils/translations";
-import { ArrowLeft, X, Edit, Trash2, Eye, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, X, Edit, Trash2, Eye, Search, Filter, ChevronLeft, ChevronRight, Star, Zap, Shield, Heart } from "lucide-react";
+import AnimatedBackground from "./AnimatedBackground";
 import { authService } from "../utils/auth";
 
 type ProductCategory = {
@@ -442,30 +443,135 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#0B0F1A] via-[#1E1F3F] to-[#0B0F1A] py-20 relative overflow-hidden">
-      {/* Background Decorations */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-20 left-10 w-40 h-40 bg-[#FF2D55] rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-60 h-60 bg-[#007AFF] rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-40 left-1/3 w-50 h-50 bg-[#FFD700] rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header - Comic Style */}
-        <div className="text-center mb-16">
-          <h1 className="font-fredoka text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-white comic-shadow">
-            {language === "th" ? "สินค้า" : "Products"}
-          </h1>
-          <div className="inline-block bg-white/20 backdrop-blur-lg rounded-3xl px-8 py-4 comic-border border-4 border-white">
-            <p className="font-nunito text-white text-lg sm:text-xl font-bold">
-              {language === "th" 
-                ? "✨ ค้นพบผลิตภัณฑ์คุณภาพพรีเมี่ยมของเรา ✨" 
-                : "✨ Discover Our Premium Collection ✨"}
-            </p>
+    <div className="min-h-screen bg-[#0B0F1A]">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#007AFF]/20 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center">
+        <AnimatedBackground />
+        
+        {/* Comic speech bubble */}
+        <div className="absolute top-20 right-10 hidden lg:block animate-bounce">
+          <div className="bg-[#FFD700] rounded-2xl px-6 py-3 comic-border border-4 border-black relative">
+            <span className="font-fredoka text-black font-bold text-lg">Super Products!</span>
+            <div className="absolute -bottom-3 left-8 w-0 h-0 border-l-6 border-r-6 border-t-12 border-transparent border-t-[#FFD700]"></div>
           </div>
         </div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start mb-6">
+                <Shield className="w-10 h-10 text-[#FFD700] mr-3 animate-pulse" />
+                <span className="font-nunito text-[#B8C4DB] text-xl font-bold">Daddy Bath Bomb Products</span>
+                <Shield className="w-10 h-10 text-[#FFD700] ml-3 animate-pulse" />
+              </div>
+              
+              <h1 className="font-fredoka text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-none comic-shadow">
+                <span className="inline-block animate-bounce text-[#FF2D55]" style={{ animationDelay: '0s' }}>SUPER</span>
+                <span className="block text-[#007AFF] relative">
+                  <span className="inline-block animate-bounce" style={{ animationDelay: '0.2s' }}>PRODUCTS</span>
+                  <Zap className="absolute -top-4 -right-8 w-12 h-12 text-[#FFD700] rotate-12 animate-spin" style={{ animationDuration: '3s' }} />
+                </span>
+                <span className="block text-white animate-bounce" style={{ animationDelay: '0.4s' }}>FOR HEROES</span>
+              </h1>
+              
+              <div className="bg-[#151B2E]/80 rounded-3xl p-6 comic-border border-4 border-[#FFD700] backdrop-blur-lg mb-6">
+                <p className="font-nunito text-xl text-[#B8C4DB] leading-relaxed mb-4">
+                  🦸‍♂️ Discover our amazing collection of 
+                  <span className="text-[#FF2D55] font-bold"> SUPER BATH BOMBS</span>!
+                </p>
+                <p className="font-nunito text-lg text-[#B8C4DB] leading-relaxed">
+                  💥 Turn every bath into an <span className="text-[#00FF88] font-bold">explosive adventure</span>! 💥
+                </p>
+              </div>
+              
+              <div className="flex items-center justify-center lg:justify-start gap-4 mb-6">
+                <Star className="w-8 h-8 text-[#FFD700] animate-spin" />
+                <span className="font-fredoka text-2xl text-white font-bold">Premium Quality</span>
+                <Star className="w-8 h-8 text-[#FFD700] animate-spin" />
+              </div>
+            </div>
+            
+            <div className="relative">
+              {/* Super Products character showcase */}
+              <div className="w-96 h-96 mx-auto bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] rounded-full comic-border border-8 border-white flex items-center justify-center relative overflow-hidden animate-float">
+                {/* Main superhero character */}
+                <div className="text-9xl animate-bounce" style={{ animationDuration: '2s' }}>
+                  🛁
+                </div>
+                
+                {/* Cape effect */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#FF2D55]/30 to-transparent rounded-full"></div>
+                
+                {/* Floating bath bombs around character */}
+                <div className="absolute -top-6 -left-6 w-16 h-16 bg-[#FFD700] rounded-full comic-border border-4 border-black flex items-center justify-center animate-bounce">
+                  <span className="text-2xl">💣</span>
+                </div>
+                
+                <div className="absolute -bottom-6 -right-6 w-20 h-20 bg-[#00FF88] rounded-full comic-border border-4 border-black flex items-center justify-center animate-pulse">
+                  <span className="text-3xl">✨</span>
+                </div>
+                
+                <div className="absolute top-1/4 -right-8 w-12 h-12 bg-[#007AFF] rounded-full comic-border border-4 border-black flex items-center justify-center animate-bounce" style={{ animationDelay: '0.5s' }}>
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                
+                <div className="absolute bottom-1/4 -left-8 w-14 h-14 bg-[#FF2D55] rounded-full comic-border border-4 border-black flex items-center justify-center animate-pulse" style={{ animationDelay: '1s' }}>
+                  <Star className="w-8 h-8 text-white" />
+                </div>
+                
+                {/* Action lines */}
+                <div className="absolute top-8 left-8 w-8 h-1 bg-[#FFD700] rotate-45 animate-pulse"></div>
+                <div className="absolute bottom-8 right-8 w-6 h-1 bg-white rotate-12 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                <div className="absolute top-1/2 right-4 w-4 h-1 bg-[#00FF88] -rotate-45 animate-pulse" style={{ animationDelay: '0.7s' }}></div>
+              </div>
+              
+              {/* Power-up effects */}
+              <div className="absolute -top-12 -left-12 w-32 h-32 bg-[#FF2D55] rounded-full opacity-20 blur-3xl animate-pulse"></div>
+              <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-[#007AFF] rounded-full opacity-20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-1/3 -right-8 w-20 h-20 bg-[#FFD700] rounded-full opacity-30 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+              
+              {/* Comic "Bubble" text */}
+              <div className="absolute top-4 left-4 bg-white rounded-full px-4 py-2 comic-border border-3 border-black animate-pulse">
+                <span className="font-fredoka text-black font-bold text-lg">Bubble</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        {/* Search Bar - Comic Style */}
+      {/* Products Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0B0F1A] relative overflow-hidden">
+        {/* Comic book background effects */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-24 h-24 bg-[#FFD700] rotate-45 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-16 h-16 bg-[#FF2D55] rounded-full animate-bounce"></div>
+          <div className="absolute bottom-32 left-1/4 w-20 h-20 border-4 border-[#007AFF] rounded-full animate-spin" style={{ animationDuration: '8s' }}></div>
+          <div className="absolute bottom-20 right-1/3 w-12 h-12 bg-[#00FF88] rounded-full animate-ping"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section Title */}
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center mb-6">
+              <Star className="w-10 h-10 text-[#FFD700] animate-spin mr-4" />
+              <span className="font-fredoka text-3xl text-[#FF2D55] font-bold comic-shadow">PRODUCT CATALOG</span>
+              <Star className="w-10 h-10 text-[#FFD700] animate-spin ml-4" />
+            </div>
+            
+            <h2 className="font-fredoka text-5xl font-bold text-white mb-6 comic-shadow">
+              {language === "th" ? "ค้นพบคอลเลกชันของเรา" : "DISCOVER OUR COLLECTION"}
+            </h2>
+            
+            <div className="bg-[#151B2E] rounded-2xl px-8 py-4 comic-border border-4 border-[#FFD700] inline-block">
+              <p className="font-nunito text-xl text-[#B8C4DB] font-bold">
+                {language === "th" 
+                  ? "✨ ค้นพบผลิตภัณฑ์คุณภาพพรีเมี่ยมของเรา ✨" 
+                  : "✨ Discover Our Premium Collection ✨"}
+              </p>
+            </div>
+          </div>
+
+          {/* Search Bar - Comic Style */}
         <div className="max-w-3xl mx-auto mb-12">
           <form onSubmit={handleSearch} className="relative">
             <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-2 comic-border border-4 border-white">
@@ -621,7 +727,8 @@ export default function ProductsPage({ navigateTo, language }: ProductsPageProps
             ))}
           </div>
         )}
-      </div>
-    </section>
+        </div>
+      </section>
+    </div>
   );
 }

@@ -168,7 +168,11 @@ export class AdminService {
 
         // 2) 개선된 branding_settings 뷰에서 로고/문구 데이터 가져오기 (우선 적용)
         try {
-          const { data: brandingData, error: brandingError } = await supabase.rpc('get_current_branding');
+          const { data: brandingData, error: brandingError } = await supabase
+            .from('branding_settings')
+            .select('*')
+            .order('updated_at', { ascending: false })
+            .limit(1);
 
           if (brandingError) throw brandingError;
 

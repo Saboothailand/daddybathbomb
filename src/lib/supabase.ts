@@ -7,6 +7,45 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.en
 
 export const hasSupabaseCredentials = Boolean(supabaseUrl && supabaseAnonKey);
 
+const CMS_LOCAL_STORAGE_KEYS = [
+  'daddy_features',
+  'daddy_settings',
+  'daddy_banners',
+  'daddy_gallery',
+  'daddy_pages',
+  'daddy_faqs',
+  'daddy_how_to_steps',
+  'daddy_site_settings',
+  'daddy_branding',
+  'daddy_hero_banners',
+];
+
+let cmsCacheCleared = false;
+
+export function clearCmsLocalCache(options: { force?: boolean } = {}) {
+  if (!hasSupabaseCredentials && !options.force) {
+    return;
+  }
+
+  if (cmsCacheCleared && !options.force) {
+    return;
+  }
+
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return;
+  }
+
+  try {
+    CMS_LOCAL_STORAGE_KEYS.forEach((key) => {
+      window.localStorage.removeItem(key);
+    });
+    cmsCacheCleared = true;
+    console.log('🧹 Cleared cached CMS data');
+  } catch (error) {
+    console.warn('Failed to clear CMS cache:', error);
+  }
+}
+
 // Supabase 연결 테스트 함수
 export async function testSupabaseConnection(): Promise<{ success: boolean; error?: string }> {
   if (!hasSupabaseCredentials) {

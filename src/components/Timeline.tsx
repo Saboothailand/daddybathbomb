@@ -9,7 +9,7 @@ export default function Timeline() {
       year: "2020",
       title: "THE ORIGIN",
       icon: <Rocket className="w-8 h-8" />,
-      description: "Super Dad discovers the secret formula in his kitchen lab!",
+      description: "The very first Daddy Bath Bomb is created in the kitchen lab!",
       details: "After countless failed experiments and one very colorful bathtub incident, the first Daddy Bath Bomb was born. It turned the water purple and made bath time magical for the first time ever!",
       color: "#FF2D55",
       emoji: "🚀"
@@ -18,7 +18,7 @@ export default function Timeline() {
       year: "2021", 
       title: "FIRST EXPLOSION",
       icon: <Users className="w-8 h-8" />,
-      description: "100 families join the super fun bath time revolution!",
+      description: "100 families join the fun bath revolution!",
       details: "Word spread like wildfire through playground networks. Suddenly, dads everywhere were requesting the 'secret weapon' that made their kids actually WANT to take baths!",
       color: "#007AFF",
       emoji: "💥"
@@ -36,7 +36,7 @@ export default function Timeline() {
       year: "2023",
       title: "GOING VIRAL",
       icon: <Globe className="w-8 h-8" />,
-      description: "Social media explosion reaches 1M+ super dads worldwide!",
+      description: "Social media explosion reaches 1M+ families worldwide!",
       details: "The #DaddyBathBomb challenge broke the internet. Videos of colorful bath transformations went viral on TikTok, Instagram, and YouTube. International shipping launched to spread the magic globally!",
       color: "#00FF88",
       emoji: "🌍"
@@ -45,7 +45,7 @@ export default function Timeline() {
       year: "2024",
       title: "SUPERHERO STATUS",
       icon: <Star className="w-8 h-8" />,
-      description: "50,000+ families served, superhero line launched!",
+      description: "50,000+ families served, superhero product line launched!",
       details: "Introduced themed collections including Superhero Series, Princess Power, and Dinosaur Destruction. Partnered with children's hospitals to bring joy to young patients during treatment.",
       color: "#AF52DE",
       emoji: "⭐"

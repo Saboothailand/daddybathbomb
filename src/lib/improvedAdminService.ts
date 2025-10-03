@@ -36,7 +36,11 @@ export class ImprovedAdminService {
   // 브랜딩 설정 조회
   static async getCurrentBranding(): Promise<BrandingSettings | null> {
     try {
-      const { data, error } = await supabase.rpc('get_current_branding');
+      const { data, error } = await supabase
+        .from('branding_settings')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(1);
       if (error) throw error;
       return data && data.length > 0 ? data[0] : null;
     } catch (error) {

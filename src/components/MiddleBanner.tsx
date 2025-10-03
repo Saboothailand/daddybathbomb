@@ -8,10 +8,26 @@ export default function MiddleBanner({ language = 'th' }) {
 
   const loadBanners = useCallback(async () => {
     try {
+      console.log('🔄 Loading middle banners...');
       const middleBanners = await cmsService.getBanners('middle');
+      console.log('✅ Loaded banners:', middleBanners);
       setBanners(middleBanners);
     } catch (error) {
-      console.error('Error loading middle banners:', error);
+      console.error('❌ Error loading middle banners:', error);
+      // Fallback data
+      const fallbackBanners = [
+        {
+          id: 'fallback-1',
+          title: '',
+          description: '',
+          image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop',
+          position: 'middle',
+          display_order: 1,
+          is_active: true
+        }
+      ];
+      console.log('📋 Using fallback banners:', fallbackBanners);
+      setBanners(fallbackBanners);
     }
   }, []);
 
@@ -40,7 +56,26 @@ export default function MiddleBanner({ language = 'th' }) {
     }
   }, [banners.length]);
 
-  if (banners.length === 0) return null;
+  if (banners.length === 0) {
+    // Fallback banner when no data
+    return (
+      <section className="relative overflow-hidden h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px] group bg-gray-800">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop"
+            alt="Fallback banner"
+            className="w-full h-full object-cover"
+            style={{ minHeight: '100%', maxHeight: '100%' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"></div>
+        </div>
+        {/* Decorative Elements */}
+        <div className="absolute top-10 left-10 text-white/20 text-6xl animate-float">
+          ✨
+        </div>
+      </section>
+    );
+  }
 
   const banner = banners[currentBanner];
 
@@ -57,30 +92,7 @@ export default function MiddleBanner({ language = 'th' }) {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 animate-fade-in-up">
-            {banner.title}
-          </h2>
-          {banner.description && (
-            <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto animate-fade-in-up animation-delay-200">
-              {banner.description}
-            </p>
-          )}
-          
-          {banner.link_url && (
-            <div className="animate-fade-in-up animation-delay-400">
-              <a
-                href={banner.link_url}
-                className="inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-300 shadow-2xl"
-              >
-                {language === 'th' ? 'ดูเพิ่มเติม' : 'Learn More'}
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Content - 텍스트 제거됨 */}
 
       {/* 좌우 화살표 네비게이션 - 호버 시에만 표시 */}
       {banners.length > 1 && (
@@ -123,12 +135,9 @@ export default function MiddleBanner({ language = 'th' }) {
         </>
       )}
 
-      {/* Decorative Elements */}
+      {/* Decorative Elements - 우측 풍선 제거됨 */}
       <div className="absolute top-10 left-10 text-white/20 text-6xl animate-float">
         ✨
-      </div>
-      <div className="absolute bottom-10 right-10 text-white/20 text-4xl animate-float animation-delay-1000">
-        🛁
       </div>
     </section>
   );

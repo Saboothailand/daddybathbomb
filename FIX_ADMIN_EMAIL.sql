@@ -1,0 +1,45 @@
+-- 관리자 이메일 수정 및 정책 재생성
+-- Supabase 대시보드 → SQL Editor에서 실행하세요
+
+-- 1. 기존 정책들 모두 삭제
+DROP POLICY IF EXISTS "Public read access for active banners" ON public.banner_images;
+DROP POLICY IF EXISTS "Admin full access for banner_images" ON public.banner_images;
+DROP POLICY IF EXISTS "Public insert for banner_clicks" ON public.banner_clicks;
+DROP POLICY IF EXISTS "Admin read access for banner_clicks" ON public.banner_clicks;
+
+-- 2. RLS 재설정
+ALTER TABLE public.banner_images DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.banner_clicks DISABLE ROW LEVEL SECURITY;
+
+ALTER TABLE public.banner_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.banner_clicks ENABLE ROW LEVEL SECURITY;
+
+-- 3. 올바른 관리자 이메일로 정책 생성
+CREATE POLICY "Public read access for active banners" ON public.banner_images
+    FOR SELECT USING (
+        is_active = true 
+        AND (start_date IS NULL OR start_date <= NOW())
+        AND (end_date IS NULL OR end_date >= NOW())
+    );
+
+CREATE POLICY "Admin full access for banner_images" ON public.banner_images
+    FOR ALL USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
+
+CREATE POLICY "Public insert for banner_clicks" ON public.banner_clicks
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admin read access for banner_clicks" ON public.banner_clicks
+    FOR SELECT USING (auth.jwt() ->> 'email' = 'admin@daddybathbomb.com');
+
+-- 4. 미들 배너 데이터 (텍스트 없음)
+DELETE FROM banner_images WHERE position = 'middle';
+
+INSERT INTO banner_images (title, description, image_url, position, display_order, is_active) 
+VALUES 
+    ('', '', 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop', 'middle', 1, true),
+    ('', '', 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1200&h=600&fit=crop', 'middle', 2, true);
+
+-- 5. 결과 확인
+SELECT '정책 생성 완료' as status;
+SELECT position, COUNT(*) as count FROM banner_images GROUP BY position;
+

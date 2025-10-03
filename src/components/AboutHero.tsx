@@ -3,7 +3,7 @@ import AnimatedBackground from "./AnimatedBackground";
 
 export default function AboutHero() {
   return (
-    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#007AFF]/20 py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center">
+    <section className="relative bg-gradient-to-br from-[#0B0F1A] via-[#1a1f2e] to-[#007AFF]/20 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center">
       <AnimatedBackground />
       
       {/* Comic speech bubble */}
@@ -19,11 +19,11 @@ export default function AboutHero() {
           <div className="text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start mb-6">
               <Shield className="w-10 h-10 text-[#FFD700] mr-3 animate-pulse" />
-              <span className="font-nunito text-[#B8C4DB] text-xl font-bold">Super Dad Chronicles</span>
+              <span className="font-nunito text-[#B8C4DB] text-xl font-bold">Daddy Bath Bomb Chronicles</span>
               <Shield className="w-10 h-10 text-[#FFD700] ml-3 animate-pulse" />
             </div>
             
-            <h1 className="font-fredoka text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-none comic-shadow">
+            <h1 className="font-fredoka text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-none comic-shadow">
               <span className="inline-block animate-bounce text-[#FF2D55]" style={{ animationDelay: '0s' }}>MEET THE</span>
               <span className="block text-[#007AFF] relative">
                 <span className="inline-block animate-bounce" style={{ animationDelay: '0.2s' }}>SUPER DAD</span>
@@ -32,18 +32,17 @@ export default function AboutHero() {
               <span className="block text-white animate-bounce" style={{ animationDelay: '0.4s' }}>BEHIND THE MAGIC</span>
             </h1>
             
-            <div className="bg-[#151B2E]/80 rounded-3xl p-8 comic-border border-4 border-[#FFD700] backdrop-blur-lg mb-8">
+            <div className="bg-[#151B2E]/80 rounded-3xl p-6 comic-border border-4 border-[#FFD700] backdrop-blur-lg mb-6">
               <p className="font-nunito text-xl text-[#B8C4DB] leading-relaxed mb-4">
-                🦸‍♂️ Once upon a time, a regular dad discovered the secret to making bath time 
-                <span className="text-[#FF2D55] font-bold"> SUPER FUN</span> for busy families everywhere!
+                🦸‍♂️ Once upon a time, an ordinary dad discovered the secret to making bath time 
+                <span className="text-[#FF2D55] font-bold"> SUPER FUN</span>!
               </p>
               <p className="font-nunito text-lg text-[#B8C4DB] leading-relaxed">
-                Armed with fizzy formulas and explosive colors, he embarked on a mission to transform 
-                ordinary baths into <span className="text-[#00FF88] font-bold">extraordinary adventures</span>! 💥
+                💥 With Daddy Bath Bomb, bath time became the most exciting adventure for busy families everywhere!
               </p>
             </div>
             
-            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
+            <div className="flex items-center justify-center lg:justify-start gap-4 mb-6">
               <Star className="w-8 h-8 text-[#FFD700] animate-spin" />
               <span className="font-fredoka text-2xl text-white font-bold">Est. 2020</span>
               <Star className="w-8 h-8 text-[#FFD700] animate-spin" />
@@ -55,7 +54,7 @@ export default function AboutHero() {
             <div className="w-96 h-96 mx-auto bg-gradient-to-br from-[#FF2D55] via-[#007AFF] to-[#FFD700] rounded-full comic-border border-8 border-white flex items-center justify-center relative overflow-hidden animate-float">
               {/* Main superhero character */}
               <div className="text-9xl animate-bounce" style={{ animationDuration: '2s' }}>
-                👨‍👧‍👦
+                🦸‍♂️
               </div>
               
               {/* Cape effect */}
@@ -89,9 +88,9 @@ export default function AboutHero() {
             <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-[#007AFF] rounded-full opacity-20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
             <div className="absolute top-1/3 -right-8 w-20 h-20 bg-[#FFD700] rounded-full opacity-30 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             
-            {/* Comic "POW!" text */}
+            {/* Comic "Bubble" text */}
             <div className="absolute top-4 left-4 bg-white rounded-full px-4 py-2 comic-border border-3 border-black animate-pulse">
-              <span className="font-fredoka text-black font-bold text-lg">POW!</span>
+              <span className="font-fredoka text-black font-bold text-lg">Bubble</span>
             </div>
           </div>
         </div>
